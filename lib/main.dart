@@ -21,7 +21,7 @@ void main() async {
   ));
   
   await FlutterDownloader.initialize(
-    debug: true
+    debug: false
   );
   
   runApp(const CobaltApp());
@@ -38,20 +38,6 @@ class CobaltApp extends StatelessWidget {
         brightness: Brightness.dark,
         useMaterial3: true,
         fontFamily: 'NotoSansMono',
-        textTheme: const TextTheme(
-          displayLarge: TextStyle(fontFamily: 'NotoSansMono', fontWeight: FontWeight.w600),
-          displayMedium: TextStyle(fontFamily: 'NotoSansMono', fontWeight: FontWeight.w600),
-          displaySmall: TextStyle(fontFamily: 'NotoSansMono', fontWeight: FontWeight.w600),
-          headlineLarge: TextStyle(fontFamily: 'NotoSansMono', fontWeight: FontWeight.w600),
-          headlineMedium: TextStyle(fontFamily: 'NotoSansMono', fontWeight: FontWeight.w600),
-          headlineSmall: TextStyle(fontFamily: 'NotoSansMono', fontWeight: FontWeight.w500),
-          titleLarge: TextStyle(fontFamily: 'NotoSansMono', fontWeight: FontWeight.w500),
-          titleMedium: TextStyle(fontFamily: 'NotoSansMono', fontWeight: FontWeight.w500),
-          titleSmall: TextStyle(fontFamily: 'NotoSansMono', fontWeight: FontWeight.w500),
-          bodyLarge: TextStyle(fontFamily: 'NotoSansMono'),
-          bodyMedium: TextStyle(fontFamily: 'NotoSansMono'),
-          bodySmall: TextStyle(fontFamily: 'NotoSansMono'),
-        ),
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
@@ -80,11 +66,11 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   final TextEditingController _newServerController = TextEditingController();
   String? _baseUrl;
   bool _isLoading = false;
+  bool _isDownloadInProgress = false;
   String _status = '';
   Map<String, dynamic>? _serverInfo;
   Map<String, dynamic>? _responseData;
   List<String> _servers = [];
-  bool _noServersConfigured = false;
   bool _urlFieldEmpty = true;
 
   @override
@@ -93,7 +79,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     _loadSavedServers();
     _requestPermissions();
     _checkForSharedUrl();
-    
     _urlController.addListener(_updateUrlFieldState);
   }
 
@@ -127,23 +112,12 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   }
 
   Future<void> _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
     try {
-      final bool launched = await launchUrl(
-        uri,
+      await launchUrl(
+        Uri.parse(url),
         mode: LaunchMode.externalApplication,
       );
-      
-      if (!launched) {
-        setState(() {
-          _status = 'Could not launch $url';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _status = 'Error opening link: $e';
-      });
-    }
+    } catch (_) {}
   }
 
   Future<void> _loadSavedServers() async {
@@ -153,14 +127,12 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       setState(() {
         _servers = servers;
         _baseUrl = servers.first;
-        _noServersConfigured = false;
       });
       _fetchServerInfo();
     } else {
       setState(() {
         _servers = [];
         _baseUrl = 'add_new';
-        _noServersConfigured = true;
         _status = 'No servers configured. Please add a Cobalt server.';
       });
     }
@@ -176,7 +148,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       setState(() {
         _serverInfo = null;
         _status = 'No server selected';
-        _noServersConfigured = true;
         _isLoading = false;
       });
       return;
@@ -231,10 +202,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.black,
-            title: const Text(
+          title: const Text(
             'Add New Server',
             style: TextStyle(fontSize: 16),
-            ),
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(11),
             side: const BorderSide(
@@ -251,28 +222,28 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
               child: TextField(
                 controller: _newServerController,
                 decoration: InputDecoration(
-                hintText: 'Enter server URL',
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(11)),
-                  borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
-                ),
-                focusedBorder: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(11)),
-                  borderSide: BorderSide(width: 2.0, color: Colors.white),
-                ),
-                prefixIcon: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: Center(
-                  child: SvgPicture.string(
-                    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-server"><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M7 8l0 .01"></path><path d="M7 16l0 .01"></path></svg>',
-                    width: 20,
-                    height: 20,
-                    colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                  hintText: 'Enter server URL',
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(11)),
+                    borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
                   ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(11)),
+                    borderSide: BorderSide(width: 2.0, color: Colors.white),
                   ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                  prefixIcon: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Center(
+                      child: SvgPicture.string(
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-server"><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M7 8l0 .01"></path><path d="M7 16l0 .01"></path></svg>',
+                        width: 20,
+                        height: 20,
+                        colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                      ),
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                 ),
                 style: const TextStyle(fontSize: 14),
                 keyboardType: TextInputType.url,
@@ -282,86 +253,85 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           actions: [
             TextButton(
               onPressed: () {
-              Navigator.of(context).pop();
+                Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-              backgroundColor: const Color(0xFF191919),
-              foregroundColor: const Color(0xFFe1e1e1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(11),
-                side: const BorderSide(
-                color: Color.fromRGBO(255, 255, 255, 0.05),
-                width: 1.5,
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                backgroundColor: const Color(0xFF191919),
+                foregroundColor: const Color(0xFFe1e1e1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  side: const BorderSide(
+                    color: Color.fromRGBO(255, 255, 255, 0.05),
+                    width: 1.5,
+                  ),
                 ),
-              ),
               ),
               child: const Text('cancel'),
             ),
             TextButton(
               onPressed: () async {
-              final newServer = _newServerController.text.trim();
-              if (newServer.isNotEmpty && !_servers.contains(newServer)) {
-                Navigator.of(context).pop();
-                _newServerController.clear();
-                
-                setState(() {
-                _status = 'Verifying server...';
-                _isLoading = true;
-                });
-                
-                try {
-                final response = await http.get(Uri.parse(newServer));
-                if (response.statusCode == 200) {
-                  final data = jsonDecode(response.body);
-                  
-                  if (data.containsKey('cobalt') && 
-                    data['cobalt'].containsKey('version') && 
-                    data['cobalt'].containsKey('services')) {
+                final newServer = _newServerController.text.trim();
+                if (newServer.isNotEmpty && !_servers.contains(newServer)) {
+                  Navigator.of(context).pop();
+                  _newServerController.clear();
                   
                   setState(() {
-                    _servers.add(newServer);
-                    _baseUrl = newServer;
-                    _serverInfo = data;
-                    _noServersConfigured = false;
-                    _status = 'Connected to Cobalt v${data['cobalt']['version']}';
-                    _isLoading = false;
+                    _status = 'Verifying server...';
+                    _isLoading = true;
                   });
-                  _saveServers();
-                  } else {
-                  setState(() {
-                    _status = 'Error: Not a valid Cobalt server';
-                    _isLoading = false;
-                  });
+                  
+                  try {
+                    final response = await http.get(Uri.parse(newServer));
+                    if (response.statusCode == 200) {
+                      final data = jsonDecode(response.body);
+                      
+                      if (data.containsKey('cobalt') && 
+                        data['cobalt'].containsKey('version') && 
+                        data['cobalt'].containsKey('services')) {
+                      
+                        setState(() {
+                          _servers.add(newServer);
+                          _baseUrl = newServer;
+                          _serverInfo = data;
+                          _status = 'Connected to Cobalt v${data['cobalt']['version']}';
+                          _isLoading = false;
+                        });
+                        _saveServers();
+                      } else {
+                        setState(() {
+                          _status = 'Error: Not a valid Cobalt server';
+                          _isLoading = false;
+                        });
+                      }
+                    } else {
+                      setState(() {
+                        _status = 'Server error: ${response.statusCode}';
+                        _isLoading = false;
+                      });
+                    }
+                  } catch (e) {
+                    setState(() {
+                      _status = 'Connection error: $e';
+                      _isLoading = false;
+                    });
                   }
                 } else {
-                  setState(() {
-                  _status = 'Server error: ${response.statusCode}';
-                  _isLoading = false;
-                  });
+                  Navigator.of(context).pop();
+                  _newServerController.clear();
                 }
-                } catch (e) {
-                setState(() {
-                  _status = 'Connection error: $e';
-                  _isLoading = false;
-                });
-                }
-              } else {
-                Navigator.of(context).pop();
-                _newServerController.clear();
-              }
               },
               style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-              backgroundColor: const Color(0xFF191919),
-              foregroundColor: const Color(0xFFe1e1e1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(11),
-                side: const BorderSide(
-                color: Color.fromRGBO(255, 255, 255, 0.05),
-                width: 1.5,
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                backgroundColor: const Color(0xFF191919),
+                foregroundColor: const Color(0xFFe1e1e1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  side: const BorderSide(
+                    color: Color.fromRGBO(255, 255, 255, 0.05),
+                    width: 1.5,
+                  ),
                 ),
-              ),
               ),
               child: const Text('add'),
             ),
@@ -395,6 +365,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
     setState(() {
       _isLoading = true;
+      _isDownloadInProgress = true;
       _status = 'Processing request...';
       _responseData = null;
     });
@@ -428,21 +399,34 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         if (data['status'] == 'redirect' || data['status'] == 'tunnel') {
           final String downloadUrl = _fixServerUrl(data['url']);
           await _downloadFile(downloadUrl, data['filename']);
+          
+          // Reset download in progress after download starts
+          Future.delayed(const Duration(seconds: 2), () {
+            setState(() {
+              _isDownloadInProgress = false;
+            });
+          });
         } else if (data['status'] == 'picker') {
+          setState(() {
+            _isDownloadInProgress = false;
+          });
         } else if (data['status'] == 'error') {
           setState(() {
             _status = 'Error: ${data['error']['code']}';
+            _isDownloadInProgress = false;
           });
         }
       } else {
         setState(() {
           _isLoading = false;
+          _isDownloadInProgress = false;
           _status = 'Request error: ${response.statusCode}';
         });
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
+        _isDownloadInProgress = false;
         _status = 'Error: ${e.toString()}';
       });
     }
@@ -470,10 +454,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       }
 
       setState(() {
-        _status = 'Starting download: $url\nDirectory: $cobaltDownloadsDir';
+        _status = 'Starting download...';
       });
 
-      final taskId = await FlutterDownloader.enqueue(
+      await FlutterDownloader.enqueue(
         url: url,
         savedDir: cobaltDownloadsDir,
         fileName: filename,
@@ -483,24 +467,37 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       );
 
       setState(() {
-        _status = 'Download started: $filename\nTo folder: $cobaltDownloadsDir\n(taskId: $taskId)';
+        _status = 'Download started';
       });
     } catch (e) {
       setState(() {
         _status = 'Download error: $e';
+        _isDownloadInProgress = false;
       });
     }
   }
   
   Future<void> _downloadPickerItem(String url, String type) async {
+    setState(() {
+      _isDownloadInProgress = true;
+    });
+    
     try {
       final fixedUrl = _fixServerUrl(url);
       final extension = type == 'photo' ? '.jpg' : type == 'gif' ? '.gif' : '.mp4';
       final filename = 'cobalt_${DateTime.now().millisecondsSinceEpoch}$extension';
       await _downloadFile(fixedUrl, filename);
+      
+      // Reset download state after a small delay
+      Future.delayed(const Duration(seconds: 2), () {
+        setState(() {
+          _isDownloadInProgress = false;
+        });
+      });
     } catch (e) {
       setState(() {
         _status = 'Download error: $e';
+        _isDownloadInProgress = false;
       });
     }
   }
@@ -565,7 +562,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                     } else {
                       _baseUrl = null;
                       _serverInfo = null;
-                      _noServersConfigured = true;
                       _status = 'No servers configured. Please add a Cobalt server.';
                     }
                   }
@@ -682,12 +678,11 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: _servers.isEmpty ? FontWeight.bold : FontWeight.normal,
-                        color: Colors.white,
                       ),
                     ),
                   ),
                 ],
-                onChanged: (value) async {
+                onChanged: _isDownloadInProgress ? null : (value) async {
                   if (value == 'add_new') {
                     _addNewServer();
                     setState(() {
@@ -714,7 +709,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                 ),
                 dropdownColor: const Color(0xFF1A1A1A),
-                hint: _servers.isEmpty ? const Text("No servers configured") : null,
               ),
               
               const SizedBox(height: 10),
@@ -722,6 +716,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
               if (_isRealServerSelected())
                 TextField(
                   controller: _urlController,
+                  enabled: !_isDownloadInProgress,
                   decoration: InputDecoration(
                     hintText: 'paste the link here',
                     border: const OutlineInputBorder(
@@ -763,7 +758,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       height: 24,
                       child: Center(
                         child: SvgPicture.string(
-                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path></svg>',
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l .524 -.463"></path></svg>',
                           width: 20,
                           height: 20,
                           colorFilter: const ColorFilter.mode(Colors.white30, BlendMode.srcIn),
@@ -781,17 +776,17 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
                   child: ElevatedButton(
-                    onPressed: (_isLoading || _urlFieldEmpty) ? null : _processUrl,
+                    onPressed: (_isLoading || _urlFieldEmpty || _isDownloadInProgress) ? null : _processUrl,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                       backgroundColor: const Color(0xFF191919),
-                      foregroundColor: (_urlFieldEmpty) 
+                      foregroundColor: (_urlFieldEmpty || _isDownloadInProgress) 
                         ? Colors.white38
                         : const Color(0xFFe1e1e1),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(11),
                         side: BorderSide(
-                          color: (_urlFieldEmpty)
+                          color: (_urlFieldEmpty || _isDownloadInProgress)
                             ? const Color.fromRGBO(255, 255, 255, 0.05)
                             : const Color.fromRGBO(255, 255, 255, 0.08),
                           width: 1.5,
@@ -960,46 +955,46 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                 ),
             
-            if (_responseData != null && _responseData!['status'] == 'picker')
-              Container(
-              height: 300,
-              padding: const EdgeInsets.only(top: 10.0),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: _responseData!['picker'].length,
-                itemBuilder: (context, index) {
-                final item = _responseData!['picker'][index];
-                return Card(
-                  color: const Color(0xFF191919),
-                  margin: const EdgeInsets.symmetric(vertical: 4.0),
-                  shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+              if (_responseData != null && _responseData!['status'] == 'picker')
+                Container(
+                  height: 300,
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _responseData!['picker'].length,
+                    itemBuilder: (context, index) {
+                      final item = _responseData!['picker'][index];
+                      return Card(
+                        color: const Color(0xFF191919),
+                        margin: const EdgeInsets.symmetric(vertical: 4.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ListTile(
+                          leading: item['thumb'] != null
+                            ? Image.network(
+                                _fixServerUrl(item['thumb']),
+                                width: 50,
+                                errorBuilder: (_, __, ___) =>
+                                  const Icon(Icons.broken_image),
+                              )
+                            : Icon(
+                                item['type'] == 'photo'
+                                  ? Icons.image
+                                  : item['type'] == 'gif'
+                                    ? Icons.gif
+                                    : Icons.video_library,
+                              ),
+                          title: Text('${item['type']} #${index + 1}'),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.download),
+                            onPressed: _isDownloadInProgress ? null : () => _downloadPickerItem(item['url'], item['type']),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                  child: ListTile(
-                  leading: item['thumb'] != null
-                    ? Image.network(
-                      _fixServerUrl(item['thumb']),
-                      width: 50,
-                      errorBuilder: (_, __, ___) =>
-                        const Icon(Icons.broken_image),
-                      )
-                    : Icon(
-                      item['type'] == 'photo'
-                        ? Icons.image
-                        : item['type'] == 'gif'
-                          ? Icons.gif
-                          : Icons.video_library,
-                      ),
-                  title: Text('${item['type']} #${index + 1}'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.download),
-                    onPressed: () => _downloadPickerItem(item['url'], item['type']),
-                  ),
-                  ),
-                );
-                },
-              ),
-              ),
+                ),
               const SizedBox(height: 10),
               const Divider(
                 color: Color(0xFF383838),
@@ -1008,10 +1003,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
               ),
 
               Padding(
-              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-              child: Container(
-                alignment: Alignment.center,
-                child: RichText(
+                padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
                       style: const TextStyle(
@@ -1049,9 +1044,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                 ),
               ),
-          ],
+            ],
+          ),
         ),
-      ),),
+      ),
     );
   }
 
