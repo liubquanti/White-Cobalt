@@ -247,6 +247,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 ),
                 style: const TextStyle(fontSize: 14),
                 keyboardType: TextInputType.url,
+                cursorColor: const Color(0xFFE1E1E1),
               ),
             ),
           ),
@@ -631,7 +632,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                   focusedBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(11)),
-                    borderSide: BorderSide(width: 2.0, color: Colors.white),
+                    borderSide: BorderSide(width: 1.5, color: Color(0xFFB1B1B1)),
                   ),
                   prefixIcon: SizedBox(
                     width: 24,
@@ -717,7 +718,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 TextField(
                   controller: _urlController,
                   enabled: !_isDownloadInProgress,
-                  decoration: InputDecoration(
+                    decoration: InputDecoration(
                     hintText: 'paste the link here',
                     enabledBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(11)),
@@ -729,22 +730,23 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                     ),
                     focusedBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(11)),
-                      borderSide: BorderSide(width: 2.0, color: Colors.white),
+                      borderSide: BorderSide(width: 1.5, color: Color(0xFFB1B1B1)),
                     ),
                     prefixIcon: SizedBox(
                       width: 24,
                       height: 24,
                       child: Center(
-                        child: SvgPicture.string(
-                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path></svg>',
-                          width: 20,
-                          height: 20,
-                          colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
-                        ),
+                      child: SvgPicture.string(
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path></svg>',
+                        width: 20,
+                        height: 20,
+                        colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                      ),
                       ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                  ),
+                    ),
+                    cursorColor: const Color(0xFFE1E1E1),
                   style: const TextStyle(fontSize: 14),
                   keyboardType: TextInputType.url,
                 )
@@ -923,7 +925,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                         const SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white70,
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Text(_status, style: const TextStyle(fontSize: 14)),
