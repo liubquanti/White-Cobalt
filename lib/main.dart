@@ -401,7 +401,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           final String downloadUrl = _fixServerUrl(data['url']);
           await _downloadFile(downloadUrl, data['filename']);
           
-          // Reset download in progress after download starts
           Future.delayed(const Duration(seconds: 2), () {
             setState(() {
               _isDownloadInProgress = false;
@@ -489,7 +488,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       final filename = 'cobalt_${DateTime.now().millisecondsSinceEpoch}$extension';
       await _downloadFile(fixedUrl, filename);
       
-      // Reset download state after a small delay
       Future.delayed(const Duration(seconds: 2), () {
         setState(() {
           _isDownloadInProgress = false;

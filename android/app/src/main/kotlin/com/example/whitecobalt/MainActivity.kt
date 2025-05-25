@@ -5,6 +5,7 @@ import android.os.Bundle
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import java.util.regex.Pattern
 
 class MainActivity: FlutterActivity() {
     private val CHANNEL = "com.whitecobalt.share/url"
@@ -36,7 +37,23 @@ class MainActivity: FlutterActivity() {
         val type = intent.type
         
         if (Intent.ACTION_SEND == action && type?.startsWith("text/") == true) {
-            sharedUrl = intent.getStringExtra(Intent.EXTRA_TEXT)
+            val fullText = intent.getStringExtra(Intent.EXTRA_TEXT)
+            sharedUrl = extractUrlFromText(fullText)
+        }
+    }
+
+    private fun extractUrlFromText(text: String?): String? {
+        if (text.isNullOrEmpty()) return null
+        
+        // Regex pattern to match URLs
+        val pattern = "https?://[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b[-a-zA-Z0-9()@:%_+.~#?&//=]*"
+        val matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(text)
+        
+        // Return the first URL found or null if none
+        return if (matcher.find()) {
+            matcher.group()
+        } else {
+            null
         }
     }
 }
