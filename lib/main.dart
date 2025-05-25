@@ -452,131 +452,23 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         centerTitle: true,
         backgroundColor: Colors.black,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Image.asset(
-              'assets/meowbalt/smile.png',
-              height: 120,
-            ),
-            const SizedBox(height: 16),
-            
-            // Always show the dropdown, regardless of server count
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(11)),
-                  borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
-                ),
-                focusedBorder: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(11)),
-                  borderSide: BorderSide(width: 2.0, color: Colors.white),
-                ),
-                prefixIcon: SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: Center(
-                    child: SvgPicture.string(
-                      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-file-download "><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path><path d="M12 17v-6"></path><path d="M9.5 14.5l2.5 2.5l2.5 -2.5"></path></svg>',
-                      width: 20,
-                      height: 20,
-                      colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
-                    ),
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+      // Add this to resize the screen when keyboard appears
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(  // Add this wrapper
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Image.asset(
+                'assets/meowbalt/smile.png',
+                height: 120,
               ),
-              // If there are no servers, we'll show 'add_new' as the default value
-              value: _servers.isNotEmpty ? _baseUrl : 'add_new',
-              items: [
-                // Only map existing servers if there are any
-                ..._servers.map((server) => DropdownMenuItem<String>(
-                  value: server,
-                  child: GestureDetector(
-                    onLongPress: () {
-                      Navigator.pop(context);
-                      _deleteServer(server);
-                    },
-                    behavior: HitTestBehavior.opaque,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            server,
-                            style: const TextStyle(fontSize: 14),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )),
-                // Always include the Add New Server option
-                DropdownMenuItem(
-                  value: 'add_new',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.add_circle_outline,
-                        size: 16,
-                        color: _servers.isEmpty ? Colors.green : Colors.white70,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Add New Server',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: _servers.isEmpty ? FontWeight.bold : FontWeight.normal,
-                          color: _servers.isEmpty ? Colors.green : Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              onChanged: (value) async {
-                if (value == 'add_new') {
-                  _addNewServer();
-                  // Set the selected value to indicate we're adding a new server
-                  setState(() {
-                    _baseUrl = 'add_new';
-                  });
-                } else if (value != null && value != _baseUrl) {
-                  setState(() {
-                    _baseUrl = value;
-                    _status = 'Connecting to server...';
-                  });
-                  await _fetchServerInfo();
-                }
-              },
-              menuMaxHeight: 500,
-              isExpanded: true,
-              isDense: true,
-              icon: Padding(
-                padding: const EdgeInsets.only(right: 8.0),
-                child: SvgPicture.string(
-                  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-selector "><path d="M8 9l4 -4l4 4"></path><path d="M16 15l-4 4l-4 -4"></path></svg>',
-                  width: 20,
-                  height: 20,
-                  colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
-                ),
-              ),
-              dropdownColor: const Color(0xFF1A1A1A),
-              // If no servers, show a hint text
-              hint: _servers.isEmpty ? const Text("No servers configured") : null,
-            ),
-            
-            const SizedBox(height: 10),
-            
-            // Only show URL field if a REAL server is selected (not "add_new")
-            if (_isRealServerSelected())
-              TextField(
-                controller: _urlController,
+              const SizedBox(height: 16),
+              
+              // Always show the dropdown, regardless of server count
+              DropdownButtonFormField<String>(
                 decoration: InputDecoration(
-                  hintText: 'paste the link here',
                   border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(11)),
                     borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
@@ -590,7 +482,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                     height: 24,
                     child: Center(
                       child: SvgPicture.string(
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path></svg>',
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-file-download "><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path><path d="M12 17v-6"></path><path d="M9.5 14.5l2.5 2.5l2.5 -2.5"></path></svg>',
                         width: 20,
                         height: 20,
                         colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
@@ -599,263 +491,375 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                   contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                 ),
-                style: const TextStyle(fontSize: 14),
-                keyboardType: TextInputType.url,
-              )
-            else if (_baseUrl == 'add_new')
-              TextField(
-                enabled: false, // Disabled input field when "add_new" is selected
-                decoration: InputDecoration(
-                  hintText: 'Please add a server first',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(11)),
-                    borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
-                  ),
-                  prefixIcon: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: Center(
-                      child: SvgPicture.string(
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path></svg>',
-                        width: 20,
-                        height: 20,
-                        colorFilter: const ColorFilter.mode(Colors.white30, BlendMode.srcIn),
+                // If there are no servers, we'll show 'add_new' as the default value
+                value: _servers.isNotEmpty ? _baseUrl : 'add_new',
+                items: [
+                  // Only map existing servers if there are any
+                  ..._servers.map((server) => DropdownMenuItem<String>(
+                    value: server,
+                    child: GestureDetector(
+                      onLongPress: () {
+                        Navigator.pop(context);
+                        _deleteServer(server);
+                      },
+                      behavior: HitTestBehavior.opaque,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              server,
+                              style: const TextStyle(fontSize: 14),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  filled: true,
-                  fillColor: Colors.black45,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                ),
-                style: const TextStyle(fontSize: 14, color: Colors.white38),
-              ),
-
-            // Only show download button if a REAL server is selected (not "add_new")
-            if (_isRealServerSelected()) 
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _processUrl,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                    backgroundColor: const Color(0xFF191919),
-                    foregroundColor: const Color(0xFFe1e1e1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(11),
-                      side: const BorderSide(
-                        color: Color.fromRGBO(255, 255, 255, 0.05),
-                        width: 1.5,
-                      ),
-                    ),
-                  ),
-                  child: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white70,
+                  )),
+                  // Always include the Add New Server option
+                  DropdownMenuItem(
+                    value: 'add_new',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.add_circle_outline,
+                          size: 16,
+                          color: _servers.isEmpty ? Colors.green : Colors.white70,
                         ),
-                      )
-                    : const Text('download', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                ),
-              )
-            else if (_baseUrl == 'add_new')
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: ElevatedButton(
-                  onPressed: null, // Disabled button
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                    backgroundColor: Colors.black45,
-                    foregroundColor: Colors.white38,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(11),
-                      side: const BorderSide(
-                        color: Color.fromRGBO(255, 255, 255, 0.05),
-                        width: 1.5,
-                      ),
-                    ),
-                  ),
-                  child: const Text('download', style: TextStyle(fontSize: 14)),
-                ),
-              ),
-
-            Divider(
-              color: const Color(0xFF383838),
-              thickness: 1.0,
-              height: 20,
-            ),
-            
-            // Show server info when available, or "please select server" when add_new is selected
-            if (_serverInfo != null && _baseUrl != 'add_new')
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF191919),
-                    borderRadius: BorderRadius.circular(11),
-                    border: Border.all(
-                      color: const Color.fromRGBO(255, 255, 255, 0.05),
-                      width: 1.5,
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.check_circle, color: Colors.green, size: 16),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Cobalt v${_serverInfo!['cobalt']['version']}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Supported services: ${_serverInfo!['cobalt']['services'].length}',
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else if (_baseUrl == 'add_new')
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF191919),
-                    borderRadius: BorderRadius.circular(11),
-                    border: Border.all(
-                      color: const Color.fromRGBO(255, 255, 255, 0.05),
-                      width: 1.5,
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(10.0),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.info_outline, color: Colors.orange, size: 16),
-                          SizedBox(width: 8),
-                          Text(
-                            'No server selected',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Please select server first',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            
-            // MOVED: Status indicators now appear after the download button
-            else if ((_status.contains('Checking') || _status.contains('Connecting')) && _isLoading)
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(_status, style: const TextStyle(fontSize: 14)),
-                    ],
-                  ),
-                ),
-              )
-            else if (_status.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _status.contains('Error') ? Icons.error_outline : Icons.info_outline,
-                        color: _status.contains('Error') ? Colors.red : Colors.orange,
-                        size: 16
-                      ),
-                      const SizedBox(width: 10),
-                      Flexible(
-                        child: Text(
-                          _status, 
+                        const SizedBox(width: 8),
+                        Text(
+                          'Add New Server',
                           style: TextStyle(
-                            fontSize: 14, 
-                            color: _status.contains('Error') ? Colors.red : Colors.white,
+                            fontSize: 14,
+                            fontWeight: _servers.isEmpty ? FontWeight.bold : FontWeight.normal,
+                            color: _servers.isEmpty ? Colors.green : Colors.white,
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  ),
+                ],
+                onChanged: (value) async {
+                  if (value == 'add_new') {
+                    _addNewServer();
+                    // Set the selected value to indicate we're adding a new server
+                    setState(() {
+                      _baseUrl = 'add_new';
+                    });
+                  } else if (value != null && value != _baseUrl) {
+                    setState(() {
+                      _baseUrl = value;
+                      _status = 'Connecting to server...';
+                    });
+                    await _fetchServerInfo();
+                  }
+                },
+                menuMaxHeight: 500,
+                isExpanded: true,
+                isDense: true,
+                icon: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: SvgPicture.string(
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-selector "><path d="M8 9l4 -4l4 4"></path><path d="M16 15l-4 4l-4 -4"></path></svg>',
+                    width: 20,
+                    height: 20,
+                    colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
                   ),
                 ),
+                dropdownColor: const Color(0xFF1A1A1A),
+                // If no servers, show a hint text
+                hint: _servers.isEmpty ? const Text("No servers configured") : null,
               ),
+              
+              const SizedBox(height: 10),
+              
+              // Only show URL field if a REAL server is selected (not "add_new")
+              if (_isRealServerSelected())
+                TextField(
+                  controller: _urlController,
+                  decoration: InputDecoration(
+                    hintText: 'paste the link here',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(11)),
+                      borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(11)),
+                      borderSide: BorderSide(width: 2.0, color: Colors.white),
+                    ),
+                    prefixIcon: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Center(
+                        child: SvgPicture.string(
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path></svg>',
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                        ),
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                  ),
+                  style: const TextStyle(fontSize: 14),
+                  keyboardType: TextInputType.url,
+                )
+              else if (_baseUrl == 'add_new')
+                TextField(
+                  enabled: false, // Disabled input field when "add_new" is selected
+                  decoration: InputDecoration(
+                    hintText: 'Please add a server first',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(11)),
+                      borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
+                    ),
+                    prefixIcon: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Center(
+                        child: SvgPicture.string(
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path></svg>',
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(Colors.white30, BlendMode.srcIn),
+                        ),
+                      ),
+                    ),
+                    filled: true,
+                    fillColor: Colors.black45,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.white38),
+                ),
+
+              // Only show download button if a REAL server is selected (not "add_new")
+              if (_isRealServerSelected()) 
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _processUrl,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                      backgroundColor: const Color(0xFF191919),
+                      foregroundColor: const Color(0xFFe1e1e1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(11),
+                        side: const BorderSide(
+                          color: Color.fromRGBO(255, 255, 255, 0.05),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                    child: _isLoading
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white70,
+                          ),
+                        )
+                      : const Text('download', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  ),
+                )
+              else if (_baseUrl == 'add_new')
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: ElevatedButton(
+                    onPressed: null, // Disabled button
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                      backgroundColor: Colors.black45,
+                      foregroundColor: Colors.white38,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(11),
+                        side: const BorderSide(
+                          color: Color.fromRGBO(255, 255, 255, 0.05),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                    child: const Text('download', style: TextStyle(fontSize: 14)),
+                  ),
+                ),
+
+              Divider(
+                color: const Color(0xFF383838),
+                thickness: 1.0,
+                height: 20,
+              ),
+              
+              // Show server info when available, or "please select server" when add_new is selected
+              if (_serverInfo != null && _baseUrl != 'add_new')
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF191919),
+                      borderRadius: BorderRadius.circular(11),
+                      border: Border.all(
+                        color: const Color.fromRGBO(255, 255, 255, 0.05),
+                        width: 1.5,
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Cobalt v${_serverInfo!['cobalt']['version']}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Supported services: ${_serverInfo!['cobalt']['services'].length}',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else if (_baseUrl == 'add_new')
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF191919),
+                      borderRadius: BorderRadius.circular(11),
+                      border: Border.all(
+                        color: const Color.fromRGBO(255, 255, 255, 0.05),
+                        width: 1.5,
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(10.0),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.info_outline, color: Colors.orange, size: 16),
+                            SizedBox(width: 8),
+                            Text(
+                              'No server selected',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Please select server first',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              
+              // MOVED: Status indicators now appear after the download button
+              else if ((_status.contains('Checking') || _status.contains('Connecting')) && _isLoading)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(_status, style: const TextStyle(fontSize: 14)),
+                      ],
+                    ),
+                  ),
+                )
+              else if (_status.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _status.contains('Error') ? Icons.error_outline : Icons.info_outline,
+                          color: _status.contains('Error') ? Colors.red : Colors.orange,
+                          size: 16
+                        ),
+                        const SizedBox(width: 10),
+                        Flexible(
+                          child: Text(
+                            _status, 
+                            style: TextStyle(
+                              fontSize: 14, 
+                              color: _status.contains('Error') ? Colors.red : Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
             
             // Picker items display
             if (_responseData != null && _responseData!['status'] == 'picker')
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: ListView.builder(
-                    itemCount: _responseData!['picker'].length,
-                    itemBuilder: (context, index) {
-                      final item = _responseData!['picker'][index];
-                      return Card(
-                        color: const Color(0xFF191919),
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+              // Use a container with fixed height instead of Expanded 
+              Container(
+                height: 300, // Adjust this value based on your needs
+                padding: const EdgeInsets.only(top: 10.0),
+                child: ListView.builder(
+                  shrinkWrap: true, // Add this
+                  itemCount: _responseData!['picker'].length,
+                  itemBuilder: (context, index) {
+                    final item = _responseData!['picker'][index];
+                    return Card(
+                      color: const Color(0xFF191919),
+                      margin: const EdgeInsets.symmetric(vertical: 4.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ListTile(
+                        leading: item['thumb'] != null
+                            ? Image.network(
+                                _fixServerUrl(item['thumb']),
+                                width: 50,
+                                errorBuilder: (_, __, ___) =>
+                                    const Icon(Icons.broken_image),
+                              )
+                            : Icon(
+                                item['type'] == 'photo'
+                                    ? Icons.image
+                                    : item['type'] == 'gif'
+                                        ? Icons.gif
+                                        : Icons.video_library,
+                              ),
+                        title: Text('${item['type']} #${index + 1}'),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.download),
+                          onPressed: () => _downloadPickerItem(item['url'], item['type']),
                         ),
-                        child: ListTile(
-                          leading: item['thumb'] != null
-                              ? Image.network(
-                                  _fixServerUrl(item['thumb']),
-                                  width: 50,
-                                  errorBuilder: (_, __, ___) =>
-                                      const Icon(Icons.broken_image),
-                                )
-                              : Icon(
-                                  item['type'] == 'photo'
-                                      ? Icons.image
-                                      : item['type'] == 'gif'
-                                          ? Icons.gif
-                                          : Icons.video_library,
-                                ),
-                          title: Text('${item['type']} #${index + 1}'),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.download),
-                            onPressed: () => _downloadPickerItem(item['url'], item['type']),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
           ],
         ),
-      ),
+      ),),
     );
   }
 
