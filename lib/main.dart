@@ -164,78 +164,143 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Add New Server'),
-          content: TextField(
-            controller: _newServerController,
-            decoration: const InputDecoration(
-              hintText: 'Enter server URL (e.g., http://example.com:9000/)',
-              border: OutlineInputBorder(),
+          backgroundColor: Colors.black,
+            title: const Text(
+            'Add New Server',
+            style: TextStyle(fontSize: 16),
+            ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(11),
+            side: const BorderSide(
+              color: Color.fromRGBO(255, 255, 255, 0.08),
+              width: 2.0,
+            ),
+          ),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: TextField(
+                controller: _newServerController,
+                decoration: InputDecoration(
+                hintText: 'Enter server URL',
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(11)),
+                  borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(11)),
+                  borderSide: BorderSide(width: 2.0, color: Colors.white),
+                ),
+                prefixIcon: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Center(
+                  child: SvgPicture.string(
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-server"><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M7 8l0 .01"></path><path d="M7 16l0 .01"></path></svg>',
+                    width: 20,
+                    height: 20,
+                    colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                  ),
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                ),
+                style: const TextStyle(fontSize: 14),
+                keyboardType: TextInputType.url,
+              ),
             ),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+              Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+              backgroundColor: const Color(0xFF191919),
+              foregroundColor: const Color(0xFFe1e1e1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(11),
+                side: const BorderSide(
+                color: Color.fromRGBO(255, 255, 255, 0.05),
+                width: 1.5,
+                ),
+              ),
+              ),
+              child: const Text('cancel'),
             ),
             TextButton(
               onPressed: () async {
-                final newServer = _newServerController.text.trim();
-                if (newServer.isNotEmpty && !_servers.contains(newServer)) {
-                  Navigator.of(context).pop();
-                  _newServerController.clear();
+              final newServer = _newServerController.text.trim();
+              if (newServer.isNotEmpty && !_servers.contains(newServer)) {
+                Navigator.of(context).pop();
+                _newServerController.clear();
+                
+                // Show loading state
+                setState(() {
+                _status = 'Verifying server...';
+                _isLoading = true; // Set loading to true
+                });
+                
+                // Try to verify the server before adding
+                try {
+                final response = await http.get(Uri.parse(newServer));
+                if (response.statusCode == 200) {
+                  final data = jsonDecode(response.body);
                   
-                  // Show loading state
+                  // Check if it's a valid Cobalt server
+                  if (data.containsKey('cobalt') && 
+                    data['cobalt'].containsKey('version') && 
+                    data['cobalt'].containsKey('services')) {
+                  
                   setState(() {
-                    _status = 'Verifying server...';
-                    _isLoading = true; // Set loading to true
+                    _servers.add(newServer);
+                    _baseUrl = newServer;
+                    _serverInfo = data;
+                    _noServersConfigured = false;
+                    _status = 'Connected to Cobalt v${data['cobalt']['version']}';
+                    _isLoading = false; // Reset loading state
                   });
-                  
-                  // Try to verify the server before adding
-                  try {
-                    final response = await http.get(Uri.parse(newServer));
-                    if (response.statusCode == 200) {
-                      final data = jsonDecode(response.body);
-                      
-                      // Check if it's a valid Cobalt server
-                      if (data.containsKey('cobalt') && 
-                          data['cobalt'].containsKey('version') && 
-                          data['cobalt'].containsKey('services')) {
-                        
-                        setState(() {
-                          _servers.add(newServer);
-                          _baseUrl = newServer;
-                          _serverInfo = data;
-                          _noServersConfigured = false;
-                          _status = 'Connected to Cobalt v${data['cobalt']['version']}';
-                          _isLoading = false; // Reset loading state
-                        });
-                        _saveServers();
-                      } else {
-                        setState(() {
-                          _status = 'Error: Not a valid Cobalt server';
-                          _isLoading = false; // Reset loading state
-                        });
-                      }
-                    } else {
-                      setState(() {
-                        _status = 'Server error: ${response.statusCode}';
-                        _isLoading = false; // Reset loading state
-                      });
-                    }
-                  } catch (e) {
-                    setState(() {
-                      _status = 'Connection error: $e';
-                      _isLoading = false; // Reset loading state
-                    });
+                  _saveServers();
+                  } else {
+                  setState(() {
+                    _status = 'Error: Not a valid Cobalt server';
+                    _isLoading = false; // Reset loading state
+                  });
                   }
                 } else {
-                  Navigator.of(context).pop();
-                  _newServerController.clear();
+                  setState(() {
+                  _status = 'Server error: ${response.statusCode}';
+                  _isLoading = false; // Reset loading state
+                  });
                 }
+                } catch (e) {
+                setState(() {
+                  _status = 'Connection error: $e';
+                  _isLoading = false; // Reset loading state
+                });
+                }
+              } else {
+                Navigator.of(context).pop();
+                _newServerController.clear();
+              }
               },
-              child: const Text('Add'),
+              style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+              backgroundColor: const Color(0xFF191919),
+              foregroundColor: const Color(0xFFe1e1e1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(11),
+                side: const BorderSide(
+                color: Color.fromRGBO(255, 255, 255, 0.05),
+                width: 1.5,
+                ),
+              ),
+              ),
+              child: const Text('add'),
             ),
           ],
         );
@@ -397,14 +462,48 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Server'),
-          content: Text('Are you sure you want to delete this server?\n\n$server'),
+          backgroundColor: Colors.black,
+          title: const Text(
+            'Delete Server',
+            style: TextStyle(fontSize: 16),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(11),
+            side: const BorderSide(
+              color: Color.fromRGBO(255, 255, 255, 0.08),
+              width: 2.0,
+            ),
+          ),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+                'Are you sure you want to delete this server?\n\n$server',
+                style: const TextStyle(fontSize: 14),
+              ),
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                backgroundColor: const Color(0xFF191919),
+                foregroundColor: const Color(0xFFe1e1e1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  side: const BorderSide(
+                    color: Color.fromRGBO(255, 255, 255, 0.05),
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              child: const Text('cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -429,7 +528,19 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 _saveServers();
                 Navigator.of(context).pop();
               },
-              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                backgroundColor: const Color(0xFF191919),
+                foregroundColor: Colors.redAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  side: const BorderSide(
+                    color: Color.fromRGBO(255, 255, 255, 0.05),
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              child: const Text('delete'),
             ),
           ],
         );
@@ -520,23 +631,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   // Always include the Add New Server option
                   DropdownMenuItem(
                     value: 'add_new',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.add_circle_outline,
-                          size: 16,
-                          color: _servers.isEmpty ? Colors.green : Colors.white70,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Add New Server',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: _servers.isEmpty ? FontWeight.bold : FontWeight.normal,
-                            color: _servers.isEmpty ? Colors.green : Colors.white,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      'Add New Server',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: _servers.isEmpty ? FontWeight.bold : FontWeight.normal,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
