@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
@@ -6,10 +7,20 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/gestures.dart';
 
 void main() async {
   // Important to initialize before the app launches
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Set navigation bar color to black
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    systemNavigationBarColor: Colors.black, // Set navigation bar color to black
+    systemNavigationBarIconBrightness: Brightness.light, // Set navigation bar icon color to light
+    statusBarColor: Colors.transparent, // Make status bar transparent
+    statusBarIconBrightness: Brightness.light, // Set status bar icons to light
+  ));
   
   // Initialize flutter_downloader
   await FlutterDownloader.initialize(
@@ -46,6 +57,14 @@ class CobaltApp extends StatelessWidget {
           bodyMedium: TextStyle(fontFamily: 'NotoSansMono'),
           bodySmall: TextStyle(fontFamily: 'NotoSansMono'),
         ),
+        appBarTheme: const AppBarTheme(
+          systemOverlayStyle: SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            systemNavigationBarColor: Colors.black,
+            systemNavigationBarIconBrightness: Brightness.light,
+          ),
+        ),
       ),
       home: const CobaltHomePage(),
     );
@@ -60,6 +79,8 @@ class CobaltHomePage extends StatefulWidget {
 }
 
 class _CobaltHomePageState extends State<CobaltHomePage> {
+  static const platform = MethodChannel('com.whitecobalt.share/url');
+  
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _newServerController = TextEditingController();
   String? _baseUrl; // Changed to nullable
@@ -75,6 +96,59 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     super.initState();
     _loadSavedServers();
     _requestPermissions();
+    _checkForSharedUrl();
+  }
+
+  // New method to check for shared URLs
+  Future<void> _checkForSharedUrl() async {
+    try {
+      // Wait a bit for servers to load
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      final String? sharedUrl = await platform.invokeMethod('getSharedUrl');
+      if (sharedUrl != null && sharedUrl.isNotEmpty) {
+        // Auto-fill the URL field
+        _urlController.text = sharedUrl;
+        
+        // If we have a server configured, auto-process the URL
+        if (_isRealServerSelected()) {
+          // Give UI time to render before processing
+          Future.delayed(const Duration(milliseconds: 500), () {
+            _processUrl();
+          });
+        } else {
+          setState(() {
+            _status = 'URL received from share, but please select a server first';
+          });
+        }
+      }
+    } on PlatformException catch (e) {
+      setState(() {
+        _status = 'Error checking shared URLs: ${e.message}';
+      });
+    }
+  }
+
+  // Add this method to handle URL launching
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    try {
+      // Use LaunchMode.externalApplication to open in external browser
+      final bool launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      
+      if (!launched) {
+        setState(() {
+          _status = 'Could not launch $url';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _status = 'Error opening link: $e';
+      });
+    }
   }
 
   Future<void> _loadSavedServers() async {
@@ -969,15 +1043,43 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
               padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
               child: Container(
                 alignment: Alignment.center,
-                child: const Text(
-                'powered by cobalt, made by white heart',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
+                child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                        fontFamily: 'NotoSansMono',
+                      ),
+                      children: [
+                        const TextSpan(text: 'powered by '),
+                        TextSpan(
+                          text: 'cobalt',
+                          style: const TextStyle(
+                            decoration: TextDecoration.underline,
+                            fontFamily: 'NotoSansMono',
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              _launchURL('https://cobalt.tools/');
+                            },
+                        ),
+                        const TextSpan(text: ', made by '),
+                        TextSpan(
+                          text: 'white heart',
+                          style: const TextStyle(
+                            decoration: TextDecoration.underline,
+                            fontFamily: 'NotoSansMono',
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              _launchURL('https://liubquanti.click/');
+                            },
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                textAlign: TextAlign.center,
-                ),
-              ),
               ),
           ],
         ),
