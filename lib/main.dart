@@ -11,20 +11,17 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
 
 void main() async {
-  // Important to initialize before the app launches
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Set navigation bar color to black
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.black, // Set navigation bar color to black
-    systemNavigationBarIconBrightness: Brightness.light, // Set navigation bar icon color to light
-    statusBarColor: Colors.transparent, // Make status bar transparent
-    statusBarIconBrightness: Brightness.light, // Set status bar icons to light
+    systemNavigationBarColor: Colors.black,
+    systemNavigationBarIconBrightness: Brightness.light, 
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
   ));
   
-  // Initialize flutter_downloader
   await FlutterDownloader.initialize(
-    debug: true // Set to false in release
+    debug: true
   );
   
   runApp(const CobaltApp());
@@ -40,9 +37,7 @@ class CobaltApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.dark,
         useMaterial3: true,
-        // Font configuration for the whole app
         fontFamily: 'NotoSansMono',
-        // For more precise text style configuration
         textTheme: const TextTheme(
           displayLarge: TextStyle(fontFamily: 'NotoSansMono', fontWeight: FontWeight.w600),
           displayMedium: TextStyle(fontFamily: 'NotoSansMono', fontWeight: FontWeight.w600),
@@ -83,14 +78,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _newServerController = TextEditingController();
-  String? _baseUrl; // Changed to nullable
+  String? _baseUrl;
   bool _isLoading = false;
   String _status = '';
   Map<String, dynamic>? _serverInfo;
   Map<String, dynamic>? _responseData;
-  List<String> _servers = []; // Empty list by default
+  List<String> _servers = [];
   bool _noServersConfigured = false;
-  // Add this to track URL field state in _CobaltHomePageState class
   bool _urlFieldEmpty = true;
 
   @override
@@ -100,29 +94,22 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     _requestPermissions();
     _checkForSharedUrl();
     
-    // Add this listener to track URL field changes
     _urlController.addListener(_updateUrlFieldState);
   }
 
-  // New method to check for shared URLs
   Future<void> _checkForSharedUrl() async {
     try {
-      // Wait a bit for servers to load
       await Future.delayed(const Duration(milliseconds: 500));
       
       final String? sharedUrl = await platform.invokeMethod('getSharedUrl');
       if (sharedUrl != null && sharedUrl.isNotEmpty) {
-        // Auto-fill the URL field
         _urlController.text = sharedUrl;
         
-        // Update URL field state directly
         setState(() {
           _urlFieldEmpty = false;
         });
         
-        // If we have a server configured, auto-process the URL
         if (_isRealServerSelected()) {
-          // Give UI time to render before processing
           Future.delayed(const Duration(milliseconds: 500), () {
             _processUrl();
           });
@@ -139,11 +126,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     }
   }
 
-  // Add this method to handle URL launching
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
     try {
-      // Use LaunchMode.externalApplication to open in external browser
       final bool launched = await launchUrl(
         uri,
         mode: LaunchMode.externalApplication,
@@ -173,8 +158,8 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       _fetchServerInfo();
     } else {
       setState(() {
-        _servers = []; // Empty list
-        _baseUrl = 'add_new'; // Default to add_new when no servers
+        _servers = [];
+        _baseUrl = 'add_new';
         _noServersConfigured = true;
         _status = 'No servers configured. Please add a Cobalt server.';
       });
@@ -186,14 +171,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     await prefs.setStringList('servers', _servers);
   }
 
-  // Modify the _fetchServerInfo() method to verify the server response
   Future<void> _fetchServerInfo() async {
     if (_baseUrl == null) {
       setState(() {
         _serverInfo = null;
         _status = 'No server selected';
         _noServersConfigured = true;
-        _isLoading = false; // Make sure to reset loading state
+        _isLoading = false;
       });
       return;
     }
@@ -201,7 +185,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     setState(() {
       _serverInfo = null;
       _status = 'Checking server...';
-      _isLoading = true; // Set loading to true while checking
+      _isLoading = true;
     });
     
     try {
@@ -209,7 +193,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         
-        // Verify if it's a valid Cobalt server by checking for expected data structure
         if (data.containsKey('cobalt') && 
             data['cobalt'].containsKey('version') && 
             data['cobalt'].containsKey('services')) {
@@ -217,13 +200,12 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           setState(() {
             _serverInfo = data;
             _status = 'Connected to Cobalt v${data['cobalt']['version']}';
-            _isLoading = false; // Reset loading state
+            _isLoading = false;
           });
         } else {
           setState(() {
             _status = 'Error: Not a valid Cobalt server';
-            _isLoading = false; // Reset loading state
-            // Revert to previous server if available
+            _isLoading = false;
             if (_servers.length > 1 && _baseUrl != _servers.first) {
               _baseUrl = _servers.first;
             }
@@ -232,13 +214,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       } else {
         setState(() {
           _status = 'Server error: ${response.statusCode}';
-          _isLoading = false; // Reset loading state
+          _isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
         _status = 'Connection error: $e';
-        _isLoading = false; // Reset loading state
+        _isLoading = false;
       });
     }
   }
@@ -323,19 +305,16 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 Navigator.of(context).pop();
                 _newServerController.clear();
                 
-                // Show loading state
                 setState(() {
                 _status = 'Verifying server...';
-                _isLoading = true; // Set loading to true
+                _isLoading = true;
                 });
                 
-                // Try to verify the server before adding
                 try {
                 final response = await http.get(Uri.parse(newServer));
                 if (response.statusCode == 200) {
                   final data = jsonDecode(response.body);
                   
-                  // Check if it's a valid Cobalt server
                   if (data.containsKey('cobalt') && 
                     data['cobalt'].containsKey('version') && 
                     data['cobalt'].containsKey('services')) {
@@ -346,25 +325,25 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                     _serverInfo = data;
                     _noServersConfigured = false;
                     _status = 'Connected to Cobalt v${data['cobalt']['version']}';
-                    _isLoading = false; // Reset loading state
+                    _isLoading = false;
                   });
                   _saveServers();
                   } else {
                   setState(() {
                     _status = 'Error: Not a valid Cobalt server';
-                    _isLoading = false; // Reset loading state
+                    _isLoading = false;
                   });
                   }
                 } else {
                   setState(() {
                   _status = 'Server error: ${response.statusCode}';
-                  _isLoading = false; // Reset loading state
+                  _isLoading = false;
                   });
                 }
                 } catch (e) {
                 setState(() {
                   _status = 'Connection error: $e';
-                  _isLoading = false; // Reset loading state
+                  _isLoading = false;
                 });
                 }
               } else {
@@ -393,13 +372,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   }
 
   Future<void> _requestPermissions() async {
-    // Basic permissions for file downloads on Android
     await Permission.storage.request();
     await Permission.notification.request();
     await Permission.manageExternalStorage.request();
   }
-
-  // First, let's modify the _processUrl() method to properly reset loading state
 
   Future<void> _processUrl() async {
     if (_baseUrl == null) {
@@ -424,8 +400,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     });
 
     try {
-      // Validate URL format before sending request
-      Uri.parse(url); // This will throw FormatException if the URL is invalid
+      Uri.parse(url);
       
       final response = await http.post(
         Uri.parse(_baseUrl!),
@@ -451,11 +426,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         });
 
         if (data['status'] == 'redirect' || data['status'] == 'tunnel') {
-          // URL processing - replacing localhost with the actual IP address
           final String downloadUrl = _fixServerUrl(data['url']);
           await _downloadFile(downloadUrl, data['filename']);
         } else if (data['status'] == 'picker') {
-          // Picker handling is displayed in the interface
         } else if (data['status'] == 'error') {
           setState(() {
             _status = 'Error: ${data['error']['code']}';
@@ -475,11 +448,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     }
   }
 
-  // Function to fix URLs by replacing localhost with the actual server IP
   String _fixServerUrl(String url) {
     Uri uri = Uri.parse(url);
     if (uri.host == 'localhost' || uri.host == '127.0.0.1') {
-      // Use the main server host instead of localhost
       Uri baseUri = Uri.parse(_baseUrl!);
       return url.replaceFirst(
         RegExp(r'http://localhost:\d+|http://127.0.0.1:\d+'),
@@ -491,22 +462,17 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
   Future<void> _downloadFile(String url, String filename) async {
     try {
-      // Fixed path to Download directory for Android
-      final String downloadsPath = '/storage/emulated/0/Download';
-      
-      // Creating cobalt_downloads subfolder in Downloads
-      final cobaltDownloadsDir = '$downloadsPath/cobalt_downloads';
+      const String downloadsPath = '/storage/emulated/0/Download';
+      const cobaltDownloadsDir = '$downloadsPath/cobalt_downloads';
       final downloadsDir = Directory(cobaltDownloadsDir);
       if (!await downloadsDir.exists()) {
         await downloadsDir.create(recursive: true);
       }
 
-      // Show URL info for diagnostics
       setState(() {
         _status = 'Starting download: $url\nDirectory: $cobaltDownloadsDir';
       });
 
-      // Starting file download
       final taskId = await FlutterDownloader.enqueue(
         url: url,
         savedDir: cobaltDownloadsDir,
@@ -528,7 +494,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   
   Future<void> _downloadPickerItem(String url, String type) async {
     try {
-      // Fix URL for picker items as well
       final fixedUrl = _fixServerUrl(url);
       final extension = type == 'photo' ? '.jpg' : type == 'gif' ? '.gif' : '.mp4';
       final filename = 'cobalt_${DateTime.now().millisecondsSinceEpoch}$extension';
@@ -540,7 +505,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     }
   }
 
-  // Add this method to handle server deletion
   Future<void> _deleteServer(String server) async {
     return showDialog(
       context: context,
@@ -594,14 +558,11 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 setState(() {
                   _servers.remove(server);
                   
-                  // Handle case when removing the current server
                   if (_baseUrl == server) {
-                    // If there are other servers, select the first one
                     if (_servers.isNotEmpty) {
                       _baseUrl = _servers.first;
                       _fetchServerInfo();
                     } else {
-                      // If no servers left
                       _baseUrl = null;
                       _serverInfo = null;
                       _noServersConfigured = true;
@@ -632,12 +593,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     );
   }
 
-  // In the _CobaltHomePageState class, add a new method to check if a real server is selected:
   bool _isRealServerSelected() {
     return _baseUrl != null && _baseUrl != 'add_new';
   }
 
-  // Add this method to update the URL field state
   void _updateUrlFieldState() {
     final newValue = _urlController.text.trim().isEmpty;
     if (newValue != _urlFieldEmpty) {
@@ -647,7 +606,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     }
   }
 
-  // Fix the UI part in the build method
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -657,9 +615,8 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         centerTitle: true,
         backgroundColor: Colors.black,
       ),
-      // Add this to resize the screen when keyboard appears
       resizeToAvoidBottomInset: true,
-      body: SingleChildScrollView(  // Add this wrapper
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -670,8 +627,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 height: 120,
               ),
               const SizedBox(height: 16),
-              
-              // Always show the dropdown, regardless of server count
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(
@@ -696,10 +651,8 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                   contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                 ),
-                // If there are no servers, we'll show 'add_new' as the default value
                 value: _servers.isNotEmpty ? _baseUrl : 'add_new',
                 items: [
-                  // Only map existing servers if there are any
                   ..._servers.map((server) => DropdownMenuItem<String>(
                     value: server,
                     child: GestureDetector(
@@ -722,7 +675,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       ),
                     ),
                   )),
-                  // Always include the Add New Server option
                   DropdownMenuItem(
                     value: 'add_new',
                     child: Text(
@@ -738,7 +690,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 onChanged: (value) async {
                   if (value == 'add_new') {
                     _addNewServer();
-                    // Set the selected value to indicate we're adding a new server
                     setState(() {
                       _baseUrl = 'add_new';
                     });
@@ -763,13 +714,11 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                 ),
                 dropdownColor: const Color(0xFF1A1A1A),
-                // If no servers, show a hint text
                 hint: _servers.isEmpty ? const Text("No servers configured") : null,
               ),
               
               const SizedBox(height: 10),
               
-              // Only show URL field if a REAL server is selected (not "add_new")
               if (_isRealServerSelected())
                 TextField(
                   controller: _urlController,
@@ -802,7 +751,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 )
               else if (_baseUrl == 'add_new')
                 TextField(
-                  enabled: false, // Disabled input field when "add_new" is selected
+                  enabled: false,
                   decoration: InputDecoration(
                     hintText: 'Please add a server first',
                     border: const OutlineInputBorder(
@@ -828,27 +777,23 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   style: const TextStyle(fontSize: 14, color: Colors.white38),
                 ),
 
-              // Only show download button if a REAL server is selected (not "add_new")
               if (_isRealServerSelected()) 
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
                   child: ElevatedButton(
-                    // Button is enabled only when loading is false AND URL field is not empty
                     onPressed: (_isLoading || _urlFieldEmpty) ? null : _processUrl,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                       backgroundColor: const Color(0xFF191919),
-                      // Change foreground color based on enabled state
                       foregroundColor: (_urlFieldEmpty) 
-                        ? Colors.white38  // Disabled text color
-                        : const Color(0xFFe1e1e1),  // Enabled text color
+                        ? Colors.white38
+                        : const Color(0xFFe1e1e1),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(11),
                         side: BorderSide(
-                          // Change border color based on enabled state
                           color: (_urlFieldEmpty)
-                            ? const Color.fromRGBO(255, 255, 255, 0.05)  // Disabled border
-                            : const Color.fromRGBO(255, 255, 255, 0.08),  // Enabled border
+                            ? const Color.fromRGBO(255, 255, 255, 0.05)
+                            : const Color.fromRGBO(255, 255, 255, 0.08),
                           width: 1.5,
                         ),
                       ),
@@ -869,7 +814,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
                   child: ElevatedButton(
-                    onPressed: null, // Disabled button
+                    onPressed: null,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                       backgroundColor: Colors.black45,
@@ -886,13 +831,12 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                 ),
 
-              Divider(
-                color: const Color(0xFF383838),
+              const Divider(
+                color: Color(0xFF383838),
                 thickness: 1.0,
                 height: 20,
               ),
               
-              // Show server info when available, or "please select server" when add_new is selected
               if (_serverInfo != null && _baseUrl != 'add_new')
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
@@ -970,7 +914,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                 )
               
-              // MOVED: Status indicators now appear after the download button
               else if ((_status.contains('Checking') || _status.contains('Connecting')) && _isLoading)
                 Padding(
                   padding: const EdgeInsets.only(top: 16.0),
@@ -1017,14 +960,12 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                 ),
             
-            // Picker items display
             if (_responseData != null && _responseData!['status'] == 'picker')
-              // Use a container with fixed height instead of Expanded 
               Container(
-              height: 300, // Adjust this value based on your needs
+              height: 300,
               padding: const EdgeInsets.only(top: 10.0),
               child: ListView.builder(
-                shrinkWrap: true, // Add this
+                shrinkWrap: true,
                 itemCount: _responseData!['picker'].length,
                 itemBuilder: (context, index) {
                 final item = _responseData!['picker'][index];

@@ -13,14 +13,12 @@ class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         
-        // Process and store share intent data when app is created or intent is received
         processIntent(intent)
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "getSharedUrl" -> {
                     result.success(sharedUrl)
-                    // Clear the shared URL after it's been retrieved to prevent processing it again
                     sharedUrl = null
                 }
                 else -> result.notImplemented()
@@ -30,7 +28,6 @@ class MainActivity: FlutterActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        // Handle new intents (when app is already running)
         processIntent(intent)
     }
 
