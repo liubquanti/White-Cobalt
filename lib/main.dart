@@ -90,6 +90,8 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   Map<String, dynamic>? _responseData;
   List<String> _servers = []; // Empty list by default
   bool _noServersConfigured = false;
+  // Add this to track URL field state in _CobaltHomePageState class
+  bool _urlFieldEmpty = true;
 
   @override
   void initState() {
@@ -97,6 +99,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     _loadSavedServers();
     _requestPermissions();
     _checkForSharedUrl();
+    
+    // Add this listener to track URL field changes
+    _urlController.addListener(_updateUrlFieldState);
   }
 
   // New method to check for shared URLs
@@ -109,6 +114,11 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       if (sharedUrl != null && sharedUrl.isNotEmpty) {
         // Auto-fill the URL field
         _urlController.text = sharedUrl;
+        
+        // Update URL field state directly
+        setState(() {
+          _urlFieldEmpty = false;
+        });
         
         // If we have a server configured, auto-process the URL
         if (_isRealServerSelected()) {
@@ -627,6 +637,16 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     return _baseUrl != null && _baseUrl != 'add_new';
   }
 
+  // Add this method to update the URL field state
+  void _updateUrlFieldState() {
+    final newValue = _urlController.text.trim().isEmpty;
+    if (newValue != _urlFieldEmpty) {
+      setState(() {
+        _urlFieldEmpty = newValue;
+      });
+    }
+  }
+
   // Fix the UI part in the build method
   @override
   Widget build(BuildContext context) {
@@ -813,15 +833,22 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : _processUrl,
+                    // Button is enabled only when loading is false AND URL field is not empty
+                    onPressed: (_isLoading || _urlFieldEmpty) ? null : _processUrl,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
                       backgroundColor: const Color(0xFF191919),
-                      foregroundColor: const Color(0xFFe1e1e1),
+                      // Change foreground color based on enabled state
+                      foregroundColor: (_urlFieldEmpty) 
+                        ? Colors.white38  // Disabled text color
+                        : const Color(0xFFe1e1e1),  // Enabled text color
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(11),
-                        side: const BorderSide(
-                          color: Color.fromRGBO(255, 255, 255, 0.05),
+                        side: BorderSide(
+                          // Change border color based on enabled state
+                          color: (_urlFieldEmpty)
+                            ? const Color.fromRGBO(255, 255, 255, 0.05)  // Disabled border
+                            : const Color.fromRGBO(255, 255, 255, 0.08),  // Enabled border
                           width: 1.5,
                         ),
                       ),
@@ -1089,6 +1116,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
   @override
   void dispose() {
+    _urlController.removeListener(_updateUrlFieldState);
     _urlController.dispose();
     _newServerController.dispose();
     super.dispose();
