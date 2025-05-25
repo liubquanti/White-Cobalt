@@ -920,43 +920,64 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             if (_responseData != null && _responseData!['status'] == 'picker')
               // Use a container with fixed height instead of Expanded 
               Container(
-                height: 300, // Adjust this value based on your needs
-                padding: const EdgeInsets.only(top: 10.0),
-                child: ListView.builder(
-                  shrinkWrap: true, // Add this
-                  itemCount: _responseData!['picker'].length,
-                  itemBuilder: (context, index) {
-                    final item = _responseData!['picker'][index];
-                    return Card(
-                      color: const Color(0xFF191919),
-                      margin: const EdgeInsets.symmetric(vertical: 4.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+              height: 300, // Adjust this value based on your needs
+              padding: const EdgeInsets.only(top: 10.0),
+              child: ListView.builder(
+                shrinkWrap: true, // Add this
+                itemCount: _responseData!['picker'].length,
+                itemBuilder: (context, index) {
+                final item = _responseData!['picker'][index];
+                return Card(
+                  color: const Color(0xFF191919),
+                  margin: const EdgeInsets.symmetric(vertical: 4.0),
+                  shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ListTile(
+                  leading: item['thumb'] != null
+                    ? Image.network(
+                      _fixServerUrl(item['thumb']),
+                      width: 50,
+                      errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.broken_image),
+                      )
+                    : Icon(
+                      item['type'] == 'photo'
+                        ? Icons.image
+                        : item['type'] == 'gif'
+                          ? Icons.gif
+                          : Icons.video_library,
                       ),
-                      child: ListTile(
-                        leading: item['thumb'] != null
-                            ? Image.network(
-                                _fixServerUrl(item['thumb']),
-                                width: 50,
-                                errorBuilder: (_, __, ___) =>
-                                    const Icon(Icons.broken_image),
-                              )
-                            : Icon(
-                                item['type'] == 'photo'
-                                    ? Icons.image
-                                    : item['type'] == 'gif'
-                                        ? Icons.gif
-                                        : Icons.video_library,
-                              ),
-                        title: Text('${item['type']} #${index + 1}'),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.download),
-                          onPressed: () => _downloadPickerItem(item['url'], item['type']),
-                        ),
-                      ),
-                    );
-                  },
+                  title: Text('${item['type']} #${index + 1}'),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.download),
+                    onPressed: () => _downloadPickerItem(item['url'], item['type']),
+                  ),
+                  ),
+                );
+                },
+              ),
+              ),
+              const SizedBox(height: 10),
+              const Divider(
+                color: Color(0xFF383838),
+                thickness: 1.0,
+                height: 20,
+              ),
+
+              Padding(
+              padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
+              child: Container(
+                alignment: Alignment.center,
+                child: const Text(
+                'powered by cobalt, made by white heart',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
                 ),
+                textAlign: TextAlign.center,
+                ),
+              ),
               ),
           ],
         ),
