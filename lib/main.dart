@@ -625,9 +625,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
-                  border: const OutlineInputBorder(
+                  enabledBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(11)),
-                    borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
+                    borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
                   ),
                   focusedBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(11)),
@@ -719,9 +719,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   enabled: !_isDownloadInProgress,
                   decoration: InputDecoration(
                     hintText: 'paste the link here',
-                    border: const OutlineInputBorder(
+                    enabledBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(11)),
-                      borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
+                      borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
+                    ),
+                    disabledBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(11)),
+                      borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
                     ),
                     focusedBorder: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(11)),
