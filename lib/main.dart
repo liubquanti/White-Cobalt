@@ -1114,7 +1114,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.info_outline, color: Colors.orange, size: 16),
+                            Icon(Icons.dns, color: Colors.orange, size: 16),
                             SizedBox(width: 8),
                             Text(
                               'No server selected',
@@ -1158,29 +1158,52 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 )
               else if (_status.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF191919),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.05),
+                    width: 1.5,
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                    Icon(
+                      _status.contains('Error') ? Icons.error_outline : Icons.info_outline,
+                      color: _status.contains('Error') ? Colors.red : Colors.orange,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          _status.contains('Error') ? Icons.error_outline : Icons.info_outline,
-                          color: _status.contains('Error') ? Colors.red : Colors.orange,
-                          size: 16
+                        Text(
+                        _status.contains('Error')
+                          ? 'Error'
+                          : 'Status',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: 10),
-                        Flexible(
-                          child: Text(
-                            _status, 
-                            style: TextStyle(
-                              fontSize: 14, 
-                              color: _status.contains('Error') ? Colors.red : Colors.white,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                        _status,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: _status.contains('Error') ? Colors.red : Colors.white,
+                        ),
                         ),
                       ],
+                      ),
                     ),
+                    ],
+                  ),
                   ),
                 ),
               
