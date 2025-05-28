@@ -160,9 +160,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     });
     
     try {
+      print('Fetching server info from: $_baseUrl');
       final response = await http.get(Uri.parse(_baseUrl!));
+      print('Server info response: ${response.statusCode} - ${response.body}');
+      
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print('Parsed server info: $data');
         
         if (data.containsKey('cobalt') && 
             data['cobalt'].containsKey('version') && 
@@ -173,7 +177,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             _status = 'Connected to Cobalt v${data['cobalt']['version']}';
             _isLoading = false;
           });
+          print('Successfully connected to Cobalt v${data['cobalt']['version']}');
         } else {
+          print('Not a valid Cobalt server response: $data');
           setState(() {
             _status = 'Error: Not a valid Cobalt server';
             _isLoading = false;
@@ -183,12 +189,14 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           });
         }
       } else {
+        print('Server error: ${response.statusCode} - ${response.body}');
         setState(() {
           _status = 'Server error: ${response.statusCode}';
           _isLoading = false;
         });
       }
     } catch (e) {
+      print('Exception while fetching server info: $e');
       setState(() {
         _status = 'Connection error: $e';
         _isLoading = false;
@@ -374,6 +382,15 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     try {
       Uri.parse(url);
       
+      print('Sending request to: $_baseUrl');
+      print('Request payload: ${jsonEncode({
+        'url': url,
+        'videoQuality': 'max',
+        'audioFormat': 'mp3',
+        'filenameStyle': 'pretty',
+        'downloadMode': 'auto',
+      })}');
+      
       final response = await http.post(
         Uri.parse(_baseUrl!),
         headers: {
@@ -389,6 +406,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         }),
       );
 
+      print('Server response status code: ${response.statusCode}');
+      print('Server response body: ${response.body}');
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         setState(() {
@@ -397,8 +417,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           _status = 'Response received: ${data['status']}';
         });
 
+        print('Parsed response data: $data');
+
         if (data['status'] == 'redirect' || data['status'] == 'tunnel') {
           final String downloadUrl = _fixServerUrl(data['url']);
+          print('Download URL: $downloadUrl');
+          print('Filename: ${data['filename']}');
+          
           await _downloadFile(downloadUrl, data['filename']);
           
           Future.delayed(const Duration(seconds: 2), () {
@@ -407,23 +432,53 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             });
           });
         } else if (data['status'] == 'picker') {
+          print('Picker options: ${data['picker'].length}');
           setState(() {
             _isDownloadInProgress = false;
           });
         } else if (data['status'] == 'error') {
-          setState(() {
-            _status = 'Error: ${data['error']['code']}';
-            _isDownloadInProgress = false;
-          });
+          print('Error from server: ${data['error']}');
+          
+          if (data['error']['code'] == 'error.api.auth.key.missing') {
+            setState(() {
+              _status = 'API key required';
+              _isDownloadInProgress = false;
+            });
+          } else {
+            setState(() {
+              _status = 'Error: ${data['error']['code']}';
+              _isDownloadInProgress = false;
+            });
+          }
         }
       } else {
-        setState(() {
-          _isLoading = false;
-          _isDownloadInProgress = false;
-          _status = 'Request error: ${response.statusCode}';
-        });
+        try {
+          final errorData = jsonDecode(response.body);
+          print('Error response: ${response.statusCode} - ${response.body}');
+          
+          setState(() {
+            _responseData = errorData;
+            _isLoading = false;
+            _isDownloadInProgress = false;
+            
+            if (errorData['status'] == 'error' && 
+                errorData['error'] != null && 
+                errorData['error']['code'] == 'error.api.auth.key.missing') {
+              _status = 'API key required';
+            } else {
+              _status = 'Request error: ${response.statusCode}';
+            }
+          });
+        } catch (e) {
+          setState(() {
+            _isLoading = false;
+            _isDownloadInProgress = false;
+            _status = 'Request error: ${response.statusCode}';
+          });
+        }
       }
     } catch (e) {
+      print('Exception during request: $e');
       setState(() {
         _isLoading = false;
         _isDownloadInProgress = false;
@@ -447,7 +502,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   Future<void> _downloadFile(String url, String filename) async {
     try {
       const String downloadsPath = '/storage/emulated/0/Download';
-      const cobaltDownloadsDir = '$downloadsPath/cobalt_downloads';
+      const cobaltDownloadsDir = '$downloadsPath/Cobalt';
       final downloadsDir = Directory(cobaltDownloadsDir);
       if (!await downloadsDir.exists()) {
         await downloadsDir.create(recursive: true);
@@ -486,6 +541,11 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       final fixedUrl = _fixServerUrl(url);
       final extension = type == 'photo' ? '.jpg' : type == 'gif' ? '.gif' : '.mp4';
       final filename = 'cobalt_${DateTime.now().millisecondsSinceEpoch}$extension';
+      
+      print('Downloading picker item: $type');
+      print('Fixed URL: $fixedUrl');
+      print('Filename: $filename');
+      
       await _downloadFile(fixedUrl, filename);
       
       Future.delayed(const Duration(seconds: 2), () {
@@ -494,6 +554,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         });
       });
     } catch (e) {
+      print('Error downloading picker item: $e');
       setState(() {
         _status = 'Download error: $e';
         _isDownloadInProgress = false;
@@ -592,6 +653,18 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     return _baseUrl != null && _baseUrl != 'add_new';
   }
 
+  Map<String, dynamic>? _getErrorDetails() {
+    if (_responseData == null || _responseData!['status'] != 'error') {
+      return null;
+    }
+    
+    if (_responseData!['error'] != null) {
+      print("Error details found: ${_responseData!['error']}");
+      return _responseData!['error'];
+    }
+    return null;
+  }
+
   void _updateUrlFieldState() {
     final newValue = _urlController.text.trim().isEmpty;
     if (newValue != _urlFieldEmpty) {
@@ -603,6 +676,8 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final errorDetails = _getErrorDetails();
+    
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -622,6 +697,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 height: 120,
               ),
               const SizedBox(height: 16),
+              
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
                   enabledBorder: const OutlineInputBorder(
@@ -836,6 +912,60 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 height: 20,
               ),
               
+              if (errorDetails != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10.0),
+                  child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF191919),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.05),
+                    width: 1.5,
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                    const Row(
+                      children: [
+                      Icon(Icons.error, color: Colors.red, size: 16),
+                      SizedBox(width: 8),
+                      Text(
+                        'Server Error',
+                        style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${errorDetails['code']}',
+                      style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    if (errorDetails['message'] != null)
+                      Padding(
+                      padding: const EdgeInsets.only(top: 2.0),
+                      child: Text(
+                        '${errorDetails['message']}',
+                        style: TextStyle(
+                        color: Colors.white.withOpacity(0.8),
+                        fontSize: 13,
+                        ),
+                      ),
+                      ),
+                    ],
+                  ),
+                  ),
+                ),
+            
               if (_serverInfo != null && _baseUrl != 'add_new')
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
@@ -961,7 +1091,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                     ),
                   ),
                 ),
-            
+              
               if (_responseData != null && _responseData!['status'] == 'picker')
                 Container(
                   height: 300,
@@ -1051,11 +1181,11 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                 ),
               ),
-            ],
+            ]
           ),
         ),
-      ),
-    );
+      ));
+
   }
 
   @override
