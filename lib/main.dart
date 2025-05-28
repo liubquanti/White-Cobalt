@@ -703,10 +703,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       _currentApiKey = _servers.first.apiKey;
                       _fetchServerInfo();
                     } else {
-                      _baseUrl = null;
+                      _baseUrl = 'add_new';
                       _currentApiKey = null;
                       _serverInfo = null;
-                      _status = 'No servers configured. Please add a Cobalt server.';
+                      _status = 'No server selected';
                     }
                   }
                 });
