@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -59,18 +60,40 @@ class CobaltHomePage extends StatefulWidget {
   State<CobaltHomePage> createState() => _CobaltHomePageState();
 }
 
+class ServerConfig {
+  final String url;
+  final String? apiKey;
+
+  ServerConfig(this.url, this.apiKey);
+
+  Map<String, dynamic> toJson() => {
+    'url': url,
+    'apiKey': apiKey,
+  };
+
+  factory ServerConfig.fromJson(Map<String, dynamic> json) {
+    return ServerConfig(
+      json['url'] as String,
+      json['apiKey'] as String?,
+    );
+  }
+}
+
 class _CobaltHomePageState extends State<CobaltHomePage> {
   static const platform = MethodChannel('com.whitecobalt.share/url');
   
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _newServerController = TextEditingController();
+  final TextEditingController _apiKeyController = TextEditingController();
+  
   String? _baseUrl;
+  String? _currentApiKey;
   bool _isLoading = false;
   bool _isDownloadInProgress = false;
   String _status = '';
   Map<String, dynamic>? _serverInfo;
   Map<String, dynamic>? _responseData;
-  List<String> _servers = [];
+  List<ServerConfig> _servers = [];
   bool _urlFieldEmpty = true;
 
   @override
@@ -122,17 +145,22 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
   Future<void> _loadSavedServers() async {
     final prefs = await SharedPreferences.getInstance();
-    final servers = prefs.getStringList('servers');
-    if (servers != null && servers.isNotEmpty) {
+    final serversJson = prefs.getStringList('servers_config');
+    
+    if (serversJson != null && serversJson.isNotEmpty) {
       setState(() {
-        _servers = servers;
-        _baseUrl = servers.first;
+        _servers = serversJson
+            .map((s) => ServerConfig.fromJson(jsonDecode(s)))
+            .toList();
+        _baseUrl = _servers.first.url;
+        _currentApiKey = _servers.first.apiKey;
       });
       _fetchServerInfo();
     } else {
       setState(() {
         _servers = [];
         _baseUrl = 'add_new';
+        _currentApiKey = null;
         _status = 'No servers configured. Please add a Cobalt server.';
       });
     }
@@ -140,7 +168,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
   Future<void> _saveServers() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('servers', _servers);
+    final serversJson = _servers
+        .map((server) => jsonEncode(server.toJson()))
+        .toList();
+    await prefs.setStringList('servers_config', serversJson);
   }
 
   Future<void> _fetchServerInfo() async {
@@ -184,7 +215,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             _status = 'Error: Not a valid Cobalt server';
             _isLoading = false;
             if (_servers.length > 1 && _baseUrl != _servers.first) {
-              _baseUrl = _servers.first;
+              _baseUrl = _servers.first.url;
             }
           });
         }
@@ -205,6 +236,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   }
 
   Future<void> _addNewServer() {
+    _newServerController.clear();
+    _apiKeyController.clear();
+    
     return showDialog(
       context: context,
       builder: (context) {
@@ -225,38 +259,70 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
           content: SizedBox(
             width: MediaQuery.of(context).size.width,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: TextField(
-                controller: _newServerController,
-                decoration: InputDecoration(
-                  hintText: 'Enter server URL',
-                  border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(11)),
-                    borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(11)),
-                    borderSide: BorderSide(width: 2.0, color: Colors.white),
-                  ),
-                  prefixIcon: SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: Center(
-                      child: SvgPicture.string(
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-server"><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M7 8l0 .01"></path><path d="M7 16l0 .01"></path></svg>',
-                        width: 20,
-                        height: 20,
-                        colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _newServerController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter server URL',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(11)),
+                      borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(11)),
+                      borderSide: BorderSide(width: 2.0, color: Colors.white),
+                    ),
+                    prefixIcon: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Center(
+                        child: SvgPicture.string(
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-server"><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M7 8l0 .01"></path><path d="M7 16l0 .01"></path></svg>',
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                        ),
                       ),
                     ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                  style: const TextStyle(fontSize: 14),
+                  keyboardType: TextInputType.url,
+                  cursorColor: const Color(0xFFE1E1E1),
                 ),
-                style: const TextStyle(fontSize: 14),
-                keyboardType: TextInputType.url,
-                cursorColor: const Color(0xFFE1E1E1),
-              ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _apiKeyController,
+                  decoration: InputDecoration(
+                    hintText: 'API Key (optional)',
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(11)),
+                      borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(11)),
+                      borderSide: BorderSide(width: 2.0, color: Colors.white),
+                    ),
+                    prefixIcon: SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Center(
+                        child: SvgPicture.string(
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-key"><path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.068l-2.643 2.643a2.877 2.877 0 0 1 -4.068 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l6.558 -6.558l-.301 -.301a2.877 2.877 0 0 1 0 -4.068l2.643 -2.643a2.877 2.877 0 0 1 4.068 0z"></path><path d="M15 9h.01"></path></svg>',
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                        ),
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                  ),
+                  style: const TextStyle(fontSize: 14),
+                  cursorColor: const Color(0xFFE1E1E1),
+                ),
+              ],
             ),
           ),
           actions: [
@@ -281,9 +347,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             TextButton(
               onPressed: () async {
                 final newServer = _newServerController.text.trim();
-                if (newServer.isNotEmpty && !_servers.contains(newServer)) {
+                final apiKey = _apiKeyController.text.trim();
+                
+                if (newServer.isNotEmpty && !_servers.any((s) => s.url == newServer)) {
                   Navigator.of(context).pop();
-                  _newServerController.clear();
                   
                   setState(() {
                     _status = 'Verifying server...';
@@ -299,9 +366,15 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                         data['cobalt'].containsKey('version') && 
                         data['cobalt'].containsKey('services')) {
                       
+                        final serverConfig = ServerConfig(
+                          newServer, 
+                          apiKey.isNotEmpty ? apiKey : null
+                        );
+                        
                         setState(() {
-                          _servers.add(newServer);
+                          _servers.add(serverConfig);
                           _baseUrl = newServer;
+                          _currentApiKey = apiKey.isNotEmpty ? apiKey : null;
                           _serverInfo = data;
                           _status = 'Connected to Cobalt v${data['cobalt']['version']}';
                           _isLoading = false;
@@ -327,7 +400,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   }
                 } else {
                   Navigator.of(context).pop();
-                  _newServerController.clear();
                 }
               },
               style: TextButton.styleFrom(
@@ -391,12 +463,19 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         'downloadMode': 'auto',
       })}');
       
+      final headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      
+      if (_currentApiKey != null && _currentApiKey!.isNotEmpty) {
+        headers['Authorization'] = 'Api-Key $_currentApiKey';
+        print('Using API key: ${_currentApiKey!.substring(0, min(_currentApiKey!.length, 4))}...');
+      }
+      
       final response = await http.post(
         Uri.parse(_baseUrl!),
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: jsonEncode({
           'url': url,
           'videoQuality': 'max',
@@ -562,7 +641,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     }
   }
 
-  Future<void> _deleteServer(String server) async {
+  Future<void> _deleteServer(String serverUrl) async {
     return showDialog(
       context: context,
       builder: (context) {
@@ -586,7 +665,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             child: Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Text(
-                'Are you sure you want to delete this server?\n\n$server',
+                'Are you sure you want to delete this server?\n\n$serverUrl',
                 style: const TextStyle(fontSize: 14),
               ),
             ),
@@ -613,14 +692,19 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  _servers.remove(server);
+                  int indexToRemove = _servers.indexWhere((s) => s.url == serverUrl);
+                  if (indexToRemove >= 0) {
+                    _servers.removeAt(indexToRemove);
+                  }
                   
-                  if (_baseUrl == server) {
+                  if (_baseUrl == serverUrl) {
                     if (_servers.isNotEmpty) {
-                      _baseUrl = _servers.first;
+                      _baseUrl = _servers.first.url;
+                      _currentApiKey = _servers.first.apiKey;
                       _fetchServerInfo();
                     } else {
                       _baseUrl = null;
+                      _currentApiKey = null;
                       _serverInfo = null;
                       _status = 'No servers configured. Please add a Cobalt server.';
                     }
@@ -725,11 +809,11 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 value: _servers.isNotEmpty ? _baseUrl : 'add_new',
                 items: [
                   ..._servers.map((server) => DropdownMenuItem<String>(
-                    value: server,
+                    value: server.url,
                     child: GestureDetector(
                       onLongPress: () {
                         Navigator.pop(context);
-                        _deleteServer(server);
+                        _deleteServer(server.url);
                       },
                       behavior: HitTestBehavior.opaque,
                       child: Row(
@@ -737,11 +821,17 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                         children: [
                           Expanded(
                             child: Text(
-                              server,
+                              server.url,
                               style: const TextStyle(fontSize: 14),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          if (server.apiKey != null && server.apiKey!.isNotEmpty)
+                            const Icon(
+                              Icons.key,
+                              size: 16,
+                              color: Colors.green,
+                            ),
                         ],
                       ),
                     ),
@@ -764,8 +854,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       _baseUrl = 'add_new';
                     });
                   } else if (value != null && value != _baseUrl) {
+                    final selectedServer = _servers.firstWhere((s) => s.url == value);
                     setState(() {
                       _baseUrl = value;
+                      _currentApiKey = selectedServer.apiKey;
                       _status = 'Connecting to server...';
                     });
                     await _fetchServerInfo();
