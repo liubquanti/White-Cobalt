@@ -28,7 +28,6 @@ flutter:
     - family: NotoSansMono
       fonts:
         - asset: fonts/NotoSansMono.ttf
-          # Оскільки це variable шрифт, вкажемо це:
           style: normal
           weight: 400
   assets:

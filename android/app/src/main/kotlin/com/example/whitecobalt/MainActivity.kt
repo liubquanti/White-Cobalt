@@ -1,4 +1,4 @@
-package com.example.whitecobalt
+package liubquanti.white.cobalt
 
 import android.content.Intent
 import android.os.Bundle

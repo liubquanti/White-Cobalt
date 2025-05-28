@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.whitecobalt"
+    namespace = "liubquanti.white.cobalt"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -19,7 +19,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.whitecobalt"
+        applicationId = "liubquanti.white.cobalt"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
