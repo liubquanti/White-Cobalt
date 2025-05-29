@@ -31,4 +31,4 @@ flutter:
           style: normal
           weight: 400
   assets:
-    - assets/meowbalt/smile.png
+    - assets/heart/heart.png

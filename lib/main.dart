@@ -265,7 +265,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 TextField(
                   controller: _newServerController,
                   decoration: InputDecoration(
-                    hintText: 'Enter server URL',
+                    hintText: 'Enter server address',
                     border: const OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(11)),
                       borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
@@ -322,12 +322,14 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   style: const TextStyle(fontSize: 14),
                   cursorColor: const Color(0xFFE1E1E1),
                 ),
+                const SizedBox(height: 5),
               ],
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () {
+                onPressed: () async {
+                await Future.delayed(const Duration(milliseconds: 200));
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
@@ -346,6 +348,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             ),
             TextButton(
               onPressed: () async {
+                await Future.delayed(const Duration(milliseconds: 200));
                 final newServer = _newServerController.text.trim();
                 final apiKey = _apiKeyController.text.trim();
                 
@@ -777,7 +780,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Image.asset(
-                'assets/meowbalt/smile.png',
+                'assets/heart/heart.png',
                 height: 120,
               ),
               const SizedBox(height: 16),
