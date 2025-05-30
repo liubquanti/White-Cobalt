@@ -118,7 +118,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   List<ServerConfig> _servers = [];
   bool _urlFieldEmpty = true;
   bool _useLocalProcessing = true;
-  String _downloadMode = 'auto';  // Default download mode
+  String _downloadMode = 'auto';
   late AppSettings _appSettings;
   
   @override
@@ -526,7 +526,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         'videoQuality': 'max',
         'audioFormat': 'mp3',
         'filenameStyle': 'pretty',
-        'downloadMode': _downloadMode,  // Use the selected download mode
+        'downloadMode': _downloadMode,
         'localProcessing': _useLocalProcessing,
       };
       
@@ -562,21 +562,17 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         print('Parsed response data: $data');
 
         if (data['status'] == 'local-processing') {
-          // Handle local processing tunnels
           if (data.containsKey('tunnel') && data['tunnel'] is List && data['tunnel'].isNotEmpty) {
             setState(() {
               _status = 'Local processing: ${data['type']}';
             });
             
-            // Get the first tunnel URL
             final String tunnelUrl = data['tunnel'][0];
-            // Get the filename from the output section
             final String filename = data['output']['filename'];
             
             print('Local processing tunnel URL: $tunnelUrl');
             print('Local processing filename: $filename');
-            
-            // Download via the tunnel URL
+
             await _downloadFile(tunnelUrl, filename);
             
             Future.delayed(const Duration(seconds: 2), () {
@@ -1079,7 +1075,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       ),
                     ),
                     
-                    // Download Mode Selector - Keep this
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Container(
@@ -1467,7 +1462,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     super.dispose();
   }
 
-  // Helper method to build mode buttons
   Widget _buildModeButton(String mode, String label) {
     final bool isSelected = _downloadMode == mode;
     
@@ -1497,7 +1491,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     );
   }
 
-  // Helper method for the divider between buttons
   Widget _buildModeDivider() {
     return Container(
       height: 16,
@@ -1573,7 +1566,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
               
-              // Local Processing Setting
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF191919),
@@ -1656,7 +1648,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
               
-              // About Container
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF191919),
