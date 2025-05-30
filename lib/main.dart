@@ -95,6 +95,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   Map<String, dynamic>? _responseData;
   List<ServerConfig> _servers = [];
   bool _urlFieldEmpty = true;
+  bool _useLocalProcessing = false;
 
   @override
   void initState() {
@@ -458,13 +459,17 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       Uri.parse(url);
       
       print('Sending request to: $_baseUrl');
-      print('Request payload: ${jsonEncode({
+      
+      final requestPayload = {
         'url': url,
         'videoQuality': 'max',
         'audioFormat': 'mp3',
         'filenameStyle': 'pretty',
         'downloadMode': 'auto',
-      })}');
+        'localProcessing': _useLocalProcessing,
+      };
+      
+      print('Request payload: ${jsonEncode(requestPayload)}');
       
       final headers = {
         'Accept': 'application/json',
@@ -479,13 +484,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       final response = await http.post(
         Uri.parse(_baseUrl!),
         headers: headers,
-        body: jsonEncode({
-          'url': url,
-          'videoQuality': 'max',
-          'audioFormat': 'mp3',
-          'filenameStyle': 'pretty',
-          'downloadMode': 'auto',
-        }),
+        body: jsonEncode(requestPayload),
       );
 
       print('Server response status code: ${response.statusCode}');
@@ -501,7 +500,36 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
         print('Parsed response data: $data');
 
-        if (data['status'] == 'redirect' || data['status'] == 'tunnel') {
+        if (data['status'] == 'local-processing') {
+          // Handle local processing tunnels
+          if (data.containsKey('tunnel') && data['tunnel'] is List && data['tunnel'].isNotEmpty) {
+            setState(() {
+              _status = 'Local processing: ${data['type']}';
+            });
+            
+            // Get the first tunnel URL
+            final String tunnelUrl = data['tunnel'][0];
+            // Get the filename from the output section
+            final String filename = data['output']['filename'];
+            
+            print('Local processing tunnel URL: $tunnelUrl');
+            print('Local processing filename: $filename');
+            
+            // Download via the tunnel URL
+            await _downloadFile(tunnelUrl, filename);
+            
+            Future.delayed(const Duration(seconds: 2), () {
+              setState(() {
+                _isDownloadInProgress = false;
+              });
+            });
+          } else {
+            setState(() {
+              _status = 'Local processing error: Invalid response format';
+              _isDownloadInProgress = false;
+            });
+          }
+        } else if (data['status'] == 'redirect' || data['status'] == 'tunnel') {
           final String downloadUrl = _fixServerUrl(data['url']);
           print('Download URL: $downloadUrl');
           print('Filename: ${data['filename']}');
@@ -906,7 +934,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       height: 24,
                       child: Center(
                       child: SvgPicture.string(
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463"></path></svg>',
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l .524 -.463"></path></svg>',
                         width: 20,
                         height: 20,
                         colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
@@ -948,37 +976,87 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 ),
 
               if (_isRealServerSelected()) 
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: ElevatedButton(
-                    onPressed: (_isLoading || _urlFieldEmpty || _isDownloadInProgress) ? null : _processUrl,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                      backgroundColor: const Color(0xFF191919),
-                      foregroundColor: (_urlFieldEmpty || _isDownloadInProgress) 
-                        ? Colors.white38
-                        : const Color(0xFFe1e1e1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(11),
-                        side: BorderSide(
-                          color: (_urlFieldEmpty || _isDownloadInProgress)
-                            ? const Color.fromRGBO(255, 255, 255, 0.05)
-                            : const Color.fromRGBO(255, 255, 255, 0.08),
-                          width: 1.5,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: ElevatedButton(
+                        onPressed: (_isLoading || _urlFieldEmpty || _isDownloadInProgress) ? null : _processUrl,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                          backgroundColor: const Color(0xFF191919),
+                          foregroundColor: (_urlFieldEmpty || _isDownloadInProgress) 
+                            ? Colors.white38
+                            : const Color(0xFFe1e1e1),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(11),
+                            side: BorderSide(
+                              color: (_urlFieldEmpty || _isDownloadInProgress)
+                                ? const Color.fromRGBO(255, 255, 255, 0.05)
+                                : const Color.fromRGBO(255, 255, 255, 0.08),
+                              width: 1.5,
+                            ),
+                          ),
                         ),
+                        child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white70,
+                              ),
+                            )
+                          : const Text('download', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                       ),
                     ),
-                    child: _isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white70,
+                    
+                    // Local Processing Toggle
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: SvgPicture.string(
+                                  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8l-4 4l4 4"></path><path d="M17 8l4 4l-4 4"></path><path d="M14 4l-4 16"></path></svg>',
+                                  colorFilter: ColorFilter.mode(
+                                    _useLocalProcessing ? Colors.white : Colors.white38,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Local Processing',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: _useLocalProcessing ? Colors.white : Colors.white54,
+                                ),
+                              ),
+                            ],
                           ),
-                        )
-                      : const Text('download', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                  ),
+                          Switch(
+                            value: _useLocalProcessing,
+                            onChanged: _isDownloadInProgress ? null : (value) {
+                              setState(() {
+                                _useLocalProcessing = value;
+                              });
+                            },
+                            activeColor: const Color(0xFFFFFFFF),
+                            activeTrackColor: const Color(0xFF8a8a8a),
+                            inactiveThumbColor: const Color(0xFFFFFFFF),
+                            inactiveTrackColor: const Color(0xFF383838),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 )
               else if (_baseUrl == 'add_new')
                 Padding(
@@ -1172,37 +1250,35 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                     ),
                   ),
                   padding: const EdgeInsets.all(10.0),
-                  child: Row(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    Icon(
-                      _status.contains('Error') ? Icons.error_outline : Icons.info_outline,
-                      color: _status.contains('Error') ? Colors.red : Colors.orange,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    Row(
                       children: [
-                        Text(
+                      Icon(
                         _status.contains('Error')
-                          ? 'Error'
-                          : 'Status',
+                          ? Icons.error
+                          : Icons.info,
+                        color: _status.contains('Error')
+                          ? Colors.red
+                          : Colors.orange,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _status.contains('Error') ? 'Error' : 'Status',
                         style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
                         ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                        _status,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: _status.contains('Error') ? Colors.red : Colors.white,
-                        ),
-                        ),
+                      ),
                       ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _status,
+                      style: const TextStyle(
+                      fontSize: 12,
                       ),
                     ),
                     ],
