@@ -32,3 +32,4 @@ flutter:
           weight: 400
   assets:
     - assets/heart/heart.png
+    - assets/heart/Heart Meowbalt.svg

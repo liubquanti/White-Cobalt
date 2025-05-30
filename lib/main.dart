@@ -79,6 +79,28 @@ class ServerConfig {
   }
 }
 
+class AppSettings {
+  bool useLocalProcessing;
+  String downloadDir;
+
+  AppSettings({
+    this.useLocalProcessing = true,
+    this.downloadDir = '/storage/emulated/0/Download/Cobalt',
+  });
+
+  Map<String, dynamic> toJson() => {
+    'useLocalProcessing': useLocalProcessing,
+    'downloadDir': downloadDir,
+  };
+
+  factory AppSettings.fromJson(Map<String, dynamic> json) {
+    return AppSettings(
+      useLocalProcessing: json['useLocalProcessing'] ?? true,
+      downloadDir: json['downloadDir'] ?? '/storage/emulated/0/Download/Cobalt',
+    );
+  }
+}
+
 class _CobaltHomePageState extends State<CobaltHomePage> {
   static const platform = MethodChannel('com.whitecobalt.share/url');
   
@@ -95,17 +117,56 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   Map<String, dynamic>? _responseData;
   List<ServerConfig> _servers = [];
   bool _urlFieldEmpty = true;
-  bool _useLocalProcessing = false;
-
+  bool _useLocalProcessing = true;
+  String _downloadMode = 'auto';  // Default download mode
+  late AppSettings _appSettings;
+  
   @override
   void initState() {
     super.initState();
+    _loadSettings();
     _loadSavedServers();
     _requestPermissions();
     _checkForSharedUrl();
     _urlController.addListener(_updateUrlFieldState);
   }
-
+  
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final settingsJson = prefs.getString('app_settings');
+    
+    if (settingsJson != null) {
+      setState(() {
+        _appSettings = AppSettings.fromJson(jsonDecode(settingsJson));
+        _useLocalProcessing = _appSettings.useLocalProcessing;
+      });
+    } else {
+      setState(() {
+        _appSettings = AppSettings();
+        _useLocalProcessing = _appSettings.useLocalProcessing;
+      });
+    }
+  }
+  
+  void _onSettingsChanged(AppSettings newSettings) {
+    setState(() {
+      _appSettings = newSettings;
+      _useLocalProcessing = _appSettings.useLocalProcessing;
+    });
+  }
+  
+  void _openSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SettingsScreen(
+          settings: _appSettings,
+          onSettingsChanged: _onSettingsChanged,
+        ),
+      ),
+    );
+  }
+  
   Future<void> _checkForSharedUrl() async {
     try {
       await Future.delayed(const Duration(milliseconds: 500));
@@ -465,7 +526,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         'videoQuality': 'max',
         'audioFormat': 'mp3',
         'filenameStyle': 'pretty',
-        'downloadMode': 'auto',
+        'downloadMode': _downloadMode,  // Use the selected download mode
         'localProcessing': _useLocalProcessing,
       };
       
@@ -611,9 +672,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
   Future<void> _downloadFile(String url, String filename) async {
     try {
-      const String downloadsPath = '/storage/emulated/0/Download';
-      const cobaltDownloadsDir = '$downloadsPath/Cobalt';
-      final downloadsDir = Directory(cobaltDownloadsDir);
+      final downloadsDir = Directory(_appSettings.downloadDir);
       if (!await downloadsDir.exists()) {
         await downloadsDir.create(recursive: true);
       }
@@ -624,7 +683,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
       await FlutterDownloader.enqueue(
         url: url,
-        savedDir: cobaltDownloadsDir,
+        savedDir: _appSettings.downloadDir,
         fileName: filename,
         showNotification: true,
         openFileFromNotification: true,
@@ -799,6 +858,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         title: const Text('White Cobalt'),
         centerTitle: true,
         backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: _openSettings,
+            tooltip: 'Settings',
+          ),
+        ],
       ),
       resizeToAvoidBottomInset: true,
       body: SingleChildScrollView(
@@ -807,10 +873,11 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Image.asset(
-                'assets/heart/heart.png',
+                SvgPicture.asset(
+                'assets/heart/Heart Meowbalt.svg',
                 height: 120,
-              ),
+                color: Colors.white,
+                ),
               const SizedBox(height: 16),
               
               DropdownButtonFormField<String>(
@@ -1012,48 +1079,28 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       ),
                     ),
                     
-                    // Local Processing Toggle
+                    // Download Mode Selector - Keep this
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: SvgPicture.string(
-                                  '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8l-4 4l4 4"></path><path d="M17 8l4 4l-4 4"></path><path d="M14 4l-4 16"></path></svg>',
-                                  colorFilter: ColorFilter.mode(
-                                    _useLocalProcessing ? Colors.white : Colors.white38,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Local Processing',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: _useLocalProcessing ? Colors.white : Colors.white54,
-                                ),
-                              ),
-                            ],
+                      child: Container(
+                        height: 32,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(11),
+                          color: const Color(0xFF191919),
+                          border: Border.all(
+                            color: const Color.fromRGBO(255, 255, 255, 0.08),
+                            width: 1.5,
                           ),
-                          Switch(
-                            value: _useLocalProcessing,
-                            onChanged: _isDownloadInProgress ? null : (value) {
-                              setState(() {
-                                _useLocalProcessing = value;
-                              });
-                            },
-                            activeColor: const Color(0xFFFFFFFF),
-                            activeTrackColor: const Color(0xFF8a8a8a),
-                            inactiveThumbColor: const Color(0xFFFFFFFF),
-                            inactiveTrackColor: const Color(0xFF383838),
-                          ),
-                        ],
+                        ),
+                        child: Row(
+                          children: [
+                            _buildModeButton('auto', '✨ auto'),
+                            _buildModeDivider(),
+                            _buildModeButton('audio', '🎶 audio'),
+                            _buildModeDivider(),
+                            _buildModeButton('mute', '🔇 mute'),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -1375,6 +1422,36 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: Container(
+                  alignment: Alignment.center,
+                  child: RichText(
+                    textAlign: TextAlign.center,
+                    text: TextSpan(
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                        fontFamily: 'NotoSansMono',
+                      ),
+                      children: [
+                        const TextSpan(text: 'illustrated by '),
+                        TextSpan(
+                          text: 'ffastffox',
+                          style: const TextStyle(
+                            decoration: TextDecoration.underline,
+                            fontFamily: 'NotoSansMono',
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              _launchURL('https://www.instagram.com/ffastffox/');
+                            },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ]
           ),
         ),
@@ -1388,5 +1465,285 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     _urlController.dispose();
     _newServerController.dispose();
     super.dispose();
+  }
+
+  // Helper method to build mode buttons
+  Widget _buildModeButton(String mode, String label) {
+    final bool isSelected = _downloadMode == mode;
+    
+    return Expanded(
+      child: InkWell(
+        onTap: _isDownloadInProgress ? null : () {
+          setState(() {
+            _downloadMode = mode;
+          });
+        },
+        child: Container(
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(9),
+            color: isSelected ? const Color(0xFF333333) : Colors.transparent,
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              color: isSelected ? Colors.white : Colors.white54,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper method for the divider between buttons
+  Widget _buildModeDivider() {
+    return Container(
+      height: 16,
+      width: 1,
+      color: const Color.fromRGBO(255, 255, 255, 0.1),
+    );
+  }
+}
+
+class SettingsScreen extends StatefulWidget {
+  final AppSettings settings;
+  final Function(AppSettings) onSettingsChanged;
+
+  const SettingsScreen({
+    Key? key, 
+    required this.settings, 
+    required this.onSettingsChanged
+  }) : super(key: key);
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  late bool _useLocalProcessing;
+  late String _downloadDir;
+
+  @override
+  void initState() {
+    super.initState();
+    _useLocalProcessing = widget.settings.useLocalProcessing;
+    _downloadDir = widget.settings.downloadDir;
+  }
+
+  void _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final settings = AppSettings(
+      useLocalProcessing: _useLocalProcessing,
+      downloadDir: _downloadDir,
+    );
+    await prefs.setString('app_settings', jsonEncode(settings.toJson()));
+    widget.onSettingsChanged(settings);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('Settings'),
+        centerTitle: true,
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Download Options',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // Local Processing Setting
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF191919),
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.08),
+                    width: 1.5,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                    Expanded(
+                      child: Row(
+                      children: [
+                        SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: SvgPicture.string(
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8l-4 4l4 4"></path><path d="M17 8l4 4l-4 4"></path><path d="M14 4l-4 16"></path></svg>',
+                        colorFilter: ColorFilter.mode(
+                          _useLocalProcessing ? Colors.white : Colors.white38,
+                          BlendMode.srcIn,
+                        ),
+                        ),),
+                        const SizedBox(width: 12),
+                        Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                          Text(
+                            'Local Processing',
+                            style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: _useLocalProcessing ? Colors.white : Colors.white54,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Process media on the client-side for better compatibility',
+                            style: TextStyle(
+                            fontSize: 12,
+                            color: _useLocalProcessing ? Colors.white70 : Colors.white38,
+                            ),
+                            softWrap: true,
+                          ),
+                          ],
+                        ),
+                        ),
+                      ],
+                      ),
+                    ),
+                    Switch(
+                      value: _useLocalProcessing,
+                      onChanged: (value) {
+                      setState(() {
+                        _useLocalProcessing = value;
+                      });
+                      _saveSettings();
+                      },
+                      activeColor: const Color(0xFFFFFFFF),
+                      activeTrackColor: const Color(0xFF8a8a8a),
+                      inactiveThumbColor: const Color(0xFFFFFFFF),
+                      inactiveTrackColor: const Color(0xFF383838),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 20),
+              const Text(
+                'About',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // About Container
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF191919),
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.08),
+                    width: 1.5,
+                  ),
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'White Cobalt',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'A simple and efficient media downloader powered by Cobalt API.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _buildLinkButton(
+                          'GitHub',
+                          Icons.code,
+                          () => _launchURL('https://github.com/liubquanti/White-Cobalt'),
+                        ),
+                        _buildLinkButton(
+                          'Report Issue',
+                          Icons.bug_report,
+                          () => _launchURL('https://github.com/liubquanti/White-Cobalt/issues'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  Widget _buildLinkButton(String label, IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF333333),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: Colors.white70),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.white70,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchURL(String url) async {
+    try {
+      await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+    } catch (_) {}
   }
 }
