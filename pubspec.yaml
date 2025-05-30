@@ -1,6 +1,6 @@
 name: white_cobalt
 description: Media downloader using Cobalt API
-version: 1.0.0+1
+version: 0.1.0
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -15,6 +15,7 @@ dependencies:
   shared_preferences: ^2.2.0
   flutter_svg: ^2.1.0
   url_launcher: ^6.1.10
+  flutter_launcher_icons: ^0.14.3
   
 dev_dependencies:
   flutter_test:
@@ -33,3 +34,11 @@ flutter:
   assets:
     - assets/heart/heart.png
     - assets/heart/Heart Meowbalt.svg
+
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/icon/Heart.png"
+  adaptive_icon_foreground: "assets/icon/Heart.png"
+  min_sdk_android: 16
+  adaptive_icon_background: "#000000"
+  adaptive_icon_monochrome: "assets/icon/Heart.png"
