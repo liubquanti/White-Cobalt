@@ -91,24 +91,27 @@ class AppSettings {
   bool useLocalProcessing;
   String downloadDir;
   String downloadMode;
+  bool disableMetadata;
 
   AppSettings({
     this.useLocalProcessing = true,
     this.downloadDir = '/storage/emulated/0/Download/Cobalt',
     this.downloadMode = 'auto',
+    this.disableMetadata = false,
   });
 
   Map<String, dynamic> toJson() => {
     'useLocalProcessing': useLocalProcessing,
     'downloadDir': downloadDir,
     'downloadMode': downloadMode,
+    'disableMetadata': disableMetadata,
   };
-
   factory AppSettings.fromJson(Map<String, dynamic> json) {
     return AppSettings(
       useLocalProcessing: json['useLocalProcessing'] ?? true,
       downloadDir: json['downloadDir'] ?? '/storage/emulated/0/Download/Cobalt',
       downloadMode: json['downloadMode'] ?? 'auto',
+      disableMetadata: json['disableMetadata'] ?? false,
     );
   }
 }
@@ -161,12 +164,12 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       });
     }
   }
-  
-  void _onSettingsChanged(AppSettings newSettings) {
+    void _onSettingsChanged(AppSettings newSettings) {
     setState(() {
       _appSettings = newSettings;
       _useLocalProcessing = _appSettings.useLocalProcessing;
       _downloadMode = _appSettings.downloadMode;
+      // disableMetadata is accessed directly from _appSettings when needed
     });
   }
   
@@ -535,14 +538,14 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       Uri.parse(url);
       
       print('Sending request to: $_baseUrl');
-      
-      final requestPayload = {
+        final requestPayload = {
         'url': url,
         'videoQuality': 'max',
         'audioFormat': 'mp3',
         'filenameStyle': 'pretty',
         'downloadMode': _downloadMode,
         'localProcessing': _useLocalProcessing,
+        'disableMetadata': _appSettings.disableMetadata,
       };
       
       print('Request payload: ${jsonEncode(requestPayload)}');
@@ -1607,6 +1610,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _useLocalProcessing;
   late String _downloadDir;
   late String _downloadMode;
+  late bool _disableMetadata;
 
   @override
   void initState() {
@@ -1614,14 +1618,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _useLocalProcessing = widget.settings.useLocalProcessing;
     _downloadDir = widget.settings.downloadDir;
     _downloadMode = widget.settings.downloadMode;
+    _disableMetadata = widget.settings.disableMetadata;
   }
-
   void _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
     final settings = AppSettings(
       useLocalProcessing: _useLocalProcessing,
       downloadDir: _downloadDir,
       downloadMode: _downloadMode,
+      disableMetadata: _disableMetadata,
     );
     await prefs.setString('app_settings', jsonEncode(settings.toJson()));
     widget.onSettingsChanged(settings);
@@ -1719,6 +1724,79 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         _useLocalProcessing = value;
                       });
                       _saveSettings();
+                      },
+                      activeColor: const Color(0xFFFFFFFF),
+                      activeTrackColor: const Color(0xFF8a8a8a),
+                      inactiveThumbColor: const Color(0xFFFFFFFF),
+                      inactiveTrackColor: const Color(0xFF383838),
+                    ),
+                  ],
+                ),              ),
+
+              const SizedBox(height: 16),
+              
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF191919),
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.08),
+                    width: 1.5,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: SvgPicture.string(
+                              '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3V5a3 3 0 0 0-3-3"></path><path d="M9 14v-4h6v4"></path><path d="M12 14v4"></path></svg>',
+                              colorFilter: ColorFilter.mode(
+                                _disableMetadata ? Colors.white : Colors.white38,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Disable Metadata',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: _disableMetadata ? Colors.white : Colors.white54,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Remove title, artist, and other info from files',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: _disableMetadata ? Colors.white70 : Colors.white38,
+                                  ),
+                                  softWrap: true,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _disableMetadata,
+                      onChanged: (value) {
+                        setState(() {
+                          _disableMetadata = value;
+                        });
+                        _saveSettings();
                       },
                       activeColor: const Color(0xFFFFFFFF),
                       activeTrackColor: const Color(0xFF8a8a8a),
