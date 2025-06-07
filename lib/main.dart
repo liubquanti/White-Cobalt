@@ -82,21 +82,25 @@ class ServerConfig {
 class AppSettings {
   bool useLocalProcessing;
   String downloadDir;
+  String downloadMode; // Add this
 
   AppSettings({
     this.useLocalProcessing = true,
     this.downloadDir = '/storage/emulated/0/Download/Cobalt',
+    this.downloadMode = 'auto', // Default value
   });
 
   Map<String, dynamic> toJson() => {
     'useLocalProcessing': useLocalProcessing,
     'downloadDir': downloadDir,
+    'downloadMode': downloadMode, // Include in JSON
   };
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
     return AppSettings(
       useLocalProcessing: json['useLocalProcessing'] ?? true,
       downloadDir: json['downloadDir'] ?? '/storage/emulated/0/Download/Cobalt',
+      downloadMode: json['downloadMode'] ?? 'auto', // Load from JSON
     );
   }
 }
@@ -139,11 +143,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       setState(() {
         _appSettings = AppSettings.fromJson(jsonDecode(settingsJson));
         _useLocalProcessing = _appSettings.useLocalProcessing;
+        _downloadMode = _appSettings.downloadMode; // Load saved download mode
       });
     } else {
       setState(() {
         _appSettings = AppSettings();
         _useLocalProcessing = _appSettings.useLocalProcessing;
+        _downloadMode = _appSettings.downloadMode; // Use default from AppSettings
       });
     }
   }
@@ -152,6 +158,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     setState(() {
       _appSettings = newSettings;
       _useLocalProcessing = _appSettings.useLocalProcessing;
+      _downloadMode = _appSettings.downloadMode; // Update the current download mode
     });
   }
   
@@ -1090,9 +1097,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                         child: Row(
                           children: [
                             _buildModeButton('auto', '✨ auto'),
-                            _buildModeDivider(),
                             _buildModeButton('audio', '🎶 audio'),
-                            _buildModeDivider(),
                             _buildModeButton('mute', '🔇 mute'),
                           ],
                         ),
@@ -1471,6 +1476,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           setState(() {
             _downloadMode = mode;
           });
+          
+          // Save the setting when changed
+          _appSettings.downloadMode = mode;
+          _saveDownloadModeSetting();
         },
         child: Container(
           alignment: Alignment.center,
@@ -1491,12 +1500,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     );
   }
 
-  Widget _buildModeDivider() {
-    return Container(
-      height: 16,
-      width: 1,
-      color: const Color.fromRGBO(255, 255, 255, 0.1),
-    );
+  // Add this method to save the download mode setting
+  void _saveDownloadModeSetting() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('app_settings', jsonEncode(_appSettings.toJson()));
   }
 }
 
@@ -1517,12 +1524,14 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late bool _useLocalProcessing;
   late String _downloadDir;
+  late String _downloadMode;
 
   @override
   void initState() {
     super.initState();
     _useLocalProcessing = widget.settings.useLocalProcessing;
     _downloadDir = widget.settings.downloadDir;
+    _downloadMode = widget.settings.downloadMode;
   }
 
   void _saveSettings() async {
@@ -1530,6 +1539,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final settings = AppSettings(
       useLocalProcessing: _useLocalProcessing,
       downloadDir: _downloadDir,
+      downloadMode: _downloadMode,
     );
     await prefs.setString('app_settings', jsonEncode(settings.toJson()));
     widget.onSettingsChanged(settings);
@@ -1607,7 +1617,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Process media on the client-side for better compatibility',
+                            'Process media on the client-side',
                             style: TextStyle(
                             fontSize: 12,
                             color: _useLocalProcessing ? Colors.white70 : Colors.white38,
@@ -1704,24 +1714,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
   
   Widget _buildLinkButton(String label, IconData icon, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: const Color(0xFF333333),
-          borderRadius: BorderRadius.circular(8),
+    return Padding(
+      padding: const EdgeInsets.only(top: 5.0),
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          backgroundColor: const Color(0xFF191919),
+          foregroundColor: const Color(0xFFe1e1e1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(11),
+            side: const BorderSide(
+              color: Color.fromRGBO(255, 255, 255, 0.08),
+              width: 1.5,
+            ),
+          ),
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 16, color: Colors.white70),
             const SizedBox(width: 8),
             Text(
               label,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.white70,
-              ),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
           ],
         ),
