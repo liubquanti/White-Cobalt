@@ -11,6 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:filesize/filesize.dart';
 
 @pragma('vm:entry-point')
 void downloadCallback(String id, int status, int progress) {
@@ -1916,6 +1918,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
+              
+              const SizedBox(height: 20),
+              
+              // Add a Storage section
+              const Text(
+                'Storage',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // Storage Usage button
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StorageUsageScreen(
+                        baseDir: _downloadDir,
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF191919),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(
+                      color: const Color.fromRGBO(255, 255, 255, 0.08),
+                      width: 1.5,
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: SvgPicture.string(
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M5.8 11a6 6 0 0 1 6.2 -6"></path><path d="M12 5a6 6 0 0 1 6 6"></path><path d="M12 12l3.5 -1.5"></path></svg>',
+                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                        'Storage Usage',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const Spacer(),
+                      const Icon(
+                        Icons.chevron_right,
+                        color: Colors.white54,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -1963,4 +2029,328 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
     } catch (_) {}
   }
+}
+
+class StorageUsageScreen extends StatefulWidget {
+  final String baseDir;
+
+  const StorageUsageScreen({
+    Key? key,
+    required this.baseDir,
+  }) : super(key: key);
+
+  @override
+  State<StorageUsageScreen> createState() => _StorageUsageScreenState();
+}
+
+class _StorageUsageScreenState extends State<StorageUsageScreen> {
+  bool _isLoading = true;
+  List<ServiceStorage> _storageData = [];
+  int _totalSize = 0;
+  int _touchedIndex = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStorageData();
+  }
+
+  Future<void> _loadStorageData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final baseDir = Directory(widget.baseDir);
+      
+      if (!await baseDir.exists()) {
+        setState(() {
+          _isLoading = false;
+          _storageData = [];
+          _totalSize = 0;
+        });
+        return;
+      }
+
+      List<ServiceStorage> data = [];
+      int totalSize = 0;
+
+      // Get all subdirectories in the base dir
+      final List<FileSystemEntity> entities = await baseDir.list().toList();
+      final List<Directory> dirs = entities
+          .whereType<Directory>()
+          .toList();
+
+      // Calculate size for each directory
+      for (final dir in dirs) {
+        final String serviceName = dir.path.split('/').last;
+        final int size = await _calculateDirSize(dir);
+        
+        if (size > 0) {
+          data.add(ServiceStorage(serviceName, size));
+          totalSize += size;
+        }
+      }
+
+      // Sort by size (largest first)
+      data.sort((a, b) => b.size.compareTo(a.size));
+
+      setState(() {
+        _storageData = data;
+        _totalSize = totalSize;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading storage data: $e');
+      setState(() {
+        _isLoading = false;
+        _storageData = [];
+        _totalSize = 0;
+      });
+    }
+  }
+
+  Future<int> _calculateDirSize(Directory dir) async {
+    int size = 0;
+    try {
+      final List<FileSystemEntity> entities = await dir.list(recursive: true).toList();
+      for (final entity in entities) {
+        if (entity is File) {
+          size += await entity.length();
+        }
+      }
+    } catch (e) {
+      print('Error calculating size for ${dir.path}: $e');
+    }
+    return size;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Color> chartColors = [
+      const Color(0xFF2196F3), // Blue
+      const Color(0xFF4CAF50), // Green
+      const Color(0xFFFFC107), // Amber
+      const Color(0xFFFF5722), // Deep Orange
+      const Color(0xFF9C27B0), // Purple
+      const Color(0xFF00BCD4), // Cyan
+      const Color(0xFFE91E63), // Pink
+      const Color(0xFF3F51B5), // Indigo
+      const Color(0xFF795548), // Brown
+      const Color(0xFF607D8B), // Blue Grey
+    ];
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        title: const Text('Storage Usage'),
+        centerTitle: true,
+        backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadStorageData,
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: Colors.white70,
+              ),
+            )
+          : _totalSize == 0
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.folder_open,
+                          size: 64,
+                          color: Colors.white30,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'No downloads yet',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'When you download files using White Cobalt, they will be stored in:\n\n${widget.baseDir}',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white.withOpacity(0.7),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              Text(
+                                'Total: ${filesize(_totalSize)}',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 250,
+                                child: PieChart(
+                                  PieChartData(
+                                    pieTouchData: PieTouchData(
+                                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                                        setState(() {
+                                          if (!event.isInterestedForInteractions ||
+                                              pieTouchResponse == null ||
+                                              pieTouchResponse.touchedSection == null) {
+                                            _touchedIndex = -1;
+                                            return;
+                                          }
+                                          _touchedIndex =
+                                              pieTouchResponse.touchedSection!.touchedSectionIndex;
+                                        });
+                                      },
+                                    ),
+                                    borderData: FlBorderData(show: false),
+                                    sectionsSpace: 2,
+                                    centerSpaceRadius: 50,
+                                    sections: _storageData.asMap().entries.map((entry) {
+                                      final int index = entry.key;
+                                      final ServiceStorage data = entry.value;
+                                      final bool isTouched = index == _touchedIndex;
+                                      final double fontSize = isTouched ? 14.0 : 12.0;
+                                      final double radius = isTouched ? 60.0 : 50.0;
+                                      final Color color = chartColors[index % chartColors.length];
+
+                                      final double percentage = data.size / _totalSize * 100;
+                                      
+                                      return PieChartSectionData(
+                                        color: color,
+                                        value: data.size.toDouble(),
+                                        title: '${percentage.toStringAsFixed(1)}%',
+                                        radius: radius,
+                                        titleStyle: TextStyle(
+                                          fontSize: fontSize,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Text(
+                          'Service Breakdown',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Column(
+                          children: _storageData.asMap().entries.map((entry) {
+                            final int index = entry.key;
+                            final ServiceStorage data = entry.value;
+                            final Color color = chartColors[index % chartColors.length];
+                            final double percentage = data.size / _totalSize * 100;
+
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF191919),
+                                borderRadius: BorderRadius.circular(11),
+                                border: Border.all(
+                                  color: const Color.fromRGBO(255, 255, 255, 0.08),
+                                  width: 1.5,
+                                ),
+                              ),
+                                child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                child: Row(
+                                  children: [
+                                  Container(
+                                    width: 15,
+                                    height: 15,
+                                    decoration: BoxDecoration(
+                                    color: color,
+                                    shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                      data.serviceName,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white,
+                                      ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                      '${percentage.toStringAsFixed(1)}%',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.white70,
+                                      ),
+                                      ),
+                                    ],
+                                    ),
+                                  ),
+                                  Text(
+                                    filesize(data.size),
+                                    style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.white70,
+                                    ),
+                                  ),
+                                  ],
+                                ),
+                                ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+    );
+  }
+}
+
+// Model class for service storage data
+class ServiceStorage {
+  final String serviceName;
+  final int size;
+
+  ServiceStorage(this.serviceName, this.size);
 }
