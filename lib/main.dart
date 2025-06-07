@@ -506,7 +506,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
   Future<void> _requestPermissions() async {
     await Permission.storage.request();
-    await Permission.notification.request();
     await Permission.manageExternalStorage.request();
   }
 
@@ -668,32 +667,78 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     return url;
   }
 
-  Future<void> _downloadFile(String url, String filename) async {
-    try {
-      final downloadsDir = Directory(_appSettings.downloadDir);
-      if (!await downloadsDir.exists()) {
-        await downloadsDir.create(recursive: true);
-      }      setState(() {
-        _status = 'Downloading: 0%';
-      });
-      
-      final taskId = await FlutterDownloader.enqueue(
-        url: url,
-        savedDir: _appSettings.downloadDir,
-        fileName: filename,
-        showNotification: false,
-        openFileFromNotification: false,
-        saveInPublicStorage: true,
-      );
-      
-      _trackDownloadProgress(taskId);
-    } catch (e) {
-      setState(() {
-        _status = 'Download error: $e';
-        _isDownloadInProgress = false;
-      });
+String _getServiceName(Map<String, dynamic>? responseData, String filename, String url) {
+  if (responseData != null) {
+    if (responseData['service'] != null) {
+      return responseData['service'].toString().toLowerCase();
     }
   }
+  
+  if (filename.contains('_')) {
+    final serviceFromFilename = filename.split('_').first.toLowerCase();
+    if (serviceFromFilename.isNotEmpty) {
+      return serviceFromFilename;
+    }
+  }
+  
+  return _getServiceNameFromUrl(url);
+}
+
+String _getServiceNameFromUrl(String url) {
+  Uri uri;
+  try {
+    uri = Uri.parse(url);
+  } catch (_) {
+    return 'other';
+  }
+  
+  String host = uri.host.toLowerCase();
+  
+  List<String> parts = host.split('.');
+  if (parts.length > 1) {
+    if (parts[0] == 'www' && parts.length > 2) {
+      return parts[1];
+    } else {
+      return parts[parts.length - 2];
+    }
+  }
+  
+  return 'other';
+}
+
+Future<void> _downloadFile(String url, String filename) async {
+  try {
+    final serviceName = _getServiceName(_responseData, filename, _urlController.text.trim());
+    
+    final serviceDir = '${_appSettings.downloadDir}/$serviceName';
+    final serviceDirectory = Directory(serviceDir);
+    
+    if (!await serviceDirectory.exists()) {
+      await serviceDirectory.create(recursive: true);
+    }
+    
+    setState(() {
+      _status = 'Downloading: 0%';
+    });
+    
+    final taskId = await FlutterDownloader.enqueue(
+      url: url,
+      savedDir: serviceDir,
+      fileName: filename,
+      showNotification: false,
+      openFileFromNotification: false,
+      saveInPublicStorage: true,
+    );
+    
+    _trackDownloadProgress(taskId);
+  } catch (e) {
+    setState(() {
+      _status = 'Download error: $e';
+      _isDownloadInProgress = false;
+    });
+  }
+}
+
   DateTime? _lastProgressUpdate;
   
   void _trackDownloadProgress(String? taskId) {
@@ -782,13 +827,25 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       print('Fixed URL: $fixedUrl');
       print('Filename: $filename');
       
-      await _downloadFile(fixedUrl, filename);
+      final serviceName = _getServiceName(_responseData, filename, _urlController.text.trim());
       
-      Future.delayed(const Duration(seconds: 2), () {
-        setState(() {
-          _isDownloadInProgress = false;
-        });
-      });
+      final serviceDir = '${_appSettings.downloadDir}/$serviceName';
+      final serviceDirectory = Directory(serviceDir);
+      
+      if (!await serviceDirectory.exists()) {
+        await serviceDirectory.create(recursive: true);
+      }
+      
+      final taskId = await FlutterDownloader.enqueue(
+        url: fixedUrl,
+        savedDir: serviceDir,
+        fileName: filename,
+        showNotification: false,
+        openFileFromNotification: false,
+        saveInPublicStorage: true,
+      );
+      
+      _trackDownloadProgress(taskId);
     } catch (e) {
       print('Error downloading picker item: $e');
       setState(() {
