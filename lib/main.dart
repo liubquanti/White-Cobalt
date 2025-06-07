@@ -169,7 +169,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       _appSettings = newSettings;
       _useLocalProcessing = _appSettings.useLocalProcessing;
       _downloadMode = _appSettings.downloadMode;
-      // disableMetadata is accessed directly from _appSettings when needed
     });
   }
   
@@ -589,15 +588,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             final String filename = data['output']['filename'];
             
             print('Local processing tunnel URL: $tunnelUrl');
-            print('Local processing filename: $filename');
-
-            await _downloadFile(tunnelUrl, filename);
-            
-            Future.delayed(const Duration(seconds: 2), () {
-              setState(() {
-                _isDownloadInProgress = false;
-              });
-            });
+            print('Local processing filename: $filename');            await _downloadFile(tunnelUrl, filename);
           } else {
             setState(() {
               _status = 'Local processing error: Invalid response format';
@@ -608,14 +599,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           final String downloadUrl = _fixServerUrl(data['url']);
           print('Download URL: $downloadUrl');
           print('Filename: ${data['filename']}');
-          
-          await _downloadFile(downloadUrl, data['filename']);
-          
-          Future.delayed(const Duration(seconds: 2), () {
-            setState(() {
-              _isDownloadInProgress = false;
-            });
-          });
+            await _downloadFile(downloadUrl, data['filename']);
         } else if (data['status'] == 'picker') {
           print('Picker options: ${data['picker'].length}');
           setState(() {
@@ -690,7 +674,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       if (!await downloadsDir.exists()) {
         await downloadsDir.create(recursive: true);
       }      setState(() {
-        _status = 'Starting download...';
+        _status = 'Downloading: 0%';
       });
       
       final taskId = await FlutterDownloader.enqueue(
@@ -703,10 +687,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       );
       
       _trackDownloadProgress(taskId);
-
-      setState(() {
-        _status = 'Download started';
-      });
     } catch (e) {
       setState(() {
         _status = 'Download error: $e';
@@ -714,14 +694,26 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       });
     }
   }
-
+  DateTime? _lastProgressUpdate;
+  
   void _trackDownloadProgress(String? taskId) {
     if (taskId == null) return;
+    
+    _lastProgressUpdate = DateTime.now();
     
     Timer.periodic(const Duration(milliseconds: 500), (timer) async {
       if (!_isDownloadInProgress) {
         timer.cancel();
         return;
+      }
+      
+      if (_lastProgressUpdate != null && 
+          DateTime.now().difference(_lastProgressUpdate!).inSeconds > 10) {
+        setState(() {
+          if (_status.contains('Downloading:')) {
+            _status = '${_status} (still downloading...)';
+          }
+        });
       }
       
       try {
@@ -738,15 +730,19 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         }
         
         final task = tasks.first;
-        
-        setState(() {
-          switch (task.status) {
+          setState(() {          switch (task.status) {
             case DownloadTaskStatus.running:
               _status = 'Downloading: ${task.progress}%';
-              break;
-            case DownloadTaskStatus.complete:
-              _status = 'Download complete';
-              _isDownloadInProgress = false;
+              _lastProgressUpdate = DateTime.now();
+              break;            case DownloadTaskStatus.complete:
+              _status = 'Complete';
+              Future.delayed(const Duration(milliseconds: 800), () {
+                if (mounted) {
+                  setState(() {
+                    _isDownloadInProgress = false;
+                  });
+                }
+              });
               timer.cancel();
               break;
             case DownloadTaskStatus.failed:
@@ -1150,18 +1146,15 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                             ? Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white54,
+                                 Text(
+                                    _status.contains('Downloading:') ? 
+                                      _status.substring(_status.indexOf(':') + 1).trim() : 
+                                      _status,
+                                    style: TextStyle(
+                                      fontSize: 14, 
+                                      fontWeight: FontWeight.bold,
+                                      color: _status.contains('Complete') ? Colors.green : Colors.white,
                                     ),
-                                  ),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    _status.replaceFirst('Download ', '').replaceFirst('Downloading', 'progress'),
-                                    style: const TextStyle(fontSize: 14),
                                   ),
                                 ],
                               )
