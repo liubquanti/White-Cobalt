@@ -14,7 +14,9 @@ White Cobalt is in no way a piracy tool and cannot be used as such. It can only 
 
 White Cobalt was developed independently of the [creators of cobalt.tools](https://github.com/imputnet).
 
-[![sample SVG image](https://raw.githubusercontent.com/pioug/google-play-badges/main/svg/English.svg)](https://play.google.com/store/apps/details?id=liubquanti.white.cobalt)
+> [![sample SVG image](https://raw.githubusercontent.com/pioug/google-play-badges/main/svg/English.svg)](https://play.google.com/store/apps/details?id=liubquanti.white.cobalt) 
+>
+> Not published yet.
 
 ## ⭐ • Sources
 
@@ -27,12 +29,12 @@ White Cobalt was developed independently of the [creators of cobalt.tools](https
 - [X] Save servers for future use.
 - [X] Add an API key to a server.
 - [X] Check the functionality of a cobalt server.
-- [X] Download videos via pasted link.
-- [X] Download videos via link shared through the share menu.
+- [X] Download media via pasted link.
+- [X] Download media via link shared through the share menu.
 
 ## 🧩 • Usage
 
-There are two ways to download videos:
+There are two ways to download media:
 
 > Open the app, paste the media link into the input field, and tap the `download` button.
 
