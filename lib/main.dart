@@ -4,12 +4,18 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
+
+@pragma('vm:entry-point')
+void downloadCallback(String id, int status, int progress) {
+  print('Download task ($id) is in status ($status) and progress ($progress)');
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +30,8 @@ void main() async {
   await FlutterDownloader.initialize(
     debug: false
   );
+  
+  FlutterDownloader.registerCallback(downloadCallback);
   
   runApp(const CobaltApp());
 }
@@ -82,25 +90,25 @@ class ServerConfig {
 class AppSettings {
   bool useLocalProcessing;
   String downloadDir;
-  String downloadMode; // Add this
+  String downloadMode;
 
   AppSettings({
     this.useLocalProcessing = true,
     this.downloadDir = '/storage/emulated/0/Download/Cobalt',
-    this.downloadMode = 'auto', // Default value
+    this.downloadMode = 'auto',
   });
 
   Map<String, dynamic> toJson() => {
     'useLocalProcessing': useLocalProcessing,
     'downloadDir': downloadDir,
-    'downloadMode': downloadMode, // Include in JSON
+    'downloadMode': downloadMode,
   };
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
     return AppSettings(
       useLocalProcessing: json['useLocalProcessing'] ?? true,
       downloadDir: json['downloadDir'] ?? '/storage/emulated/0/Download/Cobalt',
-      downloadMode: json['downloadMode'] ?? 'auto', // Load from JSON
+      downloadMode: json['downloadMode'] ?? 'auto',
     );
   }
 }
@@ -143,13 +151,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       setState(() {
         _appSettings = AppSettings.fromJson(jsonDecode(settingsJson));
         _useLocalProcessing = _appSettings.useLocalProcessing;
-        _downloadMode = _appSettings.downloadMode; // Load saved download mode
+        _downloadMode = _appSettings.downloadMode;
       });
     } else {
       setState(() {
         _appSettings = AppSettings();
         _useLocalProcessing = _appSettings.useLocalProcessing;
-        _downloadMode = _appSettings.downloadMode; // Use default from AppSettings
+        _downloadMode = _appSettings.downloadMode;
       });
     }
   }
@@ -158,7 +166,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     setState(() {
       _appSettings = newSettings;
       _useLocalProcessing = _appSettings.useLocalProcessing;
-      _downloadMode = _appSettings.downloadMode; // Update the current download mode
+      _downloadMode = _appSettings.downloadMode;
     });
   }
   
@@ -678,20 +686,20 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       final downloadsDir = Directory(_appSettings.downloadDir);
       if (!await downloadsDir.exists()) {
         await downloadsDir.create(recursive: true);
-      }
-
-      setState(() {
+      }      setState(() {
         _status = 'Starting download...';
       });
-
-      await FlutterDownloader.enqueue(
+      
+      final taskId = await FlutterDownloader.enqueue(
         url: url,
         savedDir: _appSettings.downloadDir,
         fileName: filename,
-        showNotification: true,
-        openFileFromNotification: true,
+        showNotification: false,
+        openFileFromNotification: false,
         saveInPublicStorage: true,
       );
+      
+      _trackDownloadProgress(taskId);
 
       setState(() {
         _status = 'Download started';
@@ -703,7 +711,64 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       });
     }
   }
-  
+
+  void _trackDownloadProgress(String? taskId) {
+    if (taskId == null) return;
+    
+    Timer.periodic(const Duration(milliseconds: 500), (timer) async {
+      if (!_isDownloadInProgress) {
+        timer.cancel();
+        return;
+      }
+      
+      try {
+        final tasks = await FlutterDownloader.loadTasksWithRawQuery(
+          query: "SELECT * FROM task WHERE task_id = '$taskId'"
+        );
+        
+        if (tasks == null || tasks.isEmpty) {
+          timer.cancel();
+          setState(() {
+            _isDownloadInProgress = false;
+          });
+          return;
+        }
+        
+        final task = tasks.first;
+        
+        setState(() {
+          switch (task.status) {
+            case DownloadTaskStatus.running:
+              _status = 'Downloading: ${task.progress}%';
+              break;
+            case DownloadTaskStatus.complete:
+              _status = 'Download complete';
+              _isDownloadInProgress = false;
+              timer.cancel();
+              break;
+            case DownloadTaskStatus.failed:
+              _status = 'Download failed';
+              _isDownloadInProgress = false;
+              timer.cancel();
+              break;
+            case DownloadTaskStatus.canceled:
+              _status = 'Download canceled';
+              _isDownloadInProgress = false;
+              timer.cancel();
+              break;
+            case DownloadTaskStatus.paused:
+              _status = 'Download paused';
+              break;
+            default:
+              _status = 'Download in queue';
+          }
+        });
+      } catch (e) {
+        print('Error tracking download: $e');
+      }
+    });
+  }
+
   Future<void> _downloadPickerItem(String url, String type) async {
     setState(() {
       _isDownloadInProgress = true;
@@ -1054,7 +1119,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       child: ElevatedButton(
                         onPressed: (_isLoading || _urlFieldEmpty || _isDownloadInProgress) ? null : _processUrl,
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
                           backgroundColor: const Color(0xFF191919),
                           foregroundColor: (_urlFieldEmpty || _isDownloadInProgress) 
                             ? Colors.white38
@@ -1078,7 +1143,26 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                                 color: Colors.white70,
                               ),
                             )
-                          : const Text('download', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                          : _isDownloadInProgress
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white54,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    _status.replaceFirst('Download ', '').replaceFirst('Downloading', 'progress'),
+                                    style: const TextStyle(fontSize: 14),
+                                  ),
+                                ],
+                              )
+                            : const Text('download', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                       ),
                     ),
                     
@@ -1477,7 +1561,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             _downloadMode = mode;
           });
           
-          // Save the setting when changed
           _appSettings.downloadMode = mode;
           _saveDownloadModeSetting();
         },
@@ -1500,7 +1583,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     );
   }
 
-  // Add this method to save the download mode setting
   void _saveDownloadModeSetting() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('app_settings', jsonEncode(_appSettings.toJson()));
