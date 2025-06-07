@@ -14,6 +14,8 @@ White Cobalt is in no way a piracy tool and cannot be used as such. It can only 
 
 White Cobalt was developed independently of the [creators of cobalt.tools](https://github.com/imputnet).
 
+[![sample SVG image](https://raw.githubusercontent.com/pioug/google-play-badges/main/svg/English.svg)](https://play.google.com/store/apps/details?id=liubquanti.white.cobalt)
+
 ## ⭐ • Sources
 
 - [cobalt official website](https://cobalt.tools/).
