@@ -358,13 +358,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       borderSide: BorderSide(width: 2.0, color: Colors.white),
                     ),
                     prefixIcon: SizedBox(
-                      width: 24,
-                      height: 24,
+                      width: 22,
+                      height: 22,
                       child: Center(
                         child: SvgPicture.string(
-                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-server"><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z"></path><path d="M7 8l0 .01"></path><path d="M7 16l0 .01"></path></svg>',
-                          width: 20,
-                          height: 20,
+                          '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-server-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M7 8l0 .01" /><path d="M7 16l0 .01" /><path d="M11 8h6" /><path d="M11 16h6" /></svg>',
+                          width: 22,
+                          height: 22,
                           colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
                         ),
                       ),
@@ -389,13 +389,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                       borderSide: BorderSide(width: 2.0, color: Colors.white),
                     ),
                     prefixIcon: SizedBox(
-                      width: 24,
-                      height: 24,
+                      width: 22,
+                      height: 22,
                       child: Center(
                         child: SvgPicture.string(
-                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-key"><path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.068l-2.643 2.643a2.877 2.877 0 0 1 -4.068 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l6.558 -6.558l-.301 -.301a2.877 2.877 0 0 1 0 -4.068l2.643 -2.643a2.877 2.877 0 0 1 4.068 0z"></path><path d="M15 9h.01"></path></svg>',
-                          width: 20,
-                          height: 20,
+                          '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-key"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0z" /><path d="M15 9h.01" /></svg>',
+                          width: 22,
+                          height: 22,
                           colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
                         ),
                       ),
@@ -427,7 +427,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                 ),
               ),
-              child: const Text('cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () async {
@@ -500,7 +500,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                 ),
               ),
-              child: const Text('add'),
+              child: const Text('Add'),
             ),
           ],
         );
@@ -1016,7 +1016,7 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                   ),
                 ),
               ),
-              child: const Text('cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -1099,7 +1099,12 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
         backgroundColor: Colors.black,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: SvgPicture.string(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-settings "><!--[--><!----><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"><!----></path><!----><!----><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"><!----></path><!----><!--]--><!----><!----><!----><!----></svg>',
+              width: 22,
+              height: 22,
+              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            ),
             onPressed: _openSettings,
             tooltip: 'Settings',
           ),
@@ -1130,13 +1135,13 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                     borderSide: BorderSide(width: 1.5, color: Color(0xFFB1B1B1)),
                   ),
                   prefixIcon: SizedBox(
-                    width: 24,
-                    height: 24,
+                    width: 22,
+                    height: 22,
                     child: Center(
                       child: SvgPicture.string(
                         '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-file-download "><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path><path d="M12 17v-6"></path><path d="M9.5 14.5l2.5 2.5l2.5 -2.5"></path></svg>',
-                        width: 20,
-                        height: 20,
+                        width: 22,
+                        height: 22,
                         colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
                       ),
                     ),
@@ -1164,11 +1169,12 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                             ),
                           ),
                           if (server.apiKey != null && server.apiKey!.isNotEmpty)
-                            const Icon(
-                              Icons.key,
-                              size: 16,
-                              color: Colors.green,
-                            ),
+                          SvgPicture.string(
+                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-circle-key"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M21 12a9 9 0 1 1 -18 0a9 9 0 0 1 18 0z" /><path d="M12.5 11.5l-4 4l1.5 1.5" /><path d="M12 15l-1.5 -1.5" /></svg>',
+                            width: 22,
+                            height: 22,
+                            colorFilter: const ColorFilter.mode(Colors.green, BlendMode.srcIn),
+                          ),
                         ],
                       ),
                     ),
@@ -1207,8 +1213,8 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                   padding: const EdgeInsets.only(right: 8.0),
                   child: SvgPicture.string(
                     '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-selector "><path d="M8 9l4 -4l4 4"></path><path d="M16 15l-4 4l-4 -4"></path></svg>',
-                    width: 20,
-                    height: 20,
+                    width: 22,
+                    height: 22,
                     colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
                   ),
                 ),
@@ -1221,35 +1227,50 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                 TextField(
                   controller: _urlController,
                   enabled: !_isDownloadInProgress,
-                    decoration: InputDecoration(
-                    hintText: 'paste the link here',
-                    enabledBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(11)),
-                      borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
+                  decoration: InputDecoration(
+                  hintText: 'Paste the link here',
+                  enabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(11)),
+                    borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
+                  ),
+                  disabledBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(11)),
+                    borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(11)),
+                    borderSide: BorderSide(width: 1.5, color: Color(0xFFB1B1B1)),
+                  ),
+                  prefixIcon: SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: Center(
+                    child: SvgPicture.string(
+                      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l .524 -.463"></path></svg>',
+                      width: 22,
+                      height: 22,
+                      colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
                     ),
-                    disabledBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(11)),
-                      borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
                     ),
-                    focusedBorder: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(11)),
-                      borderSide: BorderSide(width: 1.5, color: Color(0xFFB1B1B1)),
-                    ),
-                    prefixIcon: SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: Center(
-                      child: SvgPicture.string(
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l .524 -.463"></path></svg>',
-                        width: 20,
-                        height: 20,
+                  ),
+                  suffixIcon: _urlController.text.isNotEmpty
+                    ? IconButton(
+                        icon: SvgPicture.string(
+                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-backspace"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-11l-5 -5a1.5 1.5 0 0 1 0 -2l5 -5z" /><path d="M12 10l4 4m0 -4l-4 4" /></svg>',
+                        width: 22,
+                        height: 22,
                         colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
-                      ),
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                    ),
-                    cursorColor: const Color(0xFFE1E1E1),
+                        ),
+                      onPressed: _isDownloadInProgress
+                        ? null
+                        : () {
+                          _urlController.clear();
+                          },
+                      )
+                    : null,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                  ),
+                  cursorColor: const Color(0xFFE1E1E1),
                   style: const TextStyle(fontSize: 14),
                   keyboardType: TextInputType.url,
                 )
@@ -1263,8 +1284,8 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                       borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
                     ),
                     prefixIcon: SizedBox(
-                      width: 24,
-                      height: 24,
+                      width: 22,
+                      height: 22,
                       child: Center(
                         child: SvgPicture.string(
                           '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l .524 -.463"></path></svg>',
@@ -1330,7 +1351,7 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                                   ),
                                 ],
                               )
-                            : const Text('download', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                            : const Text('Download', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                       ),
                     ),
                     
@@ -1348,9 +1369,9 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                         ),
                         child: Row(
                           children: [
-                            _buildModeButton('auto', '✨ auto'),
-                            _buildModeButton('audio', '🎶 audio'),
-                            _buildModeButton('mute', '🔇 mute'),
+                            _buildModeButton('auto', '✨ Auto'),
+                            _buildModeButton('audio', '🎶 Audio'),
+                            _buildModeButton('mute', '🔇 Mute'),
                           ],
                         ),
                       ),
@@ -1374,7 +1395,7 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                         ),
                       ),
                     ),
-                    child: const Text('download', style: TextStyle(fontSize: 14)),
+                    child: const Text('Download', style: TextStyle(fontSize: 14)),
                   ),
                 ),
 
@@ -1400,11 +1421,16 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    const Row(
+                    Row(
                       children: [
-                      Icon(Icons.error, color: Colors.red, size: 16),
-                      SizedBox(width: 8),
-                      Text(
+                        SvgPicture.string(
+                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-exclamation-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 9v4" /><path d="M12 16v.01" /></svg>',
+                        width: 16,
+                        height: 16,
+                        colorFilter: const ColorFilter.mode(Colors.red, BlendMode.srcIn),
+                        ),
+                      const SizedBox(width: 8),
+                      const Text(
                         'Server Error',
                         style: TextStyle(
                         fontSize: 14,
@@ -1456,7 +1482,12 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                            SvgPicture.string(
+                              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-circle-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 12l2 2l4 -4" /></svg>',
+                              width: 16,
+                              height: 16,
+                              colorFilter: const ColorFilter.mode(Colors.green, BlendMode.srcIn),
+                            ),
                             const SizedBox(width: 8),
                             Text(
                               'Cobalt v${_serverInfo!['cobalt']['version']}',
@@ -1489,14 +1520,19 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                       ),
                     ),
                     padding: const EdgeInsets.all(10.0),
-                    child: const Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.dns, color: Colors.orange, size: 16),
-                            SizedBox(width: 8),
-                            Text(
+                            SvgPicture.string(
+                              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-server-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M7 8l0 .01" /><path d="M7 16l0 .01" /><path d="M11 8h6" /><path d="M11 16h6" /></svg>',
+                              width: 16,
+                              height: 16,
+                              colorFilter: const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
                               'No server selected',
                               style: TextStyle(
                                 fontSize: 14,
@@ -1505,8 +1541,8 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                             ),
                           ],
                         ),
-                        SizedBox(height: 4),
-                        Text(
+                        const SizedBox(height: 4),
+                        const Text(
                           'Please select server first',
                           style: TextStyle(fontSize: 12),
                         ),
@@ -1645,7 +1681,7 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                         fontFamily: 'NotoSansMono',
                       ),
                       children: [
-                        const TextSpan(text: 'powered by '),
+                        const TextSpan(text: 'Powered by '),
                         TextSpan(
                           text: 'cobalt',
                           style: const TextStyle(
@@ -1669,6 +1705,7 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                               _launchURL('https://liubquanti.click/');
                             },
                         ),
+                        const TextSpan(text: '.'),
                       ],
                     ),
                   ),
@@ -1687,7 +1724,7 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                         fontFamily: 'NotoSansMono',
                       ),
                       children: [
-                        const TextSpan(text: 'illustrated by '),
+                        const TextSpan(text: 'Illustrated by '),
                         TextSpan(
                           text: 'ffastffox',
                           style: const TextStyle(
@@ -1699,6 +1736,7 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                               _launchURL('https://www.instagram.com/ffastffox/');
                             },
                         ),
+                        const TextSpan(text: '.'),
                       ],
                     ),
                   ),
@@ -1806,7 +1844,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
         centerTitle: true,
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: SvgPicture.string(
+            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg>',
+            width: 22,
+            height: 22,
+            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            ),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -1814,7 +1857,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1826,8 +1869,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 16),
-              
+              const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF191919),
@@ -1845,10 +1887,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Row(
                       children: [
                         SizedBox(
-                        width: 20,
-                        height: 20,
+                        width: 22,
+                        height: 22,
                         child: SvgPicture.string(
-                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8l-4 4l4 4"></path><path d="M17 8l4 4l-4 4"></path><path d="M14 4l-4 16"></path></svg>',
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-cpu "><!----><path d="M5 5m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z"></path><!----><path d="M9 9h6v6h-6z"></path><!----><path d="M3 10h2"></path><!----><path d="M3 14h2"></path><!----><path d="M10 3v2"></path><!----><path d="M14 3v2"></path><!----><path d="M21 10h-2"></path><!----><path d="M21 14h-2"></path><!----><path d="M14 21v-2"></path><!----><path d="M10 21v-2"></path><!----><!----><!----></svg>',
                         colorFilter: ColorFilter.mode(
                           _useLocalProcessing ? Colors.white : Colors.white38,
                           BlendMode.srcIn,
@@ -1867,7 +1909,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             color: _useLocalProcessing ? Colors.white : Colors.white54,
                             ),
                           ),
-                          const SizedBox(height: 4),
                           Text(
                             'Process media on the client-side',
                             style: TextStyle(
@@ -1896,10 +1937,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       inactiveTrackColor: const Color(0xFF383838),
                     ),
                   ],
-                ),              ),
-
-              const SizedBox(height: 16),
-              
+                ),
+              ),
+              const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF191919),
@@ -1917,10 +1957,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Row(
                         children: [
                           SizedBox(
-                            width: 20,
-                            height: 20,
+                            width: 22,
+                            height: 22,
                             child: SvgPicture.string(
-                              '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v1H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-3V5a3 3 0 0 0-3-3"></path><path d="M9 14v-4h6v4"></path><path d="M12 14v4"></path></svg>',
+                              '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-file-download "><!----><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><!----><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path><!----><path d="M12 17v-6"></path><!----><path d="M9.5 14.5l2.5 2.5l2.5 -2.5"></path><!----><!----><!----></svg>',
                               colorFilter: ColorFilter.mode(
                                 _disableMetadata ? Colors.white : Colors.white38,
                                 BlendMode.srcIn,
@@ -1940,7 +1980,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     color: _disableMetadata ? Colors.white : Colors.white54,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
                                 Text(
                                   'Remove title, artist, and other info from files',
                                   style: TextStyle(
@@ -1971,9 +2010,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
-
-              const SizedBox(height: 20),
-              
+              const SizedBox(height: 15),
               const Text(
                 'Storage',
                 style: TextStyle(
@@ -1982,8 +2019,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: Colors.white,
                 ),
               ),
-                const SizedBox(height: 16),
-                Material(
+              const SizedBox(height: 10),
+              Material(
                 color: const Color(0xFF191919),
                 borderRadius: BorderRadius.circular(11),
                 child: Container(
@@ -2010,14 +2047,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                   },
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    padding: const EdgeInsets.all(16),
                     child: Row(
                     children: [
                       SizedBox(
-                      width: 24,
-                      height: 24,
+                      width: 22,
+                      height: 22,
                       child: SvgPicture.string(
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M5.8 11a6 6 0 0 1 6.2 -6"></path><path d="M12 5a6 6 0 0 1 6 6"></path><path d="M12 12l3.5 -1.5"></path></svg>',
+                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-database"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0" /><path d="M4 6v6a8 3 0 0 0 16 0v-6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></svg>',
                         colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                       ),
                       ),
@@ -2041,7 +2078,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               const Text(
                 'About',
                 style: TextStyle(
@@ -2050,8 +2087,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 16),
-              
+              const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF191919),
@@ -2073,7 +2109,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 8),
                     const Text(
                       'A simple and efficient media downloader powered by Cobalt API.',
                       style: TextStyle(
@@ -2081,15 +2116,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         color: Colors.white70,
                       ),
                     ),
-                    const SizedBox(height: 16),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         _buildLinkButton(
                           'GitHub',
                           Icons.code,
                           () => _launchURL('https://github.com/liubquanti/White-Cobalt'),
                         ),
+                        const SizedBox(width: 10),
                         _buildLinkButton(
                           'Report Issue',
                           Icons.bug_report,
@@ -2262,14 +2296,24 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
         centerTitle: true,
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+            icon: SvgPicture.string(
+            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg>',
+            width: 22,
+            height: 22,
+            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            ),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: SvgPicture.string(
+              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-reload"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747" /><path d="M20 4v5h-5" /></svg>',
+              width: 22,
+              height: 22,
+              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            ),
             onPressed: _loadStorageData,
           ),
         ],
@@ -2283,18 +2327,18 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
           : _totalSize == 0
               ? Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
-                          Icons.folder_open,
-                          size: 64,
-                          color: Colors.white30,
+                        SvgPicture.string(
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-files-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 3v4a1 1 0 0 0 1 1h4" /><path d="M17 17h-6a2 2 0 0 1 -2 -2v-6m0 -4a2 2 0 0 1 2 -2h4l5 5v7c0 .294 -.063 .572 -.177 .823" /><path d="M16 17v2a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2" /><path d="M3 3l18 18" /></svg>',
+                          width: 64,
+                          height: 64,
+                          colorFilter: const ColorFilter.mode(Colors.white30, BlendMode.srcIn),
                         ),
-                        const SizedBox(height: 16),
                         const Text(
-                          'No downloads yet',
+                          'No Downloads Yet',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -2302,7 +2346,7 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'When you download files using White Cobalt, they will be stored in:\n\n${widget.baseDir}',
+                          'When you download files using White Cobalt, here will be storage usage stats.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
@@ -2454,7 +2498,12 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
                                       ),
                                       ),
                                     ),
-                                    icon: const Icon(Icons.delete_outline, size: 16, color: Colors.white70),
+                                    icon: SvgPicture.string(
+                                      '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>',
+                                      width: 18,
+                                      height: 18,
+                                      colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                                    ),
                                     label: const Text(
                                       'Delete',
                                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
@@ -2490,45 +2539,53 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
               width: 2.0,
             ),
           ),
-          content: Text(
-            'This will permanently delete all downloaded files from $serviceName. Are you sure?',
-            style: const TextStyle(fontSize: 14),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Text(
+          'Are you sure you want to delete all downloaded files from $serviceName?',
+          style: const TextStyle(fontSize: 14),
+              ),
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+          Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                backgroundColor: const Color(0xFF191919),
-                foregroundColor: const Color(0xFFe1e1e1),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  side: const BorderSide(
-                    color: Color.fromRGBO(255, 255, 255, 0.05),
-                    width: 1.5,
-                  ),
-                ),
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+          backgroundColor: const Color(0xFF191919),
+          foregroundColor: const Color(0xFFe1e1e1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(11),
+            side: const BorderSide(
+              color: Color.fromRGBO(255, 255, 255, 0.05),
+              width: 1.5,
+            ),
+          ),
               ),
               child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                _deleteDirectory(serviceName);
+          Navigator.of(context).pop();
+          _deleteDirectory(serviceName);
               },
               style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                backgroundColor: const Color(0xFF191919),
-                foregroundColor: Colors.redAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(11),
-                  side: const BorderSide(
-                    color: Color.fromRGBO(255, 255, 255, 0.05),
-                    width: 1.5,
-                  ),
-                ),
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+          backgroundColor: const Color(0xFF191919),
+          foregroundColor: Colors.redAccent,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(11),
+            side: const BorderSide(
+              color: Color.fromRGBO(255, 255, 255, 0.05),
+              width: 1.5,
+            ),
+          ),
               ),
               child: const Text('Delete'),
             ),
