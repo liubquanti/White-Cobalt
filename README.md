@@ -2,9 +2,7 @@
 
 A native Android client for downloading media from the Internet using [cobalt server APIs](https://github.com/imputnet/cobalt/blob/main/docs/api.md).
 
-![1749404535669](image/README/1749404535669.png)
-
-White Cobalt follows the principles of [cobalt.tools](https://cobalt.tools/):
+![1749405394661](image/README/1749405394661.png)White Cobalt follows the principles of [cobalt.tools](https://cobalt.tools/):
 
 - `No ads, trackers, paywalls, or other nonsense.`
 - `Was created for public benefit.`
