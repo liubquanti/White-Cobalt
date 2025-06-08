@@ -510,7 +510,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
   Future<void> _requestPermissions() async {
     await Permission.storage.request();
-    await Permission.manageExternalStorage.request();
+    await Permission.videos.request();
+    await Permission.photos.request();
+    await Permission.mediaLibrary.request();
+    await Permission.audio.request();
   }
 
   Future<void> _processUrl() async {
