@@ -13,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:filesize/filesize.dart';
+import 'package:path_provider/path_provider.dart';
 
 @pragma('vm:entry-point')
 void downloadCallback(String id, int status, int progress) {
@@ -125,6 +126,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   final TextEditingController _newServerController = TextEditingController();
   final TextEditingController _apiKeyController = TextEditingController();
   
+  DateTime? _lastProgressUpdate;
   String? _baseUrl;
   String? _currentApiKey;
   bool _isLoading = false;
@@ -542,7 +544,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         'url': url,
         'videoQuality': 'max',
         'audioFormat': 'mp3',
-        'filenameStyle': 'pretty',
+        'filenameStyle': 'classic',
         'downloadMode': _downloadMode,
         'localProcessing': _useLocalProcessing,
         'disableMetadata': _appSettings.disableMetadata,
@@ -711,28 +713,91 @@ String _getServiceNameFromUrl(String url) {
 Future<void> _downloadFile(String url, String filename) async {
   try {
     final serviceName = _getServiceName(_responseData, filename, _urlController.text.trim());
+    print('Detected service: $serviceName');
     
-    final serviceDir = '${_appSettings.downloadDir}/$serviceName';
-    final serviceDirectory = Directory(serviceDir);
+    String baseDir = '/storage/emulated/0/Download';
+    String cobaltDir = '$baseDir/Cobalt';
+    String serviceDir = '$cobaltDir/$serviceName';
     
-    if (!await serviceDirectory.exists()) {
-      await serviceDirectory.create(recursive: true);
+    print('Will try to save to: $serviceDir');
+    
+    try {
+      Directory directory = Directory(cobaltDir);
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+        print('Created Cobalt directory: $cobaltDir');
+      }
+      
+      directory = Directory(serviceDir);
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+        print('Created service directory: $serviceDir');
+      }
+    } catch (e) {
+      print('Error creating directories: $e');
+      serviceDir = baseDir;
     }
     
     setState(() {
       _status = 'Downloading: 0%';
     });
     
+    final tempDir = await getTemporaryDirectory();
+    final tempFilePath = '${tempDir.path}/$filename';
+    
+    print('Downloading to temp file: $tempFilePath');
+    
     final taskId = await FlutterDownloader.enqueue(
       url: url,
-      savedDir: serviceDir,
+      savedDir: tempDir.path,
       fileName: filename,
       showNotification: false,
       openFileFromNotification: false,
-      saveInPublicStorage: true,
     );
     
-    _trackDownloadProgress(taskId);
+    _trackDownloadProgress(taskId, (isComplete) async {
+      if (isComplete) {
+        try {
+          final tempFile = File(tempFilePath);
+          if (await tempFile.exists()) {
+            final targetFile = File('$serviceDir/$filename');
+            
+            if (await targetFile.exists()) {
+              await targetFile.delete();
+            }
+            
+            await tempFile.copy(targetFile.path);
+            print('File copied from $tempFilePath to ${targetFile.path}');
+            
+            await tempFile.delete();
+            print('Temporary file deleted');
+            
+            setState(() {
+              _status = 'Download complete';
+              Future.delayed(const Duration(milliseconds: 800), () {
+                if (mounted) {
+                  setState(() {
+                    _isDownloadInProgress = false;
+                  });
+                }
+              });
+            });
+          } else {
+            print('Temp file not found after download');
+            setState(() {
+              _status = 'Download failed: file not found';
+              _isDownloadInProgress = false;
+            });
+          }
+        } catch (e) {
+          print('Error processing downloaded file: $e');
+          setState(() {
+            _status = 'Error processing file: $e';
+            _isDownloadInProgress = false;
+          });
+        }
+      }
+    });
   } catch (e) {
     setState(() {
       _status = 'Download error: $e';
@@ -741,79 +806,75 @@ Future<void> _downloadFile(String url, String filename) async {
   }
 }
 
-  DateTime? _lastProgressUpdate;
+void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
+  if (taskId == null) return;
   
-  void _trackDownloadProgress(String? taskId) {
-    if (taskId == null) return;
+  _lastProgressUpdate = DateTime.now();
+  
+  Timer.periodic(const Duration(milliseconds: 500), (timer) async {
+    if (!_isDownloadInProgress) {
+      timer.cancel();
+      return;
+    }
     
-    _lastProgressUpdate = DateTime.now();
+    if (_lastProgressUpdate != null && 
+        DateTime.now().difference(_lastProgressUpdate!).inSeconds > 10) {
+      setState(() {
+        if (_status.contains('Downloading:')) {
+          _status = '${_status} (still downloading...)';
+        }
+      });
+    }
     
-    Timer.periodic(const Duration(milliseconds: 500), (timer) async {
-      if (!_isDownloadInProgress) {
+    try {
+      final tasks = await FlutterDownloader.loadTasksWithRawQuery(
+        query: "SELECT * FROM task WHERE task_id = '$taskId'"
+      );
+      
+      if (tasks == null || tasks.isEmpty) {
         timer.cancel();
+        setState(() {
+          _isDownloadInProgress = false;
+        });
         return;
       }
       
-      if (_lastProgressUpdate != null && 
-          DateTime.now().difference(_lastProgressUpdate!).inSeconds > 10) {
-        setState(() {
-          if (_status.contains('Downloading:')) {
-            _status = '${_status} (still downloading...)';
-          }
-        });
-      }
-      
-      try {
-        final tasks = await FlutterDownloader.loadTasksWithRawQuery(
-          query: "SELECT * FROM task WHERE task_id = '$taskId'"
-        );
-        
-        if (tasks == null || tasks.isEmpty) {
-          timer.cancel();
-          setState(() {
+      final task = tasks.first;
+      setState(() {
+        switch (task.status) {
+          case DownloadTaskStatus.running:
+            _status = 'Downloading: ${task.progress}%';
+            _lastProgressUpdate = DateTime.now();
+            break;
+          case DownloadTaskStatus.complete:
+            _status = 'Processing...';
+            timer.cancel();
+            onComplete(true);
+            break;
+          case DownloadTaskStatus.failed:
+            _status = 'Download failed';
             _isDownloadInProgress = false;
-          });
-          return;
+            timer.cancel();
+            onComplete(false);
+            break;
+          case DownloadTaskStatus.canceled:
+            _status = 'Download canceled';
+            _isDownloadInProgress = false;
+            timer.cancel();
+            onComplete(false);
+            break;
+          case DownloadTaskStatus.paused:
+            _status = 'Download paused';
+            break;
+          default:
+            _status = 'Download in queue';
         }
-        
-        final task = tasks.first;
-          setState(() {          switch (task.status) {
-            case DownloadTaskStatus.running:
-              _status = 'Downloading: ${task.progress}%';
-              _lastProgressUpdate = DateTime.now();
-              break;            case DownloadTaskStatus.complete:
-              _status = 'Complete';
-              Future.delayed(const Duration(milliseconds: 800), () {
-                if (mounted) {
-                  setState(() {
-                    _isDownloadInProgress = false;
-                  });
-                }
-              });
-              timer.cancel();
-              break;
-            case DownloadTaskStatus.failed:
-              _status = 'Download failed';
-              _isDownloadInProgress = false;
-              timer.cancel();
-              break;
-            case DownloadTaskStatus.canceled:
-              _status = 'Download canceled';
-              _isDownloadInProgress = false;
-              timer.cancel();
-              break;
-            case DownloadTaskStatus.paused:
-              _status = 'Download paused';
-              break;
-            default:
-              _status = 'Download in queue';
-          }
-        });
-      } catch (e) {
-        print('Error tracking download: $e');
-      }
-    });
-  }
+      });
+    } catch (e) {
+      print('Error tracking download: $e');
+    }
+  });
+}
 
   Future<void> _downloadPickerItem(String url, String type) async {
     setState(() {
@@ -831,31 +892,80 @@ Future<void> _downloadFile(String url, String filename) async {
       
       final serviceName = _getServiceName(_responseData, filename, _urlController.text.trim());
       
-      final serviceDir = '${_appSettings.downloadDir}/$serviceName';
-      final serviceDirectory = Directory(serviceDir);
+      String baseDir = '/storage/emulated/0/Download';
+      String cobaltDir = '$baseDir/Cobalt';
+      String serviceDir = '$cobaltDir/$serviceName';
       
-      if (!await serviceDirectory.exists()) {
-        await serviceDirectory.create(recursive: true);
+      try {
+        Directory directory = Directory(cobaltDir);
+        if (!await directory.exists()) {
+          await directory.create(recursive: true);
+        }
+        
+        directory = Directory(serviceDir);
+        if (!await directory.exists()) {
+          await directory.create(recursive: true);
+        }
+      } catch (e) {
+        print('Error creating directories: $e');
+        serviceDir = baseDir;
       }
-      
-      final taskId = await FlutterDownloader.enqueue(
-        url: fixedUrl,
-        savedDir: serviceDir,
-        fileName: filename,
-        showNotification: false,
-        openFileFromNotification: false,
-        saveInPublicStorage: true,
-      );
-      
-      _trackDownloadProgress(taskId);
-    } catch (e) {
-      print('Error downloading picker item: $e');
-      setState(() {
-        _status = 'Download error: $e';
-        _isDownloadInProgress = false;
-      });
-    }
+    
+    final tempDir = await getTemporaryDirectory();
+    final tempFilePath = '${tempDir.path}/$filename';
+    
+    final taskId = await FlutterDownloader.enqueue(
+      url: fixedUrl,
+      savedDir: tempDir.path,
+      fileName: filename,
+      showNotification: false,
+      openFileFromNotification: false,
+    );
+    
+    _trackDownloadProgress(taskId, (isComplete) async {
+      if (isComplete) {
+        try {
+          final tempFile = File(tempFilePath);
+          if (await tempFile.exists()) {
+            final targetFile = File('$serviceDir/$filename');
+            if (await targetFile.exists()) {
+              await targetFile.delete();
+            }
+            await tempFile.copy(targetFile.path);
+            await tempFile.delete();
+            
+            setState(() {
+              _status = 'Download complete';
+              Future.delayed(const Duration(milliseconds: 800), () {
+                if (mounted) {
+                  setState(() {
+                    _isDownloadInProgress = false;
+                  });
+                }
+              });
+            });
+          } else {
+            setState(() {
+              _status = 'Download failed: file not found';
+              _isDownloadInProgress = false;
+            });
+          }
+        } catch (e) {
+          setState(() {
+            _status = 'Error processing file: $e';
+            _isDownloadInProgress = false;
+          });
+        }
+      }
+    });
+  } catch (e) {
+    print('Error downloading picker item: $e');
+    setState(() {
+      _status = 'Download error: $e';
+      _isDownloadInProgress = false;
+    });
   }
+}
 
   Future<void> _deleteServer(String serverUrl) async {
     return showDialog(
@@ -1921,7 +2031,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               
               const SizedBox(height: 20),
               
-              // Add a Storage section
               const Text(
                 'Storage',
                 style: TextStyle(
@@ -1932,7 +2041,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
               
-              // Storage Usage button
               GestureDetector(
                 onTap: () {
                   Navigator.push(
@@ -2075,13 +2183,11 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
       List<ServiceStorage> data = [];
       int totalSize = 0;
 
-      // Get all subdirectories in the base dir
       final List<FileSystemEntity> entities = await baseDir.list().toList();
       final List<Directory> dirs = entities
           .whereType<Directory>()
           .toList();
 
-      // Calculate size for each directory
       for (final dir in dirs) {
         final String serviceName = dir.path.split('/').last;
         final int size = await _calculateDirSize(dir);
@@ -2092,7 +2198,6 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
         }
       }
 
-      // Sort by size (largest first)
       data.sort((a, b) => b.size.compareTo(a.size));
 
       setState(() {
@@ -2128,16 +2233,16 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Color> chartColors = [
-      const Color(0xFF2196F3), // Blue
-      const Color(0xFF4CAF50), // Green
-      const Color(0xFFFFC107), // Amber
-      const Color(0xFFFF5722), // Deep Orange
-      const Color(0xFF9C27B0), // Purple
-      const Color(0xFF00BCD4), // Cyan
-      const Color(0xFFE91E63), // Pink
-      const Color(0xFF3F51B5), // Indigo
-      const Color(0xFF795548), // Brown
-      const Color(0xFF607D8B), // Blue Grey
+      const Color(0xFF2196F3),
+      const Color(0xFF4CAF50),
+      const Color(0xFFFFC107),
+      const Color(0xFFFF5722),
+      const Color(0xFF9C27B0),
+      const Color(0xFF00BCD4),
+      const Color(0xFFE91E63),
+      const Color(0xFF3F51B5),
+      const Color(0xFF795548),
+      const Color(0xFF607D8B),
     ];
 
     return Scaffold(
@@ -2347,7 +2452,6 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
   }
 }
 
-// Model class for service storage data
 class ServiceStorage {
   final String serviceName;
   final int size;
