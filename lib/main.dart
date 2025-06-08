@@ -2196,7 +2196,7 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
           data.add(ServiceStorage(serviceName, size));
           totalSize += size;
         }
-      }
+                 }
 
       data.sort((a, b) => b.size.compareTo(a.size));
 
@@ -2383,7 +2383,6 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
                             final int index = entry.key;
                             final ServiceStorage data = entry.value;
                             final Color color = chartColors[index % chartColors.length];
-                            final double percentage = data.size / _totalSize * 100;
 
                             return Container(
                               margin: const EdgeInsets.only(bottom: 10),
@@ -2422,22 +2421,35 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                      '${percentage.toStringAsFixed(1)}%',
+                                      filesize(data.size),
                                       style: const TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.white70,
+                                      fontSize: 12,
+                                      color: Colors.white70,
                                       ),
-                                      ),
+                                    ),
                                     ],
                                     ),
                                   ),
-                                  Text(
-                                    filesize(data.size),
-                                    style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.white70,
+                                    ElevatedButton.icon(
+                                    onPressed: () => _confirmDeleteDirectory(data.serviceName),
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                                      backgroundColor: const Color(0xFF191919),
+                                      foregroundColor: const Color(0xFFe1e1e1),
+                                      shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(11),
+                                      side: const BorderSide(
+                                        color: Color.fromRGBO(255, 255, 255, 0.08),
+                                        width: 1.5,
+                                      ),
+                                      ),
                                     ),
-                                  ),
+                                    icon: const Icon(Icons.delete_outline, size: 16, color: Colors.white70),
+                                    label: const Text(
+                                      'Delete',
+                                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                    ),
+                                    ),
                                   ],
                                 ),
                                 ),
@@ -2449,6 +2461,114 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
                   ),
                 ),
     );
+  }
+
+  void _confirmDeleteDirectory(String serviceName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: Text(
+            'Delete $serviceName files?',
+            style: const TextStyle(fontSize: 16),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(11),
+            side: const BorderSide(
+              color: Color.fromRGBO(255, 255, 255, 0.08),
+              width: 2.0,
+            ),
+          ),
+          content: Text(
+            'This will permanently delete all downloaded files from $serviceName. Are you sure?',
+            style: const TextStyle(fontSize: 14),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                backgroundColor: const Color(0xFF191919),
+                foregroundColor: const Color(0xFFe1e1e1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  side: const BorderSide(
+                    color: Color.fromRGBO(255, 255, 255, 0.05),
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteDirectory(serviceName);
+              },
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                backgroundColor: const Color(0xFF191919),
+                foregroundColor: Colors.redAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  side: const BorderSide(
+                    color: Color.fromRGBO(255, 255, 255, 0.05),
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteDirectory(String serviceName) async {
+    try {
+      final directory = Directory('${widget.baseDir}/$serviceName');
+      
+      if (await directory.exists()) {
+        await directory.delete(recursive: true);
+        
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('$serviceName files deleted successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+        
+        // Refresh storage data
+        _loadStorageData();
+      } else {
+        // Show error if the directory doesn't exist
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Directory does not exist'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      print('Error deleting directory: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not delete directory: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
 
