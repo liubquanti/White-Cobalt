@@ -1970,6 +1970,75 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
 
               const SizedBox(height: 20),
+              
+              const Text(
+                'Storage',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+                const SizedBox(height: 16),
+                Material(
+                color: const Color(0xFF191919),
+                borderRadius: BorderRadius.circular(11),
+                child: Container(
+                  decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.08),
+                    width: 1.5,
+                  ),
+                  ),
+                  child: InkWell(
+                  borderRadius: BorderRadius.circular(9.5),
+                  splashColor: Colors.white.withOpacity(0.1),
+                  highlightColor: Colors.white.withOpacity(0.05),
+                  onTap: () async {
+                    await Future.delayed(const Duration(milliseconds: 250));
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StorageUsageScreen(
+                      baseDir: _downloadDir,
+                      ),
+                    ),
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    child: Row(
+                    children: [
+                      SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: SvgPicture.string(
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M5.8 11a6 6 0 0 1 6.2 -6"></path><path d="M12 5a6 6 0 0 1 6 6"></path><path d="M12 12l3.5 -1.5"></path></svg>',
+                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                      'Storage Usage',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                      ),
+                      const Spacer(),
+                      const Icon(
+                      Icons.chevron_right,
+                      color: Colors.white54,
+                      ),
+                    ],
+                    ),
+                  ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
               const Text(
                 'About',
                 style: TextStyle(
@@ -2026,68 +2095,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                   ],
-                ),
-              ),
-              
-              const SizedBox(height: 20),
-              
-              const Text(
-                'Storage',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 16),
-              
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StorageUsageScreen(
-                        baseDir: _downloadDir,
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF191919),
-                    borderRadius: BorderRadius.circular(11),
-                    border: Border.all(
-                      color: const Color.fromRGBO(255, 255, 255, 0.08),
-                      width: 1.5,
-                    ),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: SvgPicture.string(
-                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M5.8 11a6 6 0 0 1 6.2 -6"></path><path d="M12 5a6 6 0 0 1 6 6"></path><path d="M12 12l3.5 -1.5"></path></svg>',
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                        'Storage Usage',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const Spacer(),
-                      const Icon(
-                        Icons.chevron_right,
-                        color: Colors.white54,
-                      ),
-                    ],
-                  ),
                 ),
               ),
             ],
