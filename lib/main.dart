@@ -2535,7 +2535,6 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
       if (await directory.exists()) {
         await directory.delete(recursive: true);
         
-        // Show success message
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -2545,10 +2544,8 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
           );
         }
         
-        // Refresh storage data
         _loadStorageData();
       } else {
-        // Show error if the directory doesn't exist
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
