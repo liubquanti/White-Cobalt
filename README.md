@@ -16,7 +16,7 @@ White Cobalt was developed independently of the [creators of cobalt.tools](https
 
 > [![sample SVG image](https://raw.githubusercontent.com/pioug/google-play-badges/main/svg/English.svg)](https://play.google.com/store/apps/details?id=liubquanti.white.cobalt)
 >
-> Not published yet.
+> The app has not been released yet and is currently undergoing closed testing on Google Play. To join the closed testing, you must provide your email address by filling out [this form](https://forms.gle/gmNEyRK8rhmgUgG99). Then wait until you are added to the list of testers and accept [the invitation](https://play.google.com/apps/internaltest/4700828896574126962). After that, you will be able to download the app from [Google Play](https://play.google.com/store/apps/details?id=liubquanti.white.cobalt).
 
 ## ⭐ • Sources
 
