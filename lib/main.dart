@@ -683,7 +683,7 @@ String _getServiceName(Map<String, dynamic>? responseData, String filename, Stri
   
   if (filename.contains('_')) {
     final serviceFromFilename = filename.split('_').first.toLowerCase();
-    if (serviceFromFilename.isNotEmpty) {
+    if (serviceFromFilename.isNotEmpty && serviceFromFilename != 'cobalt') {
       return serviceFromFilename;
     }
   }
