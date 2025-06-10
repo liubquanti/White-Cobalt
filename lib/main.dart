@@ -713,16 +713,36 @@ String _getServiceNameFromUrl(String url) {
   return 'other';
 }
 
+String _getBaseDirByFileType(String filename) {
+  final extension = filename.split('.').last.toLowerCase();
+  
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic'].contains(extension)) {
+    return '/storage/emulated/0/Pictures';
+  }
+  
+  else if (['mp4', 'mkv', 'avi', 'mov', 'webm', 'flv', '3gp', 'wmv'].contains(extension)) {
+    return '/storage/emulated/0/Movies';
+  }
+  
+  else if (['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac', 'opus', 'wma'].contains(extension)) {
+    return '/storage/emulated/0/Music';
+  }
+  
+  else {
+    return '/storage/emulated/0/Download';
+  }
+}
+
 Future<void> _downloadFile(String url, String filename) async {
   try {
     final serviceName = _getServiceName(_responseData, filename, _urlController.text.trim());
     print('Detected service: $serviceName');
     
-    String baseDir = '/storage/emulated/0/Download';
+    String baseDir = _getBaseDirByFileType(filename);
     String cobaltDir = '$baseDir/Cobalt';
     String serviceDir = '$cobaltDir/$serviceName';
     
-    print('Will try to save to: $serviceDir');
+    print('Will try to save to: $serviceDir (based on file type)');
     
     try {
       Directory directory = Directory(cobaltDir);
@@ -879,40 +899,41 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
   });
 }
 
-  Future<void> _downloadPickerItem(String url, String type) async {
-    setState(() {
-      _isDownloadInProgress = true;
-    });
+Future<void> _downloadPickerItem(String url, String type) async {
+  setState(() {
+    _isDownloadInProgress = true;
+  });
+  
+  try {
+    final fixedUrl = _fixServerUrl(url);
+    final extension = type == 'photo' ? '.jpg' : type == 'gif' ? '.gif' : '.mp4';
+    final filename = 'cobalt_${DateTime.now().millisecondsSinceEpoch}$extension';
+    
+    print('Downloading picker item: $type');
+    print('Fixed URL: $fixedUrl');
+    print('Filename: $filename');
+    
+    final serviceName = _getServiceName(_responseData, filename, _urlController.text.trim());
+    
+    // Определяем базовую директорию в зависимости от типа файла
+    String baseDir = _getBaseDirByFileType(filename);
+    String cobaltDir = '$baseDir/Cobalt';
+    String serviceDir = '$cobaltDir/$serviceName';
     
     try {
-      final fixedUrl = _fixServerUrl(url);
-      final extension = type == 'photo' ? '.jpg' : type == 'gif' ? '.gif' : '.mp4';
-      final filename = 'cobalt_${DateTime.now().millisecondsSinceEpoch}$extension';
-      
-      print('Downloading picker item: $type');
-      print('Fixed URL: $fixedUrl');
-      print('Filename: $filename');
-      
-      final serviceName = _getServiceName(_responseData, filename, _urlController.text.trim());
-      
-      String baseDir = '/storage/emulated/0/Download';
-      String cobaltDir = '$baseDir/Cobalt';
-      String serviceDir = '$cobaltDir/$serviceName';
-      
-      try {
-        Directory directory = Directory(cobaltDir);
-        if (!await directory.exists()) {
-          await directory.create(recursive: true);
-        }
-        
-        directory = Directory(serviceDir);
-        if (!await directory.exists()) {
-          await directory.create(recursive: true);
-        }
-      } catch (e) {
-        print('Error creating directories: $e');
-        serviceDir = baseDir;
+      Directory directory = Directory(cobaltDir);
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
       }
+      
+      directory = Directory(serviceDir);
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+    } catch (e) {
+      print('Error creating directories: $e');
+      serviceDir = baseDir;
+    }
     
     final tempDir = await getTemporaryDirectory();
     final tempFilePath = '${tempDir.path}/$filename';
@@ -2269,6 +2290,14 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
   List<ServiceStorage> _storageData = [];
   int _totalSize = 0;
   int _touchedIndex = -1;
+  
+  // Добавим список всех базовых директорий, которые нужно сканировать
+  final List<String> _baseDirs = [
+    '/storage/emulated/0/Download',
+    '/storage/emulated/0/Pictures',
+    '/storage/emulated/0/Movies',
+    '/storage/emulated/0/Music',
+  ];
 
   @override
   void initState() {
@@ -2282,35 +2311,34 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
     });
 
     try {
-      final baseDir = Directory(widget.baseDir);
-      
-      if (!await baseDir.exists()) {
-        setState(() {
-          _isLoading = false;
-          _storageData = [];
-          _totalSize = 0;
-        });
-        return;
-      }
-
-      List<ServiceStorage> data = [];
+      Map<String, int> serviceToSizeMap = {};
       int totalSize = 0;
-
-      final List<FileSystemEntity> entities = await baseDir.list().toList();
-      final List<Directory> dirs = entities
-          .whereType<Directory>()
-          .toList();
-
-      for (final dir in dirs) {
-        final String serviceName = dir.path.split('/').last;
-        final int size = await _calculateDirSize(dir);
+      
+      for (final baseDir in _baseDirs) {
+        final cobaltDir = Directory('$baseDir/Cobalt');
         
-        if (size > 0) {
-          data.add(ServiceStorage(serviceName, size));
-          totalSize += size;
+        if (await cobaltDir.exists()) {
+          final List<FileSystemEntity> entities = await cobaltDir.list().toList();
+          final List<Directory> dirs = entities
+              .whereType<Directory>()
+              .toList();
+              
+          for (final dir in dirs) {
+            final String serviceName = dir.path.split('/').last;
+            final int size = await _calculateDirSize(dir);
+            
+            if (size > 0) {
+              serviceToSizeMap[serviceName] = (serviceToSizeMap[serviceName] ?? 0) + size;
+              totalSize += size;
+            }
+          }
         }
-                 }
-
+      }
+      
+      List<ServiceStorage> data = serviceToSizeMap.entries
+          .map((entry) => ServiceStorage(entry.key, entry.value))
+          .toList();
+      
       data.sort((a, b) => b.size.compareTo(a.size));
 
       setState(() {
@@ -2664,13 +2692,21 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
     );
   }
 
-  Future<void> _deleteDirectory(String serviceName) async {
+    Future<void> _deleteDirectory(String serviceName) async {
     try {
-      final directory = Directory('${widget.baseDir}/$serviceName');
+      bool hasDeleted = false;
       
-      if (await directory.exists()) {
-        await directory.delete(recursive: true);
+      for (final baseDir in _baseDirs) {
+        final directory = Directory('$baseDir/Cobalt/$serviceName');
         
+        if (await directory.exists()) {
+          await directory.delete(recursive: true);
+          hasDeleted = true;
+          print('Deleted $serviceName from $baseDir/Cobalt');
+        }
+      }
+      
+      if (hasDeleted) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -2685,8 +2721,8 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Directory does not exist'),
-              backgroundColor: Colors.red,
+              content: Text('No directories found for this service'),
+              backgroundColor: Colors.orange,
             ),
           );
         }
