@@ -1253,21 +1253,37 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                     ),
                     ),
                   ),
-                  suffixIcon: _urlController.text.isNotEmpty
+                    suffixIcon: _urlController.text.isNotEmpty
                     ? IconButton(
-                        icon: SvgPicture.string(
+                      icon: SvgPicture.string(
                         '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-backspace"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-11l-5 -5a1.5 1.5 0 0 1 0 -2l5 -5z" /><path d="M12 10l4 4m0 -4l-4 4" /></svg>',
                         width: 22,
                         height: 22,
                         colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
-                        ),
+                      ),
                       onPressed: _isDownloadInProgress
                         ? null
                         : () {
                           _urlController.clear();
                           },
                       )
-                    : null,
+                    : IconButton(
+                      icon: SvgPicture.string(
+                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-clipboard-text"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" /><path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" /><path d="M9 12h6" /><path d="M9 16h6" /></svg>',
+                        width: 22,
+                        height: 22,
+                        colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                      ),
+                      tooltip: 'Paste from clipboard',
+                      onPressed: _isDownloadInProgress
+                        ? null
+                        : () async {
+                          final data = await Clipboard.getData('text/plain');
+                          if (data != null && data.text != null && data.text!.isNotEmpty) {
+                            _urlController.text = data.text!;
+                          }
+                          },
+                      ),
                   contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                   ),
                   cursorColor: const Color(0xFFE1E1E1),
@@ -1404,7 +1420,101 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                 thickness: 1.0,
                 height: 20,
               ),
-              
+
+              if (_responseData != null && _responseData!['status'] == 'picker')
+              Column(
+                children: List.generate(_responseData!['picker'].length, (index) {
+                  final item = _responseData!['picker'][index];
+                  return Card(
+                  color: const Color(0xFF191919),
+                  margin: const EdgeInsets.symmetric(vertical: 4.0),
+                    shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(11),
+                    side: const BorderSide(
+                      color: Color.fromRGBO(255, 255, 255, 0.05),
+                      width: 1.5,
+                    ),
+                    ),
+                    child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                    child: Row(
+                      children: [
+                      if (item['thumb'] != null)
+                        ClipRRect(
+                        borderRadius: BorderRadius.circular(5),
+                        child: Image.network(
+                          _fixServerUrl(item['thumb']),
+                          width: 50,
+                          height: 50,
+                          fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => 
+                            SizedBox(
+                              width: 50,
+                              height: 50,
+                              child: SvgPicture.string(
+                              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-photo-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 8h.01" /><path d="M7 3h11a3 3 0 0 1 3 3v11m-.856 3.099a2.991 2.991 0 0 1 -2.144 .901h-12a3 3 0 0 1 -3 -3v-12c0 -.845 .349 -1.608 .91 -2.153" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M16.33 12.338c.574 -.054 1.155 .166 1.67 .662l3 3" /><path d="M3 3l18 18" /></svg>',
+                              width: 22,
+                              height: 22,
+                              colorFilter: const ColorFilter.mode(Colors.white38, BlendMode.srcIn),
+                            ),
+                          ),
+                        ),
+                      )
+                      else
+                        Container(
+                        width: 50,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[900],
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Icon(
+                          item['type'] == 'photo'
+                            ? Icons.image
+                            : item['type'] == 'gif'
+                              ? Icons.gif
+                              : Icons.video_library,
+                          size: 32,
+                          color: Colors.white70,
+                        ),
+                        ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                        '${item['type']} #${index + 1}',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: SvgPicture.string(
+                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>',
+                        width: 22,
+                        height: 22,
+                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        ),
+                        onPressed: _isDownloadInProgress
+                          ? null
+                          : () => _downloadPickerItem(item['url'], item['type']),
+                      ),
+                      ],
+                    ),
+                    ),
+                  );
+                }
+              ),
+              ),
+
+              if (_responseData != null && _responseData!['status'] == 'picker')
+              const Divider(
+                color: Color(0xFF383838),
+                thickness: 1.0,
+                height: 20,
+              ),
+
               if (errorDetails != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
@@ -1463,7 +1573,7 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                   ),
                   ),
                 ),
-            
+
               if (_serverInfo != null && _baseUrl != 'add_new')
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
@@ -1618,47 +1728,6 @@ void _trackDownloadProgress(String? taskId, Function(bool) onComplete) {
                     ),
                     ],
                   ),
-                  ),
-                ),
-              
-              if (_responseData != null && _responseData!['status'] == 'picker')
-                Container(
-                  height: 300,
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _responseData!['picker'].length,
-                    itemBuilder: (context, index) {
-                      final item = _responseData!['picker'][index];
-                      return Card(
-                        color: const Color(0xFF191919),
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: ListTile(
-                          leading: item['thumb'] != null
-                            ? Image.network(
-                                _fixServerUrl(item['thumb']),
-                                width: 50,
-                                errorBuilder: (_, __, ___) =>
-                                  const Icon(Icons.broken_image),
-                              )
-                            : Icon(
-                                item['type'] == 'photo'
-                                  ? Icons.image
-                                  : item['type'] == 'gif'
-                                    ? Icons.gif
-                                    : Icons.video_library,
-                              ),
-                          title: Text('${item['type']} #${index + 1}'),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.download),
-                            onPressed: _isDownloadInProgress ? null : () => _downloadPickerItem(item['url'], item['type']),
-                          ),
-                        ),
-                      );
-                    },
                   ),
                 ),
               const SizedBox(height: 10),
