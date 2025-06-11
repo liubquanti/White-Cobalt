@@ -14,6 +14,7 @@ import 'package:flutter/gestures.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:filesize/filesize.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:media_scanner/media_scanner.dart';
 
 @pragma('vm:entry-point')
 void downloadCallback(String id, int status, int progress) {
@@ -792,6 +793,14 @@ Future<void> _downloadFile(String url, String filename) async {
             await tempFile.copy(targetFile.path);
             print('File copied from $tempFilePath to ${targetFile.path}');
             
+            try {
+              print('Scanning file for media library: ${targetFile.path}');
+              await MediaScanner.loadMedia(path: targetFile.path);
+              print('Media scan complete');
+            } catch (scanErr) {
+              print('Error scanning media: $scanErr');
+            }
+            
             await tempFile.delete();
             print('Temporary file deleted');
             
@@ -955,6 +964,15 @@ Future<void> _downloadPickerItem(String url, String type) async {
               await targetFile.delete();
             }
             await tempFile.copy(targetFile.path);
+            
+            try {
+              print('Scanning picker media file: ${targetFile.path}');
+              await MediaScanner.loadMedia(path: targetFile.path);
+              print('Media scan complete for picker item');
+            } catch (scanErr) {
+              print('Error scanning picker media: $scanErr');
+            }
+            
             await tempFile.delete();
             
             setState(() {
