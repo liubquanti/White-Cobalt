@@ -915,7 +915,6 @@ Future<void> _downloadPickerItem(String url, String type) async {
     
     final serviceName = _getServiceName(_responseData, filename, _urlController.text.trim());
     
-    // Определяем базовую директорию в зависимости от типа файла
     String baseDir = _getBaseDirByFileType(filename);
     String cobaltDir = '$baseDir/Cobalt';
     String serviceDir = '$cobaltDir/$serviceName';
@@ -2291,7 +2290,6 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
   int _totalSize = 0;
   int _touchedIndex = -1;
   
-  // Добавим список всех базовых директорий, которые нужно сканировать
   final List<String> _baseDirs = [
     '/storage/emulated/0/Download',
     '/storage/emulated/0/Pictures',
