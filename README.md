@@ -30,12 +30,16 @@ White Cobalt was developed independently of the [creators of cobalt.tools](https
 - [X] Add an API key to a server.
 - [X] Check the functionality of a cobalt server.
 - [X] Download media via pasted link.
+- [X] Automaticly paste link from clipboard.
 - [X] Download media via link shared through the share menu.
+- [X] Choose between automatic, sound only and silent download method.
 - [X] Switch between server and local-side processing.
 - [X] Disable metadata for downloads.
 - [X] Monitor how much storage space is taken up by downloaded media.
+- [X] Organising downloaded media by file type.
 - [X] Organising downloaded media by service.
 - [X] Storage cleaning by service.
+
 
 ## 🧩 • Usage
 
