@@ -2,13 +2,16 @@ package liubquanti.white.cobalt
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
+import android.os.StatFs
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.util.regex.Pattern
 
 class MainActivity: FlutterActivity() {
-    private val CHANNEL = "com.whitecobalt.share/url"
+    private val SHARE_CHANNEL = "com.whitecobalt.share/url"
+    private val STORAGE_CHANNEL = "com.whitecobalt.storage/info"
     private var sharedUrl: String? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -16,11 +19,21 @@ class MainActivity: FlutterActivity() {
         
         processIntent(intent)
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SHARE_CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
                 "getSharedUrl" -> {
                     result.success(sharedUrl)
                     sharedUrl = null
+                }
+                else -> result.notImplemented()
+            }
+        }
+        
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, STORAGE_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getStorageStats" -> {
+                    val stats = getStorageStats()
+                    result.success(stats)
                 }
                 else -> result.notImplemented()
             }
@@ -54,6 +67,34 @@ class MainActivity: FlutterActivity() {
             matcher.group()
         } else {
             null
+        }
+    }
+    
+    private fun getStorageStats(): Map<String, Long> {
+        try {
+            val path = Environment.getDataDirectory()
+            val stat = StatFs(path.path)
+
+            val blockSize = stat.blockSizeLong
+            val totalBlocks = stat.blockCountLong
+            val availableBlocks = stat.availableBlocksLong
+
+            val total = totalBlocks * blockSize
+            val free = availableBlocks * blockSize
+            val used = total - free
+
+            return mapOf(
+                "total" to total,
+                "free" to free,
+                "used" to used
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return mapOf(
+                "total" to 0L,
+                "free" to 0L,
+                "used" to 0L
+            )
         }
     }
 }

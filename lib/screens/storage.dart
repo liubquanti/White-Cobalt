@@ -22,10 +22,18 @@ class StorageUsageScreen extends StatefulWidget {
 
 class _StorageUsageScreenState extends State<StorageUsageScreen> {
   bool _isLoading = true;
+  bool _isDeviceStorageLoading = true;
   List<ServiceStorage> _storageData = [];
   int _totalSize = 0;
   int _touchedIndex = -1;
   
+  Map<String, dynamic> _deviceStorage = {
+    'total': 0,
+    'free': 0,
+    'used': 0,
+    'cobaltPercentage': 0.0
+  };
+
   final List<String> _baseDirs = [
     '/storage/emulated/0/Download',
     '/storage/emulated/0/Pictures',
@@ -80,12 +88,43 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
         _totalSize = totalSize;
         _isLoading = false;
       });
+      
+      _loadDeviceStorageInfo();
     } catch (e) {
       print('Error loading storage data: $e');
       setState(() {
         _isLoading = false;
         _storageData = [];
         _totalSize = 0;
+      });
+      _loadDeviceStorageInfo();
+    }
+  }
+
+  Future<void> _loadDeviceStorageInfo() async {
+    setState(() {
+      _isDeviceStorageLoading = true;
+    });
+  
+    try {
+      final stats = await DeviceStorageInfo.getStorageStats();
+    
+      setState(() {
+        _deviceStorage = stats;
+        if (_totalSize > 0) {
+          _deviceStorage['cobaltPercentage'] = _totalSize / stats['total'] * 100;
+        } else {
+          _deviceStorage['cobaltPercentage'] = 0.0;
+        }
+        _isDeviceStorageLoading = false;
+      });
+    
+      print('Device storage: ${filesize(stats['total'])} total, ${filesize(stats['free'])} free');
+      print('Cobalt is using: ${filesize(_totalSize)} (${_deviceStorage['cobaltPercentage'].toStringAsFixed(2)}%)');
+    } catch (e) {
+      print('Error loading device storage info: $e');
+      setState(() {
+        _isDeviceStorageLoading = false;
       });
     }
   }
@@ -145,7 +184,9 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
               height: 22,
               colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
             ),
-            onPressed: _loadStorageData,
+            onPressed: () {
+              _loadStorageData();
+            },
           ),
         ],
       ),
@@ -199,7 +240,7 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
                           child: Column(
                             children: [
                               Text(
-                                'Total: ${filesize(_totalSize)}',
+                                'Total: ${filesize(_totalSize)} / ${filesize(_deviceStorage['total'])}',
                                 style: const TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
@@ -207,62 +248,199 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
                               ),
                               SizedBox(
                                 height: 250,
-                                child: PieChart(
-                                  PieChartData(
-                                    pieTouchData: PieTouchData(
-                                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                                        setState(() {
-                                          if (!event.isInterestedForInteractions ||
-                                              pieTouchResponse == null ||
-                                              pieTouchResponse.touchedSection == null) {
-                                            _touchedIndex = -1;
-                                            return;
-                                          }
-                                          _touchedIndex =
-                                              pieTouchResponse.touchedSection!.touchedSectionIndex;
-                                        });
-                                      },
-                                    ),
-                                    borderData: FlBorderData(show: false),
-                                    sectionsSpace: 2,
-                                    centerSpaceRadius: 50,
-                                    sections: _storageData.asMap().entries.map((entry) {
-                                      final int index = entry.key;
-                                      final ServiceStorage data = entry.value;
-                                      final bool isTouched = index == _touchedIndex;
-                                      final double fontSize = isTouched ? 14.0 : 12.0;
-                                      final double radius = isTouched ? 60.0 : 50.0;
-                                      final Color color = chartColors[index % chartColors.length];
-
-                                      final double percentage = data.size / _totalSize * 100;
-                                      
-                                      return PieChartSectionData(
-                                        color: color,
-                                        value: data.size.toDouble(),
-                                        title: '${percentage.toStringAsFixed(1)}%',
-                                        radius: radius,
-                                        titleStyle: TextStyle(
-                                          fontSize: fontSize,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    PieChart(
+                                      PieChartData(
+                                        pieTouchData: PieTouchData(
+                                          touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                                            setState(() {
+                                              if (!event.isInterestedForInteractions ||
+                                                  pieTouchResponse == null ||
+                                                  pieTouchResponse.touchedSection == null) {
+                                                _touchedIndex = -1;
+                                                return;
+                                              }
+                                              _touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                                            });
+                                          },
                                         ),
-                                      );
-                                    }).toList(),
-                                  ),
+                                        borderData: FlBorderData(show: false),
+                                        sectionsSpace: 2,
+                                        centerSpaceRadius: 60,
+                                        sections: _storageData.asMap().entries.map((entry) {
+                                          final int index = entry.key;
+                                          final ServiceStorage data = entry.value;
+                                          final bool isTouched = index == _touchedIndex;
+                                          final double fontSize = isTouched ? 14.0 : 12.0;
+                                          final double radius = isTouched ? 60.0 : 50.0;
+                                          final Color color = chartColors[index % chartColors.length];
+
+                                          final double percentage = data.size / _totalSize * 100;
+                                          
+                                          return PieChartSectionData(
+                                            color: color,
+                                            value: data.size.toDouble(),
+                                            title: '${percentage.toStringAsFixed(1)}%',
+                                            radius: radius,
+                                            titleStyle: TextStyle(
+                                              fontSize: fontSize,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                    _isDeviceStorageLoading
+                                      ? const SizedBox(
+                                          height: 30,
+                                          width: 30,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white70,
+                                          ),
+                                        )
+                                      : SizedBox(
+                                          height: 60,
+                                          width: 60,
+                                            child: PieChart(
+                                            PieChartData(
+                                              pieTouchData: PieTouchData(enabled: false),
+                                              borderData: FlBorderData(show: false),
+                                              centerSpaceRadius: 40,
+                                              sections: [
+                                              PieChartSectionData(
+                                                color: const Color(0xFFFFFFFF),
+                                                value: _totalSize.toDouble(),
+                                                title: '',
+                                                radius: 10,
+                                                showTitle: false,
+                                              ),
+                                              PieChartSectionData(
+                                                color: const Color(0xFF949494),
+                                                value: _deviceStorage['used'] - _totalSize.toDouble(),
+                                                title: '',
+                                                radius: 10,
+                                                showTitle: false,
+                                              ),
+                                              PieChartSectionData(
+                                                color: const Color(0xFF333333),
+                                                value: _deviceStorage['free'].toDouble(),
+                                                title: '',
+                                                radius: 10,
+                                                showTitle: false,
+                                              ),
+                                              ],
+                                            ),
+                                            ),
+                                        ),
+                                        Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                          SvgPicture.string(
+                                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-database"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0" /><path d="M4 6v6a8 3 0 0 0 16 0v-6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></svg>',
+                                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                                          ),
+                                          Text(
+                                            '${_deviceStorage["cobaltPercentage"].toStringAsFixed(1)}%',
+                                            style: const TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                            ),
+                                          ),
+                                          ],
+                                        )
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const Text(
-                          'Service Breakdown',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF191919),
+                            borderRadius: BorderRadius.circular(11),
+                            border: Border.all(
+                              color: const Color.fromRGBO(255, 255, 255, 0.08),
+                              width: 1.5,
+                            ),
+                          ),
+                            child: Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                              Row(
+                                children: [
+                                Container(
+                                width: 15,
+                                height: 15,
+                                decoration: const BoxDecoration(
+                                color: Color(0xFFFFFFFF),
+                                shape: BoxShape.circle,
+                                ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                'Cobalt',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                                ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                Container(
+                                width: 15,
+                                height: 15,
+                                decoration: const BoxDecoration(
+                                color: Color(0xFF949494),
+                                shape: BoxShape.circle,
+                                ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                'Other',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                                ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                Container(
+                                width: 15,
+                                height: 15,
+                                decoration: const BoxDecoration(
+                                color: Color(0xFF333333),
+                                shape: BoxShape.circle,
+                                ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Text(
+                                'Free',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
+                                ),
+                                ),
+                                ],
+                              ),
+                              ],
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 12),
                         Column(
                           children: _storageData.asMap().entries.map((entry) {
                             final int index = entry.key;
