@@ -459,6 +459,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         'downloadMode': _downloadMode,
         'localProcessing': _useLocalProcessing,
         'disableMetadata': _appSettings.disableMetadata,
+        if (_appSettings.shareLinks) 'alwaysProxy': true,
       };
       
       print('Request payload: ${jsonEncode(requestPayload)}');
@@ -1343,10 +1344,11 @@ Future<void> _downloadPickerItem(String url, String type) async {
                                   ),
                                 ],
                               )
-                            : const Text('Download', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                    
+                            : Text(
+                                _appSettings.shareLinks ? 'Share' : 'Download', 
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)
+                              ),
+                    ),),
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Container(
@@ -1822,16 +1824,14 @@ Future<void> _downloadPickerItem(String url, String type) async {
             color: isSelected ? const Color(0xFF333333) : Colors.transparent,
           ),
           child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              color: isSelected ? Colors.white : Colors.white54,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              label,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 
   void _saveDownloadModeSetting() async {
