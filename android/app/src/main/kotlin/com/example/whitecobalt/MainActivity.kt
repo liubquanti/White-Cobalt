@@ -12,6 +12,7 @@ import java.util.regex.Pattern
 class MainActivity: FlutterActivity() {
     private val SHARE_CHANNEL = "com.whitecobalt.share/url"
     private val STORAGE_CHANNEL = "com.whitecobalt.storage/info"
+    private val NATIVE_SHARE_CHANNEL = "com.whitecobalt.native_share"
     private var sharedUrl: String? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -38,6 +39,17 @@ class MainActivity: FlutterActivity() {
                 else -> result.notImplemented()
             }
         }
+        
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, NATIVE_SHARE_CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
+                "shareText" -> {
+                    val text = call.argument<String>("text")
+                    shareText(text ?: "")
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -58,16 +70,26 @@ class MainActivity: FlutterActivity() {
     private fun extractUrlFromText(text: String?): String? {
         if (text.isNullOrEmpty()) return null
         
-        // Regex pattern to match URLs
         val pattern = "https?://[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b[-a-zA-Z0-9()@:%_+.~#?&//=]*"
         val matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(text)
         
-        // Return the first URL found or null if none
         return if (matcher.find()) {
             matcher.group()
         } else {
             null
         }
+    }
+    
+    private fun shareText(text: String) {
+        val sendIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, text)
+            type = "text/plain"
+        }
+
+        val shareIntent = Intent.createChooser(sendIntent, "Share media link")
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(shareIntent)
     }
     
     private fun getStorageStats(): Map<String, Long> {

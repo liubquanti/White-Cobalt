@@ -17,6 +17,7 @@ import 'package:media_scanner/media_scanner.dart';
 import '../config/server.dart';
 import '../config/settings.dart';
 import '../screens/settings.dart';
+import '../services/share.dart';
 
 
 class CobaltHomePage extends StatefulWidget {
@@ -450,7 +451,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       Uri.parse(url);
       
       print('Sending request to: $_baseUrl');
-        final requestPayload = {
+      final requestPayload = {
         'url': url,
         'videoQuality': 'max',
         'audioFormat': 'mp3',
@@ -501,7 +502,18 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             final String filename = data['output']['filename'];
             
             print('Local processing tunnel URL: $tunnelUrl');
-            print('Local processing filename: $filename');            await _downloadFile(tunnelUrl, filename);
+            print('Local processing filename: $filename');
+            
+            if (_appSettings.shareLinks) {
+              String shareText = tunnelUrl;
+              await NativeShare.shareText(shareText);
+              setState(() {
+                _isDownloadInProgress = false;
+                _status = 'Link shared';
+              });
+            } else {
+              await _downloadFile(tunnelUrl, filename);
+            }
           } else {
             setState(() {
               _status = 'Local processing error: Invalid response format';
@@ -512,7 +524,17 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           final String downloadUrl = _fixServerUrl(data['url']);
           print('Download URL: $downloadUrl');
           print('Filename: ${data['filename']}');
+
+          if (_appSettings.shareLinks) {
+            String shareText = downloadUrl;
+            await NativeShare.shareText(shareText);
+            setState(() {
+              _isDownloadInProgress = false;
+              _status = 'Link shared';
+            });
+          } else {
             await _downloadFile(downloadUrl, data['filename']);
+          }
         } else if (data['status'] == 'picker') {
           print('Picker options: ${data['picker'].length}');
           setState(() {
@@ -827,6 +849,16 @@ Future<void> _downloadPickerItem(String url, String type) async {
     print('Downloading picker item: $type');
     print('Fixed URL: $fixedUrl');
     print('Filename: $filename');
+    
+    if (_appSettings.shareLinks) {
+      String shareText = fixedUrl;
+      await NativeShare.shareText(shareText);
+      setState(() {
+        _isDownloadInProgress = false;
+        _status = 'Link shared';
+      });
+      return;
+    }
     
     final serviceName = _getServiceName(_responseData, filename, _urlController.text.trim());
     
@@ -1803,7 +1835,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
   }
 
   void _saveDownloadModeSetting() async {
-    final prefs = await SharedPreferences.getInstance();
+       final prefs = await SharedPreferences.getInstance();
     await prefs.setString('app_settings', jsonEncode(_appSettings.toJson()));
   }
 }

@@ -28,6 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late String _downloadDir;
   late String _downloadMode;
   late bool _disableMetadata;
+  late bool _shareLinks;
 
   @override
   void initState() {
@@ -36,6 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _downloadDir = widget.settings.downloadDir;
     _downloadMode = widget.settings.downloadMode;
     _disableMetadata = widget.settings.disableMetadata;
+    _shareLinks = widget.settings.shareLinks;
   }
   void _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -44,6 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       downloadDir: _downloadDir,
       downloadMode: _downloadMode,
       disableMetadata: _disableMetadata,
+      shareLinks: _shareLinks,
     );
     await prefs.setString('app_settings', jsonEncode(settings.toJson()));
     widget.onSettingsChanged(settings);
@@ -213,6 +216,77 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onChanged: (value) {
                         setState(() {
                           _disableMetadata = value;
+                        });
+                        _saveSettings();
+                      },
+                      activeColor: const Color(0xFFFFFFFF),
+                      activeTrackColor: const Color(0xFF8a8a8a),
+                      inactiveThumbColor: const Color(0xFFFFFFFF),
+                      inactiveTrackColor: const Color(0xFF383838),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF191919),
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.08),
+                    width: 1.5,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: SvgPicture.string(
+                              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M8.7 10.7l6.6 -3.4" /><path d="M8.7 13.3l6.6 3.4" /></svg>',
+                              colorFilter: ColorFilter.mode(
+                                _shareLinks ? Colors.white : Colors.white38,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Share Links',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: _shareLinks ? Colors.white : Colors.white54,
+                                  ),
+                                ),
+                                Text(
+                                  'Share links instead of downloading files',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: _shareLinks ? Colors.white70 : Colors.white38,
+                                  ),
+                                  softWrap: true,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _shareLinks,
+                      onChanged: (value) {
+                        setState(() {
+                          _shareLinks = value;
                         });
                         _saveSettings();
                       },
