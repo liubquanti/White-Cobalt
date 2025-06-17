@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../config/settings.dart';
 import 'storage.dart';
+import 'advanced.dart';
 
 class SettingsScreen extends StatefulWidget {
   final AppSettings settings;
@@ -177,77 +178,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             width: 22,
                             height: 22,
                             child: SvgPicture.string(
-                              '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-file-download "><!----><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><!----><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path><!----><path d="M12 17v-6"></path><!----><path d="M9.5 14.5l2.5 2.5l2.5 -2.5"></path><!----><!----><!----></svg>',
-                              colorFilter: ColorFilter.mode(
-                                _disableMetadata ? Colors.white : Colors.white38,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'No Metadata',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: _disableMetadata ? Colors.white : Colors.white54,
-                                  ),
-                                ),
-                                Text(
-                                  'Remove title, artist, and other info from files',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: _disableMetadata ? Colors.white70 : Colors.white38,
-                                  ),
-                                  softWrap: true,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Switch(
-                      value: _disableMetadata,
-                      onChanged: (value) {
-                        setState(() {
-                          _disableMetadata = value;
-                        });
-                        _saveSettings();
-                      },
-                      activeColor: const Color(0xFFFFFFFF),
-                      activeTrackColor: const Color(0xFF8a8a8a),
-                      inactiveThumbColor: const Color(0xFFFFFFFF),
-                      inactiveTrackColor: const Color(0xFF383838),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF191919),
-                  borderRadius: BorderRadius.circular(11),
-                  border: Border.all(
-                    color: const Color.fromRGBO(255, 255, 255, 0.08),
-                    width: 1.5,
-                  ),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: SvgPicture.string(
                               '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M8.7 10.7l6.6 -3.4" /><path d="M8.7 13.3l6.6 3.4" /></svg>',
                               colorFilter: ColorFilter.mode(
                                 _shareLinks ? Colors.white : Colors.white38,
@@ -296,6 +226,71 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       inactiveTrackColor: const Color(0xFF383838),
                     ),
                   ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Material(
+                color: const Color(0xFF191919),
+                borderRadius: BorderRadius.circular(11),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(
+                      color: const Color.fromRGBO(255, 255, 255, 0.08),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(9.5),
+                    splashColor: Colors.white.withOpacity(0.1),
+                    highlightColor: Colors.white.withOpacity(0.05),
+                    onTap: () async {
+                      await Future.delayed(const Duration(milliseconds: 250));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AdvancedSettingsScreen(
+                            disableMetadata: _disableMetadata,
+                            onChanged: (value) {
+                              setState(() {
+                                _disableMetadata = value;
+                              });
+                              _saveSettings();
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: SvgPicture.string(
+                              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-settings-cog"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12.003 21c-.732 .001 -1.465 -.438 -1.678 -1.317a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c.886 .215 1.325 .957 1.318 1.694" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M19.001 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M19.001 15.5v1.5" /><path d="M19.001 21v1.5" /><path d="M22.032 17.25l-1.299 .75" /><path d="M17.27 20l-1.3 .75" /><path d="M15.97 17.25l1.3 .75" /><path d="M20.733 20l1.3 .75" /></svg>',
+                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                          ),
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Advanced settings',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Spacer(),
+                          const Icon(
+                            Icons.chevron_right,
+                            color: Colors.white54,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 15),
