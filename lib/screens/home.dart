@@ -47,6 +47,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   bool _useLocalProcessing = true;
   String _downloadMode = 'auto';
   late AppSettings _appSettings;
+  bool _showCopiedOnButton = false;
   
   @override
   void initState() {
@@ -507,11 +508,28 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             
             if (_appSettings.shareLinks) {
               String shareText = tunnelUrl;
-              await NativeShare.shareText(shareText);
-              setState(() {
-                _isDownloadInProgress = false;
-                _status = 'Link shared';
-              });
+              if (_appSettings.shareCopyToClipboard) {
+                await Clipboard.setData(ClipboardData(text: shareText));
+                setState(() {
+                  _isDownloadInProgress = false;
+                  _status = 'Link copied to clipboard';
+                  _showCopiedOnButton = true;
+                });
+                Future.delayed(const Duration(seconds: 2), () {
+                  if (mounted) {
+                    setState(() {
+                      _showCopiedOnButton = false;
+                    });
+                  }
+                });
+              } else {
+                await NativeShare.shareText(shareText);
+                setState(() {
+                  _isDownloadInProgress = false;
+                  _status = 'Link shared';
+                });
+              }
+              return;
             } else {
               await _downloadFile(tunnelUrl, filename);
             }
@@ -528,11 +546,28 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
           if (_appSettings.shareLinks) {
             String shareText = downloadUrl;
-            await NativeShare.shareText(shareText);
-            setState(() {
-              _isDownloadInProgress = false;
-              _status = 'Link shared';
-            });
+            if (_appSettings.shareCopyToClipboard) {
+              await Clipboard.setData(ClipboardData(text: shareText));
+              setState(() {
+                _isDownloadInProgress = false;
+                _status = 'Link copied to clipboard';
+                _showCopiedOnButton = true;
+              });
+              Future.delayed(const Duration(seconds: 2), () {
+                if (mounted) {
+                  setState(() {
+                    _showCopiedOnButton = false;
+                  });
+                }
+              });
+            } else {
+              await NativeShare.shareText(shareText);
+              setState(() {
+                _isDownloadInProgress = false;
+                _status = 'Link shared';
+              });
+            }
+            return;
           } else {
             await _downloadFile(downloadUrl, data['filename']);
           }
@@ -853,11 +888,19 @@ Future<void> _downloadPickerItem(String url, String type) async {
     
     if (_appSettings.shareLinks) {
       String shareText = fixedUrl;
-      await NativeShare.shareText(shareText);
-      setState(() {
-        _isDownloadInProgress = false;
-        _status = 'Link shared';
-      });
+      if (_appSettings.shareCopyToClipboard) {
+        await Clipboard.setData(ClipboardData(text: shareText));
+        setState(() {
+          _isDownloadInProgress = false;
+          _status = 'Link copied to clipboard';
+        });
+      } else {
+        await NativeShare.shareText(shareText);
+        setState(() {
+          _isDownloadInProgress = false;
+          _status = 'Link shared';
+        });
+      }
       return;
     }
     
@@ -1345,7 +1388,9 @@ Future<void> _downloadPickerItem(String url, String type) async {
                                 ],
                               )
                             : Text(
-                                _appSettings.shareLinks ? 'Share' : 'Download', 
+                                _showCopiedOnButton
+                                  ? 'Copied'
+                                  : (_appSettings.shareLinks ? 'Share' : 'Download'),
                                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)
                               ),
                     ),),
@@ -1780,7 +1825,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              _launchURL('https://www.instagram.com/ffastffox/');
+                                                           _launchURL('https://www.instagram.com/ffastffox/');
                             },
                         ),
                         const TextSpan(text: '.'),

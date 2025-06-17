@@ -30,6 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late String _downloadMode;
   late bool _disableMetadata;
   late bool _shareLinks;
+  late bool _shareCopyToClipboard;
 
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _downloadMode = widget.settings.downloadMode;
     _disableMetadata = widget.settings.disableMetadata;
     _shareLinks = widget.settings.shareLinks;
+    _shareCopyToClipboard = widget.settings.shareCopyToClipboard;
   }
   void _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -48,6 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       downloadMode: _downloadMode,
       disableMetadata: _disableMetadata,
       shareLinks: _shareLinks,
+      shareCopyToClipboard: _shareCopyToClipboard,
     );
     await prefs.setString('app_settings', jsonEncode(settings.toJson()));
     widget.onSettingsChanged(settings);
@@ -257,6 +260,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               });
                               _saveSettings();
                             },
+                            shareCopyToClipboard: _shareCopyToClipboard,
+                            onShareCopyChanged: (value) {
+                              setState(() {
+                                _shareCopyToClipboard = value;
+                              });
+                              _saveSettings();
+                            },
                           ),
                         ),
                       );
@@ -275,7 +285,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           const SizedBox(width: 12),
                           const Text(
-                            'Advanced settings',
+                            'Advanced Settings',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -393,7 +403,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                     const Text(
-                      'A simple and efficient media downloader powered by Cobalt API.',
+                      'A simple and efficient media downloader powered by Cobalt API',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.white70,

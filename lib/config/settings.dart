@@ -4,6 +4,7 @@ class AppSettings {
   String downloadMode;
   bool disableMetadata;
   bool shareLinks;
+  bool shareCopyToClipboard;
 
   AppSettings({
     this.useLocalProcessing = true,
@@ -11,6 +12,7 @@ class AppSettings {
     this.downloadMode = 'auto',
     this.disableMetadata = false,
     this.shareLinks = false,
+    this.shareCopyToClipboard = false,
   });
 
   Map<String, dynamic> toJson() => {
@@ -19,6 +21,7 @@ class AppSettings {
     'downloadMode': downloadMode,
     'disableMetadata': disableMetadata,
     'shareLinks': shareLinks,
+    'shareCopyToClipboard': shareCopyToClipboard,
   };
   
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -28,6 +31,7 @@ class AppSettings {
       downloadMode: json['downloadMode'] ?? 'auto',
       disableMetadata: json['disableMetadata'] ?? false,
       shareLinks: json['shareLinks'] ?? false,
+      shareCopyToClipboard: json['shareCopyToClipboard'] ?? false,
     );
   }
 }
