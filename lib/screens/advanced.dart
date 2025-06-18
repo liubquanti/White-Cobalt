@@ -288,24 +288,45 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                       ],
                     ),
                   ),
-                  DropdownButton<String>(
-                    borderRadius: BorderRadius.circular(11),
-                    value: _videoQuality,
-                    dropdownColor: const Color(0xFF191919),
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
-                    style: const TextStyle(color: Colors.white70),
-                    items: ['max', '4320', '2160', '1440', '1080', '720', '480', '360', '240', '144']
+                  const SizedBox(width: 5),
+                  Container(
+                    width: 70,
+                    height: 40,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                      color: const Color.fromRGBO(255, 255, 255, 0.08),
+                      width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: DropdownButton<String>(
+                      underline: Container(),
+                      borderRadius: BorderRadius.circular(11),
+                      value: _videoQuality,
+                      alignment: AlignmentDirectional.centerEnd,
+                      dropdownColor: const Color(0xFF191919),
+                      icon: SvgPicture.string(
+                      '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-selector"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l4 -4l4 4" /><path d="M16 15l-4 4l-4 -4" /></svg>',
+                      width: 22,
+                      height: 22,
+                      colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                      ),
+                      style: const TextStyle(color: Colors.white70),
+                      items: ['max', '4320', '2160', '1440', '1080', '720', '480', '360', '240', '144']
                         .map((v) => DropdownMenuItem(
-                              value: v,
-                              child: Text(v == 'max' ? 'max' : '${v}p'),
-                            ))
+                          value: v,
+                          child: Text(v == 'max' ? 'max' : v),
+                          ))
                         .toList(),
-                    onChanged: (v) {
+                      onChanged: (v) {
                       if (v != null) {
                         setState(() => _videoQuality = v);
                         widget.onVideoQualityChanged(v);
                       }
-                    },
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -340,7 +361,7 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                     width: 22,
                     height: 22,
                     child: SvgPicture.string(
-                    '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-music-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 17a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M9 17v-13h10v9.5" /><path d="M9 8h10" /><path d="M15 19l2 2l4 -4" /></svg>',
+                    '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-adjustments"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M6 4v4" /><path d="M6 12v8" /><path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M12 4v10" /><path d="M12 18v2" /><path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M18 4v1" /><path d="M18 9v11" /></svg>',
                     colorFilter: const ColorFilter.mode(
                       Colors.white,
                       BlendMode.srcIn,
@@ -374,16 +395,36 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                   ],
                 ),
                 ),
-                DropdownButton<String>(
+                const SizedBox(width: 5),
+                Container(
+                  width: 70,
+                  height: 40,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.08),
+                    width: 1.5,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: DropdownButton<String>(
+                  underline: Container(),
                   borderRadius: BorderRadius.circular(11),
                   value: _audioBitrate,
+                  alignment: AlignmentDirectional.centerEnd,
                   dropdownColor: const Color(0xFF191919),
-                  icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                    icon: SvgPicture.string(
+                    '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-selector"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l4 -4l4 4" /><path d="M16 15l-4 4l-4 -4" /></svg>',
+                    width: 22,
+                    height: 22,
+                    colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                    ),
                   style: const TextStyle(color: Colors.white70),
                   items: ['320', '256', '128', '96', '64', '8'].map((v) =>
                     DropdownMenuItem(
                     value: v,
-                    child: Text('$v kbps'),
+                    child: Text(v),
                     ),
                   ).toList(),
                   onChanged: (v) {
@@ -392,6 +433,7 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                     widget.onAudioBitrateChanged(v);
                     }
                   },
+                ),
                 ),
               ],
               ),
@@ -451,11 +493,31 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                       ],
                     ),
                   ),
-                  DropdownButton<String>(
+                  const SizedBox(width: 5),
+                  Container(
+                    width: 70,
+                    height: 40,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                      color: const Color.fromRGBO(255, 255, 255, 0.08),
+                      width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: DropdownButton<String>(
+                    underline: Container(),
                     borderRadius: BorderRadius.circular(11),
                     value: _audioFormat,
+                    alignment: AlignmentDirectional.centerEnd,
                     dropdownColor: const Color(0xFF191919),
-                    icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                    icon: SvgPicture.string(
+                      '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-selector"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9l4 -4l4 4" /><path d="M16 15l-4 4l-4 -4" /></svg>',
+                      width: 22,
+                      height: 22,
+                      colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                    ),
                     style: const TextStyle(color: Colors.white70),
                     items: ['best', 'mp3', 'ogg', 'wav', 'opus'].map((v) =>
                       DropdownMenuItem(
@@ -469,6 +531,7 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                         widget.onAudioFormatChanged(v);
                       }
                     },
+                  ),
                   ),
                 ],
               ),
