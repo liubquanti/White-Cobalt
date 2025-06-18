@@ -454,8 +454,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       print('Sending request to: $_baseUrl');
       final requestPayload = {
         'url': url,
-        'videoQuality': 'max',
-        'audioFormat': 'mp3',
+        'videoQuality': _appSettings.videoQuality,
+        'audioFormat': _appSettings.audioFormat,
+        'audioBitrate': _appSettings.audioBitrate,
         'filenameStyle': 'classic',
         'downloadMode': _downloadMode,
         'localProcessing': _useLocalProcessing,

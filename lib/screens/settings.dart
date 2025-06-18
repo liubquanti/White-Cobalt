@@ -31,6 +31,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _disableMetadata;
   late bool _shareLinks;
   late bool _shareCopyToClipboard;
+  late String _audioBitrate;
+  late String _audioFormat;
+  late String _videoQuality;
 
   @override
   void initState() {
@@ -41,6 +44,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _disableMetadata = widget.settings.disableMetadata;
     _shareLinks = widget.settings.shareLinks;
     _shareCopyToClipboard = widget.settings.shareCopyToClipboard;
+    _audioBitrate = widget.settings.audioBitrate;
+    _audioFormat = widget.settings.audioFormat;
+    _videoQuality = widget.settings.videoQuality;
   }
   void _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -51,6 +57,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       disableMetadata: _disableMetadata,
       shareLinks: _shareLinks,
       shareCopyToClipboard: _shareCopyToClipboard,
+      audioBitrate: _audioBitrate,
+      audioFormat: _audioFormat,
+      videoQuality: _videoQuality,
     );
     await prefs.setString('app_settings', jsonEncode(settings.toJson()));
     widget.onSettingsChanged(settings);
@@ -265,6 +274,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               setState(() {
                                 _shareCopyToClipboard = value;
                               });
+                              _saveSettings();
+                            },
+                            audioBitrate: _audioBitrate,
+                            audioFormat: _audioFormat,
+                            videoQuality: _videoQuality,
+                            onAudioBitrateChanged: (v) {
+                              setState(() => _audioBitrate = v);
+                              _saveSettings();
+                            },
+                            onAudioFormatChanged: (v) {
+                              setState(() => _audioFormat = v);
+                              _saveSettings();
+                            },
+                            onVideoQualityChanged: (v) {
+                              setState(() => _videoQuality = v);
                               _saveSettings();
                             },
                           ),

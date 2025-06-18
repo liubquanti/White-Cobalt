@@ -5,6 +5,9 @@ class AppSettings {
   bool disableMetadata;
   bool shareLinks;
   bool shareCopyToClipboard;
+  String audioBitrate;
+  String audioFormat;
+  String videoQuality;
 
   AppSettings({
     this.useLocalProcessing = true,
@@ -13,6 +16,9 @@ class AppSettings {
     this.disableMetadata = false,
     this.shareLinks = false,
     this.shareCopyToClipboard = false,
+    this.audioBitrate = '320',
+    this.audioFormat = 'best',
+    this.videoQuality = 'max',
   });
 
   Map<String, dynamic> toJson() => {
@@ -22,6 +28,9 @@ class AppSettings {
     'disableMetadata': disableMetadata,
     'shareLinks': shareLinks,
     'shareCopyToClipboard': shareCopyToClipboard,
+    'audioBitrate': audioBitrate,
+    'audioFormat': audioFormat,
+    'videoQuality': videoQuality,
   };
   
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -32,6 +41,9 @@ class AppSettings {
       disableMetadata: json['disableMetadata'] ?? false,
       shareLinks: json['shareLinks'] ?? false,
       shareCopyToClipboard: json['shareCopyToClipboard'] ?? false,
+      audioBitrate: json['audioBitrate'] ?? '320',
+      audioFormat: json['audioFormat'] ?? 'best',
+      videoQuality: json['videoQuality'] ?? 'max',
     );
   }
 }
