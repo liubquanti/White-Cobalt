@@ -1217,6 +1217,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                     _addNewServer();
                     setState(() {
                       _baseUrl = 'add_new';
+                      _responseData = null;
                     });
                   } else if (value != null && value != _baseUrl) {
                     final selectedServer = _servers.firstWhere((s) => s.url == value);
@@ -1224,6 +1225,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                       _baseUrl = value;
                       _currentApiKey = selectedServer.apiKey;
                       _status = 'Connecting to server...';
+                      _responseData = null;
                     });
                     await _fetchServerInfo();
                   }
