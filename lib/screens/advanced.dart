@@ -317,6 +317,7 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                       items: ['max', '4320', '2160', '1440', '1080', '720', '480', '360', '240', '144']
                         .map((v) => DropdownMenuItem(
                           value: v,
+                          alignment: AlignmentDirectional.center,
                           child: Text(v == 'max' ? 'max' : v),
                           ))
                         .toList(),
@@ -424,6 +425,7 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                   items: ['320', '256', '128', '96', '64', '8'].map((v) =>
                     DropdownMenuItem(
                     value: v,
+                    alignment: AlignmentDirectional.center,
                     child: Text(v),
                     ),
                   ).toList(),
@@ -522,6 +524,7 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                     items: ['best', 'mp3', 'ogg', 'wav', 'opus'].map((v) =>
                       DropdownMenuItem(
                         value: v,
+                        alignment: AlignmentDirectional.center,
                         child: Text(v),
                       ),
                     ).toList(),

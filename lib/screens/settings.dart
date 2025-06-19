@@ -4,11 +4,11 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../config/settings.dart';
 import 'storage.dart';
 import 'advanced.dart';
+import 'about.dart';
 
 class SettingsScreen extends StatefulWidget {
   final AppSettings settings;
@@ -405,50 +405,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF191919),
+              Material(
+                color: const Color(0xFF191919),
+                borderRadius: BorderRadius.circular(11),
+                child: Container(
+                  decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(11),
                   border: Border.all(
                     color: const Color.fromRGBO(255, 255, 255, 0.08),
                     width: 1.5,
                   ),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'White Cobalt',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                  ),
+                  child: InkWell(
+                  borderRadius: BorderRadius.circular(9.5),
+                  splashColor: Colors.white.withOpacity(0.1),
+                  highlightColor: Colors.white.withOpacity(0.05),
+                  onTap: () async {
+                    await Future.delayed(const Duration(milliseconds: 250));
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AboutScreen(
                       ),
                     ),
-                    const Text(
-                      'A simple and efficient media downloader powered by Cobalt API',
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                    children: [
+                      SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: SvgPicture.string(
+                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 9h.01" /><path d="M11 12h1v4h1" /></svg>',
+                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      ),
+                      ),
+                      const SizedBox(width: 12),
+                      const Text(
+                      'App Information',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white70,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
                       ),
+                      ),
+                      const Spacer(),
+                      const Icon(
+                      Icons.chevron_right,
+                      color: Colors.white54,
+                      ),
+                    ],
                     ),
-                    Row(
-                      children: [
-                        _buildLinkButton(
-                          'GitHub',
-                          Icons.code,
-                          () => _launchURL('https://github.com/liubquanti/White-Cobalt'),
-                        ),
-                        const SizedBox(width: 10),
-                        _buildLinkButton(
-                          'Report Issue',
-                          Icons.bug_report,
-                          () => _launchURL('https://github.com/liubquanti/White-Cobalt/issues'),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
+                  ),
                 ),
               ),
             ],
@@ -456,46 +467,5 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
-  }
-  
-  Widget _buildLinkButton(String label, IconData icon, VoidCallback onTap) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 5.0),
-      child: ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-          backgroundColor: const Color(0xFF191919),
-          foregroundColor: const Color(0xFFe1e1e1),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(11),
-            side: const BorderSide(
-              color: Color.fromRGBO(255, 255, 255, 0.08),
-              width: 1.5,
-            ),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 16, color: Colors.white70),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _launchURL(String url) async {
-    try {
-      await launchUrl(
-        Uri.parse(url),
-        mode: LaunchMode.externalApplication,
-      );
-    } catch (_) {}
   }
 }
