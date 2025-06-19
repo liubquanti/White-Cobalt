@@ -13,6 +13,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:media_scanner/media_scanner.dart';
+import 'package:card_loading/card_loading.dart';
 
 import '../config/server.dart';
 import '../config/settings.dart';
@@ -1364,11 +1365,16 @@ Future<void> _downloadPickerItem(String url, String type) async {
                   ),
                   child: _isLoading
                     ? const SizedBox(
-                      width: 20,
+                      width: 80,
                       height: 20,
-                      child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white70,
+                      child: CardLoading(
+                        height: 16,
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                        width: 80,
+                        cardLoadingTheme: CardLoadingTheme(
+                          colorOne: Color(0xFF383838),
+                          colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                        ),
                       ),
                     )
                     : _isDownloadInProgress
@@ -1422,13 +1428,16 @@ Future<void> _downloadPickerItem(String url, String type) async {
                 height: 1,
               ),
               const SizedBox(height: 10),
-              if (_responseData != null && _responseData!['status'] == 'picker')
+              if (_responseData != null && _responseData!['status'] == 'picker') ...[
               Column(
                 children: List.generate(_responseData!['picker'].length, (index) {
                   final item = _responseData!['picker'][index];
                   return Card(
                   color: const Color(0xFF191919),
-                  margin: const EdgeInsets.symmetric(vertical: 4.0),
+                    margin: EdgeInsets.only(
+                    top: index == 0 ? 0 : 5,
+                    bottom: index == _responseData!['picker'].length - 1 ? 0 : 5,
+                    ),
                     shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(11),
                     side: const BorderSide(
@@ -1508,13 +1517,14 @@ Future<void> _downloadPickerItem(String url, String type) async {
                 }
               ),
               ),
-
-              if (_responseData != null && _responseData!['status'] == 'picker')
-              const Divider(
-                color: Color(0xFF383838),
-                thickness: 1.0,
-                height: 1,
-              ),
+                const SizedBox(height: 10),
+                const Divider(
+                  color: Color(0xFF383838),
+                  thickness: 1.0,
+                  height: 1,
+                ),
+                const SizedBox(height: 10),
+              ],
 
               if (errorDetails != null)
               Container(
@@ -1551,11 +1561,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                   const SizedBox(height: 4),
                   Text(
                     '${errorDetails['code']}',
-                    style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    ),
+                    style: const TextStyle(fontSize: 12),
                   ),
                   if (errorDetails['message'] != null)
                     Padding(
@@ -1570,8 +1576,58 @@ Future<void> _downloadPickerItem(String url, String type) async {
                     ),
                   ],
                 ),
-              ),
-              if (_serverInfo != null && _baseUrl != 'add_new')
+              )
+              else if ((_status.contains('Checking') || _status.contains('Connecting')) && _isLoading)
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF191919),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(
+                      color: const Color.fromRGBO(255, 255, 255, 0.05),
+                      width: 1.5,
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(10.0),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          CardLoading(
+                            height: 16,
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                            width: 16,
+                            cardLoadingTheme: CardLoadingTheme(
+                              colorOne: Color(0xFF383838),
+                              colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          CardLoading(
+                            height: 16,
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                            width: 150,
+                            cardLoadingTheme: CardLoadingTheme(
+                              colorOne: Color(0xFF383838),
+                              colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 10),
+                      CardLoading(
+                        height: 15,
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                        width: 150,
+                        cardLoadingTheme: CardLoadingTheme(
+                          colorOne: Color(0xFF383838),
+                          colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              else if(_serverInfo != null && _baseUrl != 'add_new')
                 Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFF191919),
@@ -1651,28 +1707,6 @@ Future<void> _downloadPickerItem(String url, String type) async {
                     ],
                   ),
                 )
-              
-              else if ((_status.contains('Checking') || _status.contains('Connecting')) && _isLoading)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white70,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Text(_status, style: const TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                  ),
-                )
               else if (_status.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 10.0),
@@ -1713,9 +1747,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                     const SizedBox(height: 4),
                     Text(
                       _status,
-                      style: const TextStyle(
-                      fontSize: 12,
-                      ),
+                      style: const TextStyle(fontSize: 12),
                     ),
                     ],
                   ),

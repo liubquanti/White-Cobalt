@@ -33,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  card_loading:
+    dependency: "direct main"
+    description:
+      name: card_loading
+      sha256: "40cf98405a104ee8151600510033a9e22a3f9ad808e613c0e563ee7bd85a644c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.2"
   characters:
     dependency: transitive
     description:
