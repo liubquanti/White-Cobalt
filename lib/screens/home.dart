@@ -1241,193 +1241,187 @@ Future<void> _downloadPickerItem(String url, String type) async {
                 ),
                 dropdownColor: const Color(0xFF1A1A1A),
               ),
-              
               const SizedBox(height: 10),
-              
               if (_isRealServerSelected())
-                TextField(
-                  controller: _urlController,
-                  enabled: !_isDownloadInProgress,
-                  decoration: InputDecoration(
-                  hintText: 'Paste the link here',
-                  enabledBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(11)),
-                    borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
+              TextField(
+                controller: _urlController,
+                enabled: !_isDownloadInProgress,
+                decoration: InputDecoration(
+                hintText: 'Paste the link here',
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(11)),
+                  borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
+                ),
+                disabledBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(11)),
+                  borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(11)),
+                  borderSide: BorderSide(width: 1.5, color: Color(0xFFB1B1B1)),
+                ),
+                prefixIcon: SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: Center(
+                  child: SvgPicture.string(
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l .524 -.463"></path></svg>',
+                    width: 22,
+                    height: 22,
+                    colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
                   ),
-                  disabledBorder: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(11)),
-                    borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
                   ),
-                  focusedBorder: const OutlineInputBorder(
+                ),
+                  suffixIcon: _urlController.text.isNotEmpty
+                  ? IconButton(
+                    icon: SvgPicture.string(
+                      '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-backspace"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-11l-5 -5a1.5 1.5 0 0 1 0 -2l5 -5z" /><path d="M12 10l4 4m0 -4l-4 4" /></svg>',
+                      width: 22,
+                      height: 22,
+                      colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                    ),
+                    onPressed: _isDownloadInProgress
+                      ? null
+                      : () {
+                        _urlController.clear();
+                        },
+                    )
+                  : IconButton(
+                    icon: SvgPicture.string(
+                      '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-clipboard-text"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" /><path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" /><path d="M9 12h6" /><path d="M9 16h6" /></svg>',
+                      width: 22,
+                      height: 22,
+                      colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                    ),
+                    tooltip: 'Paste from clipboard',
+                    onPressed: _isDownloadInProgress
+                      ? null
+                      : () async {
+                        final data = await Clipboard.getData('text/plain');
+                        if (data != null && data.text != null && data.text!.isNotEmpty) {
+                          _urlController.text = data.text!;
+                        }
+                        },
+                    ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                ),
+                cursorColor: const Color(0xFFE1E1E1),
+                style: const TextStyle(fontSize: 14),
+                keyboardType: TextInputType.url,
+              )
+              else if (_baseUrl == 'add_new')
+              TextField(
+                enabled: false,
+                decoration: InputDecoration(
+                  hintText: 'Please add a server first',
+                  border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(11)),
-                    borderSide: BorderSide(width: 1.5, color: Color(0xFFB1B1B1)),
+                    borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
                   ),
                   prefixIcon: SizedBox(
                     width: 22,
                     height: 22,
                     child: Center(
-                    child: SvgPicture.string(
-                      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l .524 -.463"></path></svg>',
-                      width: 22,
-                      height: 22,
-                      colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
-                    ),
+                      child: SvgPicture.string(
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l .524 -.463"></path></svg>',
+                        width: 20,
+                        height: 20,
+                        colorFilter: const ColorFilter.mode(Colors.white30, BlendMode.srcIn),
+                      ),
                     ),
                   ),
-                    suffixIcon: _urlController.text.isNotEmpty
-                    ? IconButton(
-                      icon: SvgPicture.string(
-                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-backspace"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 6a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-11l-5 -5a1.5 1.5 0 0 1 0 -2l5 -5z" /><path d="M12 10l4 4m0 -4l-4 4" /></svg>',
-                        width: 22,
-                        height: 22,
-                        colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
-                      ),
-                      onPressed: _isDownloadInProgress
-                        ? null
-                        : () {
-                          _urlController.clear();
-                          },
-                      )
-                    : IconButton(
-                      icon: SvgPicture.string(
-                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-clipboard-text"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2h-2" /><path d="M9 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z" /><path d="M9 12h6" /><path d="M9 16h6" /></svg>',
-                        width: 22,
-                        height: 22,
-                        colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
-                      ),
-                      tooltip: 'Paste from clipboard',
-                      onPressed: _isDownloadInProgress
-                        ? null
-                        : () async {
-                          final data = await Clipboard.getData('text/plain');
-                          if (data != null && data.text != null && data.text!.isNotEmpty) {
-                            _urlController.text = data.text!;
-                          }
-                          },
-                      ),
+                  filled: true,
+                  fillColor: Colors.black45,
                   contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                  ),
-                  cursorColor: const Color(0xFFE1E1E1),
-                  style: const TextStyle(fontSize: 14),
-                  keyboardType: TextInputType.url,
-                )
-              else if (_baseUrl == 'add_new')
-                TextField(
-                  enabled: false,
-                  decoration: InputDecoration(
-                    hintText: 'Please add a server first',
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(11)),
-                      borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
-                    ),
-                    prefixIcon: SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: Center(
-                        child: SvgPicture.string(
-                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l .524 -.463"></path></svg>',
-                          width: 20,
-                          height: 20,
-                          colorFilter: const ColorFilter.mode(Colors.white30, BlendMode.srcIn),
-                        ),
-                      ),
-                    ),
-                    filled: true,
-                    fillColor: Colors.black45,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
-                  ),
-                  style: const TextStyle(fontSize: 14, color: Colors.white38),
                 ),
-
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Кнопка Download/Share
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10.0),
-                    child: ElevatedButton(
-                      onPressed: (_isLoading || _urlFieldEmpty || _isDownloadInProgress || !_isRealServerSelected()) ? null : _processUrl,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                        backgroundColor: const Color(0xFF191919),
-                        foregroundColor: (_urlFieldEmpty || _isDownloadInProgress || !_isRealServerSelected()) 
-                          ? Colors.white38
-                          : const Color(0xFFe1e1e1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(11),
-                          side: BorderSide(
-                            color: (_urlFieldEmpty || _isDownloadInProgress || !_isRealServerSelected())
-                              ? const Color.fromRGBO(255, 255, 255, 0.05)
-                              : const Color.fromRGBO(255, 255, 255, 0.08),
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
-                      child: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white70,
-                            ),
-                          )
-                        : _isDownloadInProgress
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                               Text(
-                                  _status.contains('Downloading:') ? 
-                                    _status.substring(_status.indexOf(':') + 1).trim() : 
-                                    _status,
-                                  style: TextStyle(
-                                    fontSize: 14, 
-                                    fontWeight: FontWeight.bold,
-                                    color: _status.contains('Complete') ? Colors.green : Colors.white,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Text(
-                              _showCopiedOnButton
-                                ? 'Copied!'
-                                : (_appSettings.shareLinks ? 'Share' : 'Download'),
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)
-                            ),
-                    ),
-                  ),
-                  
-                  // Кнопки режимів - завжди видимі, але неактивні якщо немає сервера
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Container(
-                      height: 32,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(11),
-                        color: const Color(0xFF191919),
-                        border: Border.all(
-                          color: Color.fromRGBO(255, 255, 255, _isRealServerSelected() ? 0.08 : 0.04),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          _buildModeButton('auto', '✨ Auto'),
-                          _buildModeButton('audio', '🎶 Audio'),
-                          _buildModeButton('mute', '🔇 Mute'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                style: const TextStyle(fontSize: 14, color: Colors.white38),
               ),
-              
+              const SizedBox(height: 10),
+              Padding(
+                padding: EdgeInsets.zero,
+                child: SizedBox(
+                  height: 44,
+                  child: ElevatedButton(
+                  onPressed: (_isLoading || _urlFieldEmpty || _isDownloadInProgress || !_isRealServerSelected()) ? null : _processUrl,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size(0, 44),
+                    backgroundColor: const Color(0xFF191919),
+                    foregroundColor: (_urlFieldEmpty || _isDownloadInProgress || !_isRealServerSelected()) 
+                    ? Colors.white38
+                    : const Color(0xFFe1e1e1),
+                    shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(11),
+                    side: BorderSide(
+                      color: (_urlFieldEmpty || _isDownloadInProgress || !_isRealServerSelected())
+                      ? const Color.fromRGBO(255, 255, 255, 0.05)
+                      : const Color.fromRGBO(255, 255, 255, 0.08),
+                      width: 1.5,
+                    ),
+                    ),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    elevation: 0,
+                  ),
+                  child: _isLoading
+                    ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white70,
+                      ),
+                    )
+                    : _isDownloadInProgress
+                    ? Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                        _status.contains('Downloading:') ? 
+                          _status.substring(_status.indexOf(':') + 1).trim() : 
+                          _status,
+                        style: TextStyle(
+                          fontSize: 14, 
+                          fontWeight: FontWeight.bold,
+                          color: _status.contains('Complete') ? Colors.green : Colors.white,
+                        ),
+                        ),
+                      ],
+                      )
+                    : Text(
+                      _showCopiedOnButton
+                        ? 'Copied!'
+                        : (_appSettings.shareLinks ? 'Share' : 'Download'),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)
+                      ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                height: 32,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11),
+                  color: const Color(0xFF191919),
+                  border: Border.all(
+                    color: Color.fromRGBO(255, 255, 255, _isRealServerSelected() ? 0.08 : 0.04),
+                    width: 1.5,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    _buildModeButton('auto', '✨ Auto'),
+                    _buildModeButton('audio', '🎶 Audio'),
+                    _buildModeButton('mute', '🔇 Mute'),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
               const Divider(
                 color: Color(0xFF383838),
                 thickness: 1.0,
-                height: 20,
+                height: 1,
               ),
-
+              const SizedBox(height: 10),
               if (_responseData != null && _responseData!['status'] == 'picker')
               Column(
                 children: List.generate(_responseData!['picker'].length, (index) {
@@ -1519,152 +1513,142 @@ Future<void> _downloadPickerItem(String url, String type) async {
               const Divider(
                 color: Color(0xFF383838),
                 thickness: 1.0,
-                height: 20,
+                height: 1,
               ),
 
               if (errorDetails != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: Container(
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF191919),
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                  color: const Color.fromRGBO(255, 255, 255, 0.05),
+                  width: 1.5,
+                  ),
+                ),
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                  Row(
+                    children: [
+                      SvgPicture.string(
+                      '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-exclamation-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 9v4" /><path d="M12 16v.01" /></svg>',
+                      width: 16,
+                      height: 16,
+                      colorFilter: const ColorFilter.mode(Colors.red, BlendMode.srcIn),
+                      ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Server Error',
+                      style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${errorDetails['code']}',
+                    style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  if (errorDetails['message'] != null)
+                    Padding(
+                    padding: const EdgeInsets.only(top: 2.0),
+                    child: Text(
+                      '${errorDetails['message']}',
+                      style: TextStyle(
+                      color: Colors.white.withOpacity(0.8),
+                      fontSize: 13,
+                      ),
+                    ),
+                    ),
+                  ],
+                ),
+              ),
+              if (_serverInfo != null && _baseUrl != 'add_new')
+                Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFF191919),
                     borderRadius: BorderRadius.circular(11),
                     border: Border.all(
-                    color: const Color.fromRGBO(255, 255, 255, 0.05),
-                    width: 1.5,
+                      color: const Color.fromRGBO(255, 255, 255, 0.05),
+                      width: 1.5,
                     ),
                   ),
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    Row(
-                      children: [
-                        SvgPicture.string(
-                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-exclamation-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 9v4" /><path d="M12 16v.01" /></svg>',
-                        width: 16,
-                        height: 16,
-                        colorFilter: const ColorFilter.mode(Colors.red, BlendMode.srcIn),
-                        ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Server Error',
-                        style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        children: [
+                          SvgPicture.string(
+                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-circle-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 12l2 2l4 -4" /></svg>',
+                            width: 16,
+                            height: 16,
+                            colorFilter: const ColorFilter.mode(Colors.green, BlendMode.srcIn),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Cobalt v${_serverInfo!['cobalt']['version']}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${errorDetails['code']}',
-                      style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    if (errorDetails['message'] != null)
-                      Padding(
-                      padding: const EdgeInsets.only(top: 2.0),
-                      child: Text(
-                        '${errorDetails['message']}',
-                        style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
-                        fontSize: 13,
-                        ),
-                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Supported services: ${_serverInfo!['cobalt']['services'].length}',
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ],
                   ),
-                  ),
-                ),
-
-              if (_serverInfo != null && _baseUrl != 'add_new')
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF191919),
-                      borderRadius: BorderRadius.circular(11),
-                      border: Border.all(
-                        color: const Color.fromRGBO(255, 255, 255, 0.05),
-                        width: 1.5,
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            SvgPicture.string(
-                              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-circle-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 12l2 2l4 -4" /></svg>',
-                              width: 16,
-                              height: 16,
-                              colorFilter: const ColorFilter.mode(Colors.green, BlendMode.srcIn),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Cobalt v${_serverInfo!['cobalt']['version']}',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Supported services: ${_serverInfo!['cobalt']['services'].length}',
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
                 )
               else if (_baseUrl == 'add_new')
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF191919),
-                      borderRadius: BorderRadius.circular(11),
-                      border: Border.all(
-                        color: const Color.fromRGBO(255, 255, 255, 0.05),
-                        width: 1.5,
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF191919),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(
+                      color: const Color.fromRGBO(255, 255, 255, 0.05),
+                      width: 1.5,
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          SvgPicture.string(
+                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-server-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M7 8l0 .01" /><path d="M7 16l0 .01" /><path d="M11 8h6" /><path d="M11 16h6" /></svg>',
+                            width: 16,
+                            height: 16,
+                            colorFilter: const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'No server selected',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    padding: const EdgeInsets.all(10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            SvgPicture.string(
-                              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-server-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M7 8l0 .01" /><path d="M7 16l0 .01" /><path d="M11 8h6" /><path d="M11 16h6" /></svg>',
-                              width: 16,
-                              height: 16,
-                              colorFilter: const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'No server selected',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Please select server first',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ],
-                    ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Please select server first',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
                   ),
                 )
               
@@ -1741,7 +1725,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
               const Divider(
                 color: Color(0xFF383838),
                 thickness: 1.0,
-                height: 20,
+                height: 1,
               ),
 
               Padding(
