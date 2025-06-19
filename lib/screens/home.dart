@@ -46,7 +46,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   bool _urlFieldEmpty = true;
   bool _useLocalProcessing = true;
   String _downloadMode = 'auto';
-  late AppSettings _appSettings;
+  AppSettings _appSettings = AppSettings();
   bool _showCopiedOnButton = false;
   
   @override
@@ -1339,106 +1339,89 @@ Future<void> _downloadPickerItem(String url, String type) async {
                   style: const TextStyle(fontSize: 14, color: Colors.white38),
                 ),
 
-              if (_isRealServerSelected()) 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10.0),
-                      child: ElevatedButton(
-                        onPressed: (_isLoading || _urlFieldEmpty || _isDownloadInProgress) ? null : _processUrl,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
-                          backgroundColor: const Color(0xFF191919),
-                          foregroundColor: (_urlFieldEmpty || _isDownloadInProgress) 
-                            ? Colors.white38
-                            : const Color(0xFFe1e1e1),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(11),
-                            side: BorderSide(
-                              color: (_urlFieldEmpty || _isDownloadInProgress)
-                                ? const Color.fromRGBO(255, 255, 255, 0.05)
-                                : const Color.fromRGBO(255, 255, 255, 0.08),
-                              width: 1.5,
-                            ),
-                          ),
-                        ),
-                        child: _isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white70,
-                              ),
-                            )
-                          : _isDownloadInProgress
-                            ? Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                 Text(
-                                    _status.contains('Downloading:') ? 
-                                      _status.substring(_status.indexOf(':') + 1).trim() : 
-                                      _status,
-                                    style: TextStyle(
-                                      fontSize: 14, 
-                                      fontWeight: FontWeight.bold,
-                                      color: _status.contains('Complete') ? Colors.green : Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Text(
-                                _showCopiedOnButton
-                                  ? 'Copied'
-                                  : (_appSettings.shareLinks ? 'Share' : 'Download'),
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)
-                              ),
-                    ),),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Container(
-                        height: 32,
-                        decoration: BoxDecoration(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Кнопка Download/Share
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: ElevatedButton(
+                      onPressed: (_isLoading || _urlFieldEmpty || _isDownloadInProgress || !_isRealServerSelected()) ? null : _processUrl,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                        backgroundColor: const Color(0xFF191919),
+                        foregroundColor: (_urlFieldEmpty || _isDownloadInProgress || !_isRealServerSelected()) 
+                          ? Colors.white38
+                          : const Color(0xFFe1e1e1),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(11),
-                          color: const Color(0xFF191919),
-                          border: Border.all(
-                            color: const Color.fromRGBO(255, 255, 255, 0.08),
+                          side: BorderSide(
+                            color: (_urlFieldEmpty || _isDownloadInProgress || !_isRealServerSelected())
+                              ? const Color.fromRGBO(255, 255, 255, 0.05)
+                              : const Color.fromRGBO(255, 255, 255, 0.08),
                             width: 1.5,
                           ),
                         ),
-                        child: Row(
-                          children: [
-                            _buildModeButton('auto', '✨ Auto'),
-                            _buildModeButton('audio', '🎶 Audio'),
-                            _buildModeButton('mute', '🔇 Mute'),
-                          ],
-                        ),
                       ),
+                      child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white70,
+                            ),
+                          )
+                        : _isDownloadInProgress
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                               Text(
+                                  _status.contains('Downloading:') ? 
+                                    _status.substring(_status.indexOf(':') + 1).trim() : 
+                                    _status,
+                                  style: TextStyle(
+                                    fontSize: 14, 
+                                    fontWeight: FontWeight.bold,
+                                    color: _status.contains('Complete') ? Colors.green : Colors.white,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              _showCopiedOnButton
+                                ? 'Copied!'
+                                : (_appSettings.shareLinks ? 'Share' : 'Download'),
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)
+                            ),
                     ),
-                  ],
-                )
-              else if (_baseUrl == 'add_new')
-                Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
-                  child: ElevatedButton(
-                    onPressed: null,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                      backgroundColor: Colors.black45,
-                      foregroundColor: Colors.white38,
-                      shape: RoundedRectangleBorder(
+                  ),
+                  
+                  // Кнопки режимів - завжди видимі, але неактивні якщо немає сервера
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Container(
+                      height: 32,
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(11),
-                        side: const BorderSide(
-                          color: Color.fromRGBO(255, 255, 255, 0.05),
+                        color: const Color(0xFF191919),
+                        border: Border.all(
+                          color: Color.fromRGBO(255, 255, 255, _isRealServerSelected() ? 0.08 : 0.04),
                           width: 1.5,
                         ),
                       ),
+                      child: Row(
+                        children: [
+                          _buildModeButton('auto', '✨ Auto'),
+                          _buildModeButton('audio', '🎶 Audio'),
+                          _buildModeButton('mute', '🔇 Mute'),
+                        ],
+                      ),
                     ),
-                    child: const Text('Download', style: TextStyle(fontSize: 14)),
                   ),
-                ),
-
+                ],
+              ),
+              
               const Divider(
                 color: Color(0xFF383838),
                 thickness: 1.0,
@@ -1852,32 +1835,34 @@ Future<void> _downloadPickerItem(String url, String type) async {
 
   Widget _buildModeButton(String mode, String label) {
     final bool isSelected = _downloadMode == mode;
+    final bool isEnabled = _isRealServerSelected() && !_isDownloadInProgress;
     
     return Expanded(
       child: InkWell(
-        onTap: _isDownloadInProgress ? null : () {
+        onTap: isEnabled ? () {
           setState(() {
             _downloadMode = mode;
           });
           
           _appSettings.downloadMode = mode;
           _saveDownloadModeSetting();
-        },
+        } : null,
         child: Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(9),
-            color: isSelected ? const Color(0xFF333333) : Colors.transparent,
+            color: isSelected && isEnabled ? const Color(0xFF333333) : Colors.transparent,
           ),
           child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
+            label,
+            style: TextStyle(
+              fontWeight: isSelected && isEnabled ? FontWeight.bold : FontWeight.normal,
+              color: isEnabled ? Colors.white : Colors.white38,
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 
   void _saveDownloadModeSetting() async {
