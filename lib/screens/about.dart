@@ -60,8 +60,8 @@ class _AboutScreenState extends State<AboutScreen> {
                       children: [
                         CircleAvatar(
                           radius: 20,
-                          backgroundImage: NetworkImage(
-                            'https://avatars.githubusercontent.com/u/91903613?v=4',
+                          backgroundImage: AssetImage(
+                          'assets/photos/liubquanti.png',
                           ),
                         ),
                         SizedBox(width: 10),
@@ -216,8 +216,8 @@ class _AboutScreenState extends State<AboutScreen> {
                       children: [
                         CircleAvatar(
                           radius: 20,
-                          backgroundImage: NetworkImage(
-                            'https://scontent-cdg4-2.cdninstagram.com/v/t51.2885-19/404642590_385628477139984_917525517785215327_n.jpg?stp=dst-jpg_s150x150_tt6&_nc_ht=scontent-cdg4-2.cdninstagram.com&_nc_cat=100&_nc_oc=Q6cZ2QH9qnlsACXFgpFPcYfPQv5R5eie83zT7S55YdjQATd8xtp8pNjGL0qT56JpMmB_1dYBzWV_Y-vHJsLyPnGBojUb&_nc_ohc=HQRMEIrJ7q4Q7kNvwF-GGMq&_nc_gid=CQ9yVQ_oCXBJL8w6L4tuMw&edm=AP4sbd4BAAAA&ccb=7-5&oh=00_AfOKGhK9qsgnZ_J3F4lJrvsIjYJyAaShrzNWXB8xIRtujA&oe=6858ACBA&_nc_sid=7a9f4b',
+                          backgroundImage: AssetImage(
+                          'assets/photos/ffastffox.jpg',
                           ),
                         ),
                         SizedBox(width: 10),
@@ -329,8 +329,8 @@ class _AboutScreenState extends State<AboutScreen> {
                       children: [
                         CircleAvatar(
                           radius: 20,
-                          backgroundImage: NetworkImage(
-                            'https://raw.githubusercontent.com/imputnet/cobalt/main/web/static/favicon.png',
+                          backgroundImage: AssetImage(
+                            'assets/photos/cobalt.png',
                           ),
                         ),
                         SizedBox(width: 10),

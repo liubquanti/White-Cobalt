@@ -38,6 +38,7 @@ flutter:
   assets:
     - assets/heart/heart.png
     - assets/heart/Heart Meowbalt.svg
+    - assets/photos/
 
 flutter_launcher_icons:
   android: true
