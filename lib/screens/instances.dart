@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/instance.dart';
+import '../models/oinstance.dart';
 import '../services/instances.dart';
+import '../services/oinstances.dart';
 import '../config/server.dart';
 
 class InstancesScreen extends StatefulWidget {
@@ -22,23 +23,30 @@ class InstancesScreen extends StatefulWidget {
 class _InstancesScreenState extends State<InstancesScreen> {
   bool _isLoading = true;
   List<CobaltInstance> _instances = [];
+  List<OfficialServer> _officialServers = [];
   String _error = '';
   final TextEditingController _apiKeyController = TextEditingController();
   
   @override
   void initState() {
     super.initState();
-    _loadInstances();
+    _loadData();
   }
 
-  Future<void> _loadInstances() async {
+  Future<void> _loadData() async {
     setState(() {
       _isLoading = true;
       _error = '';
     });
 
     try {
-      final instances = await InstancesService.fetchInstances();
+      final futures = await Future.wait([
+        OfficialServersService.fetchOfficialServers(),
+        InstancesService.fetchInstances(),
+      ]);
+      
+      final officialServers = futures[0] as List<OfficialServer>;
+      final instances = futures[1] as List<CobaltInstance>;
       
       instances.sort((a, b) {
         if (a.isOnline != b.isOnline) {
@@ -48,19 +56,22 @@ class _InstancesScreenState extends State<InstancesScreen> {
       });
       
       setState(() {
+        _officialServers = officialServers;
         _instances = instances;
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _error = 'Failed to load instances: $e';
+        _error = 'Failed to load data: $e';
         _isLoading = false;
       });
     }
   }
 
-  Future<void> _addServerWithConfirmation(CobaltInstance instance) async {
+  Future<void> _addOfficialServerWithConfirmation(OfficialServer server) async {
     _apiKeyController.clear();
+    
+    if (!mounted) return;
     
     return showDialog(
       context: context,
@@ -68,7 +79,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
         return AlertDialog(
           backgroundColor: Colors.black,
           title: Text(
-            'Add ${instance.api}',
+            'Add ${server.api}',
             style: const TextStyle(fontSize: 16),
           ),
           shape: RoundedRectangleBorder(
@@ -85,26 +96,13 @@ class _InstancesScreenState extends State<InstancesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Server: ${instance.apiUrl}',
-                style: const TextStyle(
-                  fontSize: 14,
-                ),
-              ),
-              if (instance.version != null) 
-                Text(
-                  'Version: ${instance.version}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-              Text(
-                'Score: ${instance.score}',
+                'Server: ${server.apiUrl}',
                 style: const TextStyle(
                   fontSize: 14,
                 ),
               ),
               Text(
-                'Services: ${instance.servicesCount}',
+                'Reason: ${server.reason}',
                 style: const TextStyle(
                   fontSize: 14,
                 ),
@@ -152,7 +150,9 @@ class _InstancesScreenState extends State<InstancesScreen> {
             TextButton(
               onPressed: () async {
                 await Future.delayed(const Duration(milliseconds: 200));
-                Navigator.of(context).pop();
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
               },
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
@@ -172,14 +172,151 @@ class _InstancesScreenState extends State<InstancesScreen> {
               onPressed: () async {
                 await Future.delayed(const Duration(milliseconds: 200));
                 final apiKey = _apiKeyController.text.trim();
-                final server = ServerConfig(
+                final serverConfig = ServerConfig(
+                  server.apiUrl,
+                  apiKey.isNotEmpty ? apiKey : null,
+                );
+                
+                widget.onServerAdded(serverConfig);
+                
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                }
+              },
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                backgroundColor: const Color(0xFF191919),
+                foregroundColor: const Color(0xFFe1e1e1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  side: const BorderSide(
+                    color: Color.fromRGBO(255, 255, 255, 0.05),
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _addInstanceWithConfirmation(CobaltInstance instance) async {
+    _apiKeyController.clear();
+    
+    if (!mounted) return;
+    
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: Text(
+            'Add ${instance.api}',
+            style: const TextStyle(fontSize: 16),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(11),
+            side: const BorderSide(
+              color: Color.fromRGBO(255, 255, 255, 0.08),
+              width: 2.0,
+            ),
+          ),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+          contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Server: ${instance.apiUrl}',
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
+              ),
+              Text(
+                'Score: ${instance.score}/100',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: _getScoreColor(instance.score),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'API Key (optional):',
+                style: TextStyle(
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _apiKeyController,
+                decoration: InputDecoration(
+                  hintText: 'Enter API Key if required',
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(11)),
+                    borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(11)),
+                    borderSide: BorderSide(width: 2.0, color: Colors.white),
+                  ),
+                  prefixIcon: SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: Center(
+                      child: SvgPicture.string(
+                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-key"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0z" /><path d="M15 9h.01" /></svg>',
+                        width: 22,
+                        height: 22,
+                        colorFilter: const ColorFilter.mode(Colors.white70, BlendMode.srcIn),
+                      ),
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+                ),
+                style: const TextStyle(fontSize: 14),
+                cursorColor: const Color(0xFFE1E1E1),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                await Future.delayed(const Duration(milliseconds: 200));
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                }
+              },
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                backgroundColor: const Color(0xFF191919),
+                foregroundColor: const Color(0xFFe1e1e1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(11),
+                  side: const BorderSide(
+                    color: Color.fromRGBO(255, 255, 255, 0.05),
+                    width: 1.5,
+                  ),
+                ),
+              ),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await Future.delayed(const Duration(milliseconds: 200));
+                final apiKey = _apiKeyController.text.trim();
+                final serverConfig = ServerConfig(
                   instance.apiUrl,
                   apiKey.isNotEmpty ? apiKey : null,
                 );
                 
-                widget.onServerAdded(server);
+                widget.onServerAdded(serverConfig);
                 
-                if (mounted) {
+                if (context.mounted) {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
                 }
@@ -229,6 +366,17 @@ class _InstancesScreenState extends State<InstancesScreen> {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: SvgPicture.string(
+              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-refresh"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>',
+              width: 22,
+              height: 22,
+              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            ),
+            onPressed: _loadData,
+          ),
+        ],
       ),
       body: _buildBody(),
     );
@@ -255,7 +403,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _loadInstances,
+              onPressed: _loadData,
               child: const Text('Retry'),
             ),
           ],
@@ -263,41 +411,61 @@ class _InstancesScreenState extends State<InstancesScreen> {
       );
     }
 
-    if (_instances.isEmpty) {
-      return const Center(
-        child: Text('No servers found'),
-      );
-    }
-
-    return ListView.builder(
+    return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: _instances.length,
-      itemBuilder: (context, index) {
-        final instance = _instances[index];
-        return _buildInstanceCard(instance);
-      },
+      children: [
+        if (_officialServers.isNotEmpty) ...[
+          const Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: Text(
+              'Official Instances',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+          ..._officialServers.map((server) => _buildOfficialServerCard(server)),
+          const SizedBox(height: 5),
+        ],
+        if (_instances.isNotEmpty) ...[
+          const Text(
+              'Public Instances',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          const SizedBox(height: 10),
+          ..._instances.map((instance) => _buildInstanceCard(instance)),
+        ],
+        if (_officialServers.isEmpty && _instances.isEmpty)
+          const Center(
+            child: Text('No servers found'),
+          ),
+      ],
     );
   }
 
-  Widget _buildInstanceCard(CobaltInstance instance) {
-    final isOnline = instance.isOnline;
-    
+  Widget _buildOfficialServerCard(OfficialServer server) {
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       color: const Color(0xFF191919),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(11),
-        side: BorderSide(
-          color: Color.fromRGBO(255, 255, 255, isOnline ? 0.08 : 0.04),
+        side: const BorderSide(
+          color: Color(0x13FFFFFF),
           width: 1.5,
         ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(11),
-        onTap: isOnline ? () async {
+        onTap: () async {
           await Future.delayed(const Duration(milliseconds: 250));
-          await _addServerWithConfirmation(instance);
-        } : null,
+          await _addOfficialServerWithConfirmation(server);
+        },
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(
@@ -305,36 +473,42 @@ class _InstancesScreenState extends State<InstancesScreen> {
             children: [
               Row(
                 children: [
-                  SvgPicture.string(
-                    '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-server-2"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 4m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M3 12m0 3a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M7 8l0 .01" /><path d="M7 16l0 .01" /><path d="M11 8h6" /><path d="M11 16h6" /></svg>',
-                    width: 16,
-                    height: 16,
-                    colorFilter: ColorFilter.mode(isOnline ? Colors.green : Colors.red, BlendMode.srcIn),
+                  Container(
+                    width: 20,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      image: DecorationImage(
+                        image: NetworkImage(server.logo),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      instance.api,
+                      server.api,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: isOnline ? Colors.white : Colors.white70,
+                        color: Colors.white,
                       ),
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: _getScoreColor(instance.score),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(
-                      '${instance.score}',
-                      style: const TextStyle(
-                        fontSize: 12,
+                    child: const Text(
+                      'OFFICIAL',
+                      style: TextStyle(
+                        fontSize: 11,
                         fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
                     ),
                   ),
@@ -342,62 +516,184 @@ class _InstancesScreenState extends State<InstancesScreen> {
               ),
               Row(
                 children: [
-                    Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                      Text(
-                        'Protocol: ${instance.protocol}',
-                        style: TextStyle(
-                        fontSize: 12,
-                        color: isOnline ? Colors.white70 : Colors.white38,
-                        ),
-                      ),
-                      if (instance.version != null)
                         Text(
-                        'Version: ${instance.version}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isOnline ? Colors.white70 : Colors.white38,
+                          'Protocol: ${server.protocol}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
                         ),
+                        Text(
+                          server.reason,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
                         ),
-                      Text(
-                        'Services: ${instance.servicesCount}',
-                        style: TextStyle(
-                        fontSize: 12,
-                        color: isOnline ? Colors.white70 : Colors.white38,
-                        ),
-                      ),
                       ],
                     ),
-                    ),
-                    if (instance.frontend != "None")
+                  ),
+                  if (server.frontend != "None")
                     Material(
                       color: Colors.transparent,
                       child: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                        onTap: () {
-                        launchUrl(Uri.parse('${instance.protocol}://${instance.frontend}'));
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: const Color.fromRGBO(255, 255, 255, 0.08),
-                          width: 1.5,
+                        onTap: () {
+                          launchUrl(Uri.parse('${server.protocol}://${server.frontend}'));
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color.fromRGBO(255, 255, 255, 0.08),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: SvgPicture.string(
+                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>',
+                            width: 24,
+                            height: 24,
+                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                          ),
                         ),
-                        ),
-                        child: SvgPicture.string(
-                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>',
-                        width: 24,
-                        height: 24,
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInstanceCard(CobaltInstance instance) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      color: const Color(0xFF191919),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(11),
+        side: const BorderSide(
+          color: Color(0x13FFFFFF),
+          width: 1.5,
+        ),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(11),
+        onTap: () async {
+          await Future.delayed(const Duration(milliseconds: 250));
+          await _addInstanceWithConfirmation(instance);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: instance.isOnline ? Colors.green : Colors.red,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      instance.api,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: _getScoreColor(instance.score),
+                      borderRadius: BorderRadius.circular(11),
+                    ),
+                    child: Center(
+                      child: Text(
+                      '${instance.score}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                       ),
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Protocol: ${instance.protocol}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
+                        ),
+                        Text(
+                          'Services: ${instance.servicesCount}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
+                        ),
+                        Text(
+                          'Version: ${instance.version}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (instance.frontend != null && instance.frontend!.isNotEmpty)
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () {
+                          launchUrl(Uri.parse('${instance.protocol}://${instance.frontend}'));
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color.fromRGBO(255, 255, 255, 0.08),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: SvgPicture.string(
+                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>',
+                            width: 24,
+                            height: 24,
+                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
