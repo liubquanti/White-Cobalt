@@ -498,19 +498,13 @@ class _InstancesScreenState extends State<InstancesScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 5),
             Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Protocol: ${server.protocol}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.white70,
-                        ),
-                      ),
                       Text(
                         server.reason,
                         style: const TextStyle(
@@ -556,7 +550,8 @@ class _InstancesScreenState extends State<InstancesScreen> {
                           "Add Server",
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.white70,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -760,7 +755,8 @@ class _InstancesScreenState extends State<InstancesScreen> {
                           "Add Server",
                           style: const TextStyle(
                             fontSize: 12,
-                            color: Colors.white70,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],

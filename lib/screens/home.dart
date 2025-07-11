@@ -1098,7 +1098,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                   ),
                 ),
               ),
-              child: const Text('delete'),
+              child: const Text('Delete'),
             ),
           ],
         );
