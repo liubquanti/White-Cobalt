@@ -9,9 +9,6 @@ class OfficialServersService {
     try {
       final response = await http.get(
         Uri.parse(apiUrl),
-        headers: {
-          'User-Agent': 'whcobalt/5.0.1',
-        },
       );
 
       if (response.statusCode == 200) {

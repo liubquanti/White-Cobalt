@@ -1,6 +1,6 @@
 name: white_cobalt
 description: Media downloader using Cobalt API
-version: 0.5.1+12
+version: 0.6.0+13
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -20,6 +20,7 @@ dependencies:
   fl_chart: ^1.0.0
   media_scanner: ^2.2.0
   card_loading: ^0.3.2
+  package_info_plus: ^4.2.0
   
 dev_dependencies:
   flutter_test:
