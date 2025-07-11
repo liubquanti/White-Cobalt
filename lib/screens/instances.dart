@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -366,17 +367,6 @@ class _InstancesScreenState extends State<InstancesScreen> {
             Navigator.pop(context);
           },
         ),
-        actions: [
-          IconButton(
-            icon: SvgPicture.string(
-              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-refresh"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>',
-              width: 22,
-              height: 22,
-              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-            ),
-            onPressed: _loadData,
-          ),
-        ],
       ),
       body: _buildBody(),
     );
@@ -460,75 +450,110 @@ class _InstancesScreenState extends State<InstancesScreen> {
           width: 1.5,
         ),
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(11),
-        onTap: () async {
-          await Future.delayed(const Duration(milliseconds: 250));
-          await _addOfficialServerWithConfirmation(server);
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4),
-                      image: DecorationImage(
-                        image: NetworkImage(server.logo),
-                        fit: BoxFit.cover,
-                      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    image: DecorationImage(
+                      image: NetworkImage(server.logo),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      server.api,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    server.api,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text(
-                      'OFFICIAL',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
                     ),
                   ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Protocol: ${server.protocol}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white70,
-                          ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'OFFICIAL',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Protocol: ${server.protocol}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
                         ),
-                        Text(
-                          server.reason,
+                      ),
+                      Text(
+                        server.reason,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+            Row(
+              children: [
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () async {
+                      await Future.delayed(const Duration(milliseconds: 250));
+                      await _addOfficialServerWithConfirmation(server);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: const Color.fromRGBO(255, 255, 255, 0.08),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                        SvgPicture.string(
+                          '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-server-spark"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 22.5a4.75 4.75 0 0 1 3.5 -3.5a4.75 4.75 0 0 1 -3.5 -3.5a4.75 4.75 0 0 1 -3.5 3.5a4.75 4.75 0 0 1 3.5 3.5" /><path d="M3 7a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M12 20h-6a3 3 0 0 1 -3 -3v-2a3 3 0 0 1 3 -3h10.5" /><path d="M7 8v.01" /><path d="M7 16v.01" /></svg>',
+                          width: 24,
+                          height: 24,
+                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        ),
+                        const SizedBox(width: 6),
+                        const Text(
+                          "Add Server",
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.white70,
@@ -537,38 +562,77 @@ class _InstancesScreenState extends State<InstancesScreen> {
                       ],
                     ),
                   ),
-                  if (server.frontend != "None")
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
+                  ),
+                ),
+                const SizedBox(width: 10),
+                if (server.frontend != "None")
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () {
+                      launchUrl(Uri.parse('${server.protocol}://${server.frontend}'));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        onTap: () {
-                          launchUrl(Uri.parse('${server.protocol}://${server.frontend}'));
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: const Color.fromRGBO(255, 255, 255, 0.08),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: SvgPicture.string(
-                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>',
-                            width: 24,
-                            height: 24,
-                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                          ),
+                        border: Border.all(
+                          color: const Color.fromRGBO(255, 255, 255, 0.08),
+                          width: 1.5,
                         ),
                       ),
+                      child: SvgPicture.string(
+                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>',
+                        width: 24,
+                        height: 24,
+                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      ),
                     ),
-                ],
-              ),
-            ],
-          ),
+                  ),
+                ),
+                if (server.frontend != "None")
+                const SizedBox(width: 10),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                      onTap: () {
+                      Clipboard.setData(
+                        ClipboardData(text: '${server.apiUrl}'),
+                      ).then((_) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('API URL copied to clipboard'),
+                          duration: Duration(seconds: 2),
+                        ),
+                        );
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: const Color.fromRGBO(255, 255, 255, 0.08),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: SvgPicture.string(
+                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-api"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13h5" /><path d="M12 16v-8h3a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-3" /><path d="M20 8v8" /><path d="M9 16v-5.5a2.5 2.5 0 0 0 -5 0v5.5" /></svg>',
+                        width: 24,
+                        height: 24,
+                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      ),
+                    ),
+                  ),
+                ),  
+              ],
+            ),
+          ],
         ),
       ),
+      
     );
   }
 
@@ -583,82 +647,117 @@ class _InstancesScreenState extends State<InstancesScreen> {
           width: 1.5,
         ),
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(11),
-        onTap: () async {
-          await Future.delayed(const Duration(milliseconds: 250));
-          await _addInstanceWithConfirmation(instance);
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: instance.isOnline ? Colors.green : Colors.red,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: instance.isOnline ? Colors.green : Colors.red,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    instance.api,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
+                ),
+                Container(
+                  width: 40,
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: _getScoreColor(instance.score),
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  child: Center(
                     child: Text(
-                      instance.api,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    '${instance.score}',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                     ),
                   ),
-                  Container(
-                    width: 40,
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: _getScoreColor(instance.score),
-                      borderRadius: BorderRadius.circular(11),
-                    ),
-                    child: Center(
-                      child: Text(
-                      '${instance.score}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Protocol: ${instance.protocol}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
                       ),
+                      Text(
+                        'Services: ${instance.servicesCount}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
                       ),
-                    ),
+                      Text(
+                        'Version: ${instance.version}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Protocol: ${instance.protocol}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white70,
-                          ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+            Row(
+              children: [
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () async {
+                      await Future.delayed(const Duration(milliseconds: 250));
+                      await _addInstanceWithConfirmation(instance);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: const Color.fromRGBO(255, 255, 255, 0.08),
+                          width: 1.5,
                         ),
-                        Text(
-                          'Services: ${instance.servicesCount}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white70,
-                          ),
+                      ),
+                      child: Row(
+                        children: [
+                        SvgPicture.string(
+                          '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-server-spark"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 22.5a4.75 4.75 0 0 1 3.5 -3.5a4.75 4.75 0 0 1 -3.5 -3.5a4.75 4.75 0 0 1 -3.5 3.5a4.75 4.75 0 0 1 3.5 3.5" /><path d="M3 7a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M12 20h-6a3 3 0 0 1 -3 -3v-2a3 3 0 0 1 3 -3h10.5" /><path d="M7 8v.01" /><path d="M7 16v.01" /></svg>',
+                          width: 24,
+                          height: 24,
+                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                         ),
-                        Text(
-                          'Version: ${instance.version}',
+                        const SizedBox(width: 6),
+                        const Text(
+                          "Add Server",
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.white70,
@@ -667,36 +766,74 @@ class _InstancesScreenState extends State<InstancesScreen> {
                       ],
                     ),
                   ),
-                  if (instance.frontend != null && instance.frontend!.isNotEmpty)
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
+                  ),
+                ),
+                const SizedBox(width: 10),
+                if (instance.frontend != "None" && instance.frontend!.isNotEmpty)
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () {
+                      launchUrl(Uri.parse('${instance.protocol}://${instance.frontend}'));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        onTap: () {
-                          launchUrl(Uri.parse('${instance.protocol}://${instance.frontend}'));
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: const Color.fromRGBO(255, 255, 255, 0.08),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: SvgPicture.string(
-                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>',
-                            width: 24,
-                            height: 24,
-                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                          ),
+                        border: Border.all(
+                          color: const Color.fromRGBO(255, 255, 255, 0.08),
+                          width: 1.5,
                         ),
                       ),
+                      child: SvgPicture.string(
+                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>',
+                        width: 24,
+                        height: 24,
+                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      ),
                     ),
-                ],
-              ),
-            ],
-          ),
+                  ),
+                ),
+                if (instance.frontend != "None" && instance.frontend!.isNotEmpty)
+                const SizedBox(width: 10),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                      onTap: () {
+                      Clipboard.setData(
+                        ClipboardData(text: '${instance.apiUrl}'),
+                      ).then((_) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('API URL copied to clipboard'),
+                          duration: Duration(seconds: 2),
+                        ),
+                        );
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: const Color.fromRGBO(255, 255, 255, 0.08),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: SvgPicture.string(
+                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-api"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13h5" /><path d="M12 16v-8h3a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-3" /><path d="M20 8v8" /><path d="M9 16v-5.5a2.5 2.5 0 0 0 -5 0v5.5" /></svg>',
+                        width: 24,
+                        height: 24,
+                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                      ),
+                    ),
+                  ),
+                ),  
+              ],
+            ),
+          ],
         ),
       ),
     );
