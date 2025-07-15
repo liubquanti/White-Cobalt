@@ -38,18 +38,25 @@ class CobaltInstance {
   bool get isOnline => online.api;
 
   factory CobaltInstance.fromJson(Map<String, dynamic> json) {
+    final bool isOnline = json['online'] as bool? ?? false;
+    final Map<String, dynamic> gitInfo = json['git'] as Map<String, dynamic>? ?? {};
+    final Map<String, dynamic> infoData = json['info'] as Map<String, dynamic>? ?? {};
+    
     return CobaltInstance(
       api: json['api'] as String,
       frontend: json['frontend'] as String?,
-      nodomain: json['nodomain'] as bool,
-      online: OnlineStatus.fromJson(json['online'] as Map<String, dynamic>),
+      nodomain: false,
+      online: OnlineStatus(
+        api: isOnline,
+        frontend: isOnline && json['frontend'] != null,
+      ),
       protocol: json['protocol'] as String,
-      score: json['score'] as int,
+      score: json['score'] as int? ?? 0,
       services: json['services'] as Map<String, dynamic>? ?? {},
-      trust: json['trust'] as int,
-      branch: json['branch'] as String?,
-      commit: json['commit'] as String?,
-      cors: json['cors'] as bool?,
+      trust: 100,
+      branch: gitInfo['branch'] as String?,
+      commit: gitInfo['commit'] as String?,
+      cors: infoData['cors'] as bool?,
       name: json['name'] as String?,
       version: json['version'] as String?,
     );

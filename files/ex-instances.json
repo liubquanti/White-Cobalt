@@ -1,0 +1,53 @@
+[
+    {
+        "api": "cobalt.invalid",
+        "frontend": null,
+        "protocol": "https",
+        "online": false
+    },
+    {
+        "api": "api.cobalt.example",
+        "frontend": "cobalt.example",
+        "protocol": "https",
+        "online": true,
+        "score": 64,
+        "status": "medium",
+        "services": {
+            "youtube": true,
+            "youtube music": true,
+            "youtube shorts": true,
+            "tiktok": true,
+            "instagram": true,
+            "soundcloud": true,
+            "twitter": true,
+            "reddit": true,
+            "pinterest": true,
+            "facebook": true,
+            "bluesky": true,
+            "twitch": true,
+            "snapchat": true,
+            "newgrounds": false,
+            "bilibili": true,
+            "bilibili tv": true,
+            "odnoklassniki": true,
+            "streamable": "error.api.rate_exceeded",
+            "tumblr": "timed out",
+            "vk": "something went wrong while testing",
+            "vimeo": "blocked by cloudflare",
+            "dailymotion": "error.api.rate_exceeded",
+            "rutube": "invalid response",
+            "loom": "invalid api key",
+            "xiaohongshu": false
+        },
+        "version": "10.9.4",
+        "info": {
+            "auth": false,
+            "cors": true
+        },
+        "git": {
+            "remote": "imputnet/cobalt",
+            "branch": "main",
+            "commit": "4b9644ebdfbfe7bc6f7ec2d476692e3619cb59bd"
+        }
+    }
+]
