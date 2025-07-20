@@ -38,7 +38,6 @@ class CobaltInstance {
   bool get isOnline => online.api;
 
   factory CobaltInstance.fromJson(Map<String, dynamic> json) {
-    // online може бути bool або Map<String, dynamic>
     OnlineStatus onlineStatus;
     if (json['online'] is bool) {
       onlineStatus = OnlineStatus(api: json['online'] as bool, frontend: false);
