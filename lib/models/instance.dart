@@ -38,18 +38,28 @@ class CobaltInstance {
   bool get isOnline => online.api;
 
   factory CobaltInstance.fromJson(Map<String, dynamic> json) {
+    // online може бути bool або Map<String, dynamic>
+    OnlineStatus onlineStatus;
+    if (json['online'] is bool) {
+      onlineStatus = OnlineStatus(api: json['online'] as bool, frontend: false);
+    } else if (json['online'] is Map<String, dynamic>) {
+      onlineStatus = OnlineStatus.fromJson(json['online'] as Map<String, dynamic>);
+    } else {
+      onlineStatus = OnlineStatus(api: false, frontend: false);
+    }
+
     return CobaltInstance(
       api: json['api'] as String,
       frontend: json['frontend'] as String?,
-      nodomain: json['nodomain'] as bool,
-      online: OnlineStatus.fromJson(json['online'] as Map<String, dynamic>),
+      nodomain: json['nodomain'] as bool? ?? false,
+      online: onlineStatus,
       protocol: json['protocol'] as String,
-      score: json['score'] as int,
+      score: json['score'] as int? ?? 0,
       services: json['services'] as Map<String, dynamic>? ?? {},
-      trust: json['trust'] as int,
-      branch: json['branch'] as String?,
-      commit: json['commit'] as String?,
-      cors: json['cors'] as bool?,
+      trust: json['trust'] as int? ?? 0,
+      branch: (json['git']?['branch'] ?? json['branch']) as String?,
+      commit: (json['git']?['commit'] ?? json['commit']) as String?,
+      cors: (json['info']?['cors'] ?? json['cors']) as bool?,
       name: json['name'] as String?,
       version: json['version'] as String?,
     );
