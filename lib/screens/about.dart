@@ -1,13 +1,39 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:http/http.dart' as http;
 
 class AboutScreen extends StatefulWidget {
   @override
   State<AboutScreen> createState() => _AboutScreenState();
 }
 
+Future<String?> fetchRemoteVersion() async {
+  final url = 'https://raw.githubusercontent.com/liubquanti/White-Cobalt/refs/heads/main/pubspec.yaml';
+  final response = await http.get(Uri.parse(url));
+  if (response.statusCode == 200) {
+    final lines = const LineSplitter().convert(response.body);
+    final versionLine = lines.firstWhere((line) => line.startsWith('version:'), orElse: () => '');
+    if (versionLine.isNotEmpty) {
+      // Витягуємо тільки номер версії (до знаку '+')
+      final version = versionLine.replaceFirst('version:', '').trim();
+      final mainVersion = version.split('+').first.trim();
+      return mainVersion;
+    }
+  }
+  return null;
+}
+
 class _AboutScreenState extends State<AboutScreen> {
+  Future<String?>? _remoteVersionFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _remoteVersionFuture = fetchRemoteVersion();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -660,6 +686,194 @@ class _AboutScreenState extends State<AboutScreen> {
                           )
                           ),
                         ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+              const SizedBox(height: 15),
+              const Text(
+                'App info',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF191919),
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.08),
+                    width: 1.5,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Column(
+                  children: [
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                          const Text(
+                            'Version',
+                            style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            ),
+                          ),
+                          FutureBuilder<PackageInfo>(
+                            future: PackageInfo.fromPlatform(),
+                            builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              final localVersion = snapshot.data!.version;
+                              return FutureBuilder<String?>(
+                                future: _remoteVersionFuture,
+                                builder: (context, remoteSnapshot) {
+                                  final remoteVersion = remoteSnapshot.data;
+                                  final isOutdated = remoteVersion != null && remoteVersion != localVersion;
+                                  return Row(
+                                    children: [
+                                      Text(
+                                        localVersion,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: isOutdated ? Colors.red : Colors.white70,
+                                          fontWeight: isOutdated ? FontWeight.bold : FontWeight.normal,
+                                        ),
+                                      ),
+                                      if (isOutdated) ...[
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'outdated',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.red,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  );
+                                },
+                              );
+                            }
+                            return const Text(
+                              'Loading...',
+                              style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                              ),
+                            );
+                            },
+                          ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                          const Text(
+                            'Build',
+                            style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            ),
+                          ),
+                          FutureBuilder<PackageInfo>(
+                            future: PackageInfo.fromPlatform(),
+                            builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Text(
+                              snapshot.data!.buildNumber,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white70,
+                              ),
+                              );
+                            }
+                            return const Text(
+                              'Loading...',
+                              style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                              ),
+                            );
+                            },
+                          ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                          const Text(
+                            'Package',
+                            style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            ),
+                          ),
+                          FutureBuilder<PackageInfo>(
+                            future: PackageInfo.fromPlatform(),
+                            builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Text(
+                              snapshot.data!.packageName,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white70,
+                              ),
+                              );
+                            }
+                            return const Text(
+                              'Loading...',
+                              style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                              ),
+                            );
+                            },
+                          ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                          const Text(
+                            'Installer',
+                            style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                            ),
+                          ),
+                          FutureBuilder<PackageInfo>(
+                            future: PackageInfo.fromPlatform(),
+                            builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Text(
+                              snapshot.data!.installerStore ?? 'Unknown',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white70,
+                              ),
+                              );
+                            }
+                            return const Text(
+                              'Loading...',
+                              style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white70,
+                              ),
+                            );
+                            },
+                          ),
+                          ],
                         ),
                       ],
                     )
