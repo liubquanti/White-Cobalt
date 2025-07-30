@@ -1,72 +1,56 @@
-**Privacy Policy**
+# 😺 • White Cobalt
 
-This privacy policy applies to the White Cobalt app (hereby referred to as "Application") for mobile devices that was created by liubquanti (hereby referred to as "Service Provider") as an Open Source service. This service is intended for use "AS IS".
+A native Android client for downloading media from the Internet using [cobalt server APIs](https://github.com/imputnet/cobalt/blob/main/docs/api.md).
 
-**Information Collection and Use**
+![1749405394661](image/README/1749405394661.png)White Cobalt follows the principles of [cobalt.tools](https://cobalt.tools/):
 
-The Application collects information when you download and use it. This information may include information such as
+- `No ads, trackers, paywalls, or other nonsense.`
+- `Was created for public benefit.`
+- `Paste the link, get the file, move on. that simple, just how it should be.`
 
-* Your device's Internet Protocol address (e.g. IP address)
-* The pages of the Application that you visit, the time and date of your visit, the time spent on those pages
-* The time spent on the Application
-* The operating system you use on your mobile device
+White Cobalt is a tool that makes downloading public content easier. It takes zero liability. The end user is responsible for what they download, how they use and distribute that content.
 
-The Application does not gather precise information about the location of your mobile device.
+White Cobalt is in no way a piracy tool and cannot be used as such. It can only download free & publicly accessible content.
 
-The Application collects your device's location, which helps the Service Provider determine your approximate geographical location and make use of in below ways:
+White Cobalt was developed independently of the [creators of cobalt.tools](https://github.com/imputnet).
 
-* Geolocation Services: The Service Provider utilizes location data to provide features such as personalized content, relevant recommendations, and location-based services.
-* Analytics and Improvements: Aggregated and anonymized location data helps the Service Provider to analyze user behavior, identify trends, and improve the overall performance and functionality of the Application.
-* Third-Party Services: Periodically, the Service Provider may transmit anonymized location data to external services. These services assist them in enhancing the Application and optimizing their offerings.
+[![sample SVG image](https://raw.githubusercontent.com/pioug/google-play-badges/main/svg/English.svg)](https://play.google.com/store/apps/details?id=liubquanti.white.cobalt)
 
-The Service Provider may use the information you provided to contact you from time to time to provide you with important information, required notices and marketing promotions.
+## ⭐ • Sources
 
-For a better experience, while using the Application, the Service Provider may require you to provide us with certain personally identifiable information, including but not limited to https://liubquanti.click/. The information that the Service Provider request will be retained by them and used as described in this privacy policy.
+- [cobalt official website](https://cobalt.tools/).
+- [cobalt API documentation](https://github.com/imputnet/cobalt/blob/main/docs/api.md).
 
-**Third Party Access**
+## 🧬 • Features
 
-Only aggregated, anonymized data is periodically transmitted to external services to aid the Service Provider in improving the Application and their service. The Service Provider may share your information with third parties in the ways that are described in this privacy statement.
+- [X] Connect to a cobalt server.
+- [X] Save servers for future use.
+- [X] Add an API key to a server.
+- [X] Check the functionality of a cobalt server.
+- [X] Download media via pasted link.
+- [X] Automaticly paste link from clipboard.
+- [X] Download media via link shared through the share menu.
+- [X] Choose between automatic, sound only and silent download method.
+- [X] Switch between server and local-side processing.
+- [X] Disable metadata for downloads.
+- [X] Monitor how much storage space is taken up by downloaded media.
+- [X] Organising downloaded media by file type.
+- [X] Organising downloaded media by service.
+- [X] Storage cleaning by service.
 
-Please note that the Application utilizes third-party services that have their own Privacy Policy about handling data. Below are the links to the Privacy Policy of the third-party service providers used by the Application:
 
-* [Google Play Services](https://www.google.com/policies/privacy/)
+## 🧩 • Usage
 
-The Service Provider may disclose User Provided and Automatically Collected Information:
+There are two ways to download media:
 
-* as required by law, such as to comply with a subpoena, or similar legal process;
-* when they believe in good faith that disclosure is necessary to protect their rights, protect your safety or the safety of others, investigate fraud, or respond to a government request;
-* with their trusted services providers who work on their behalf, do not have an independent use of the information we disclose to them, and have agreed to adhere to the rules set forth in this privacy statement.
+> Open the app, paste the media link into the input field, and tap the `download` button.
 
-**Opt-Out Rights**
+> While viewing content, share the link through the share menu and select White Cobalt.
 
-You can stop all collection of information by the Application easily by uninstalling it. You may use the standard uninstall processes as may be available as part of your mobile device or via the mobile application marketplace or network.
+## ✅ • Supported Services
 
-**Data Retention Policy**
+The list of supported services depends on which services are supported by the cobalt server the client is connected to. You can view the full list of supported services by the latest version of the cobalt API on the [official website](https://cobalt.tools/).
 
-The Service Provider will retain User Provided data for as long as you use the Application and for a reasonable time thereafter. If you'd like them to delete User Provided Data that you have provided via the Application, please contact them at Oleh.LIUBCHENKO@etu.uca.fr and they will respond in a reasonable time.
+## 📊 • Development Stats
 
-**Children**
-
-The Service Provider does not use the Application to knowingly solicit data from or market to children under the age of 13.
-
-The Application does not address anyone under the age of 13. The Service Provider does not knowingly collect personally identifiable information from children under 13 years of age. In the case the Service Provider discover that a child under 13 has provided personal information, the Service Provider will immediately delete this from their servers. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact the Service Provider (Oleh.LIUBCHENKO@etu.uca.fr) so that they will be able to take the necessary actions.
-
-**Security**
-
-The Service Provider is concerned about safeguarding the confidentiality of your information. The Service Provider provides physical, electronic, and procedural safeguards to protect information the Service Provider processes and maintains.
-
-**Changes**
-
-This Privacy Policy may be updated from time to time for any reason. The Service Provider will notify you of any changes to the Privacy Policy by updating this page with the new Privacy Policy. You are advised to consult this Privacy Policy regularly for any changes, as continued use is deemed approval of all changes.
-
-This privacy policy is effective as of 2025-06-07
-
-**Your Consent**
-
-By using the Application, you are consenting to the processing of your information as set forth in this Privacy Policy now and as amended by us.
-
-**Contact Us**
-
-If you have any questions regarding privacy while using the Application, or have questions about the practices, please contact the Service Provider via email at Oleh.LIUBCHENKO@etu.uca.fr.
-
----
+![Alt](https://repobeats.axiom.co/api/embed/e8f2493da0ae6154170cdd95468ad622db3a99a9.svg "Repobeats analytics image")
