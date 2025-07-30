@@ -1,6 +1,6 @@
 [
     {
-        "api": "cobalt.liubquanti.click",
+        "api": "api.cobalt.liubquanti.click",
         "frontend": "None",
         "protocol": "https",
         "reason": "Official White Cobalt API instance.",
