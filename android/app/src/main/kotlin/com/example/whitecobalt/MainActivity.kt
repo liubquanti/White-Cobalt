@@ -10,9 +10,6 @@ import io.flutter.plugin.common.MethodChannel
 import java.util.regex.Pattern
 
 class MainActivity: FlutterActivity() {
-    private val SHARE_CHANNEL = "com.whitecobalt.share/url"
-    private val STORAGE_CHANNEL = "com.whitecobalt.storage/info"
-    private val NATIVE_SHARE_CHANNEL = "com.whitecobalt.native_share"
     private var sharedUrl: String? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
@@ -119,4 +116,10 @@ class MainActivity: FlutterActivity() {
             )
         }
     }
+
+    companion object {
+		private const val SHARE_CHANNEL = "com.whitecobalt.share/url"
+		private const val STORAGE_CHANNEL = "com.whitecobalt.storage/info"
+		private const val NATIVE_SHARE_CHANNEL = "com.whitecobalt.native_share"
+	}
 }
