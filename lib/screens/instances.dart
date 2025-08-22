@@ -430,6 +430,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
             ),
           const SizedBox(height: 10),
           ..._instances.map((instance) => _buildInstanceCard(instance)),
+          const SizedBox(height: 6),
         ],
         if (_officialServers.isEmpty && _instances.isEmpty)
           const Center(

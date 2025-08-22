@@ -1223,11 +1223,22 @@ Future<void> _downloadPickerItem(String url, String type) async {
                             ),
                           ),
                           if (server.apiKey != null && server.apiKey!.isNotEmpty)
-                          SvgPicture.string(
-                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-circle-key"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M21 12a9 9 0 1 1 -18 0a9 9 0 0 1 18 0z" /><path d="M12.5 11.5l-4 4l1.5 1.5" /><path d="M12 15l-1.5 -1.5" /></svg>',
-                            width: 22,
-                            height: 22,
-                            colorFilter: const ColorFilter.mode(Colors.green, BlendMode.srcIn),
+                          const SizedBox(width: 4),
+                          if (server.apiKey != null && server.apiKey!.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.green,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Text(
+                              'KEY',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
                           ),
                         ],
                       ),
