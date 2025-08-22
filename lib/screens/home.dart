@@ -174,7 +174,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     } else {
       setState(() {
         _servers = [];
-        _baseUrl = 'add_new';
+        _baseUrl = 'add_custom';
         _currentApiKey = null;
         _status = 'No servers configured. Please add a Cobalt server.';
       });
@@ -260,7 +260,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         return AlertDialog(
           backgroundColor: Colors.black,
           title: const Text(
-            'Add New Server',
+            'Add Custom Server',
             style: TextStyle(fontSize: 16),
           ),
           shape: RoundedRectangleBorder(
@@ -1076,7 +1076,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                       _currentApiKey = _servers.first.apiKey;
                       _fetchServerInfo();
                     } else {
-                      _baseUrl = 'add_new';
+                      _baseUrl = 'add_custom';
                       _currentApiKey = null;
                       _serverInfo = null;
                       _status = 'No server selected';
@@ -1107,7 +1107,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
   }
 
   bool _isRealServerSelected() {
-    return _baseUrl != null && _baseUrl != 'add_new';
+    return _baseUrl != null && _baseUrl != 'add_custom';
   }
 
   Map<String, dynamic>? _getErrorDetails() {
@@ -1202,7 +1202,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                   ),
                   contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                 ),
-                value: _servers.isNotEmpty ? _baseUrl : 'add_new',
+                value: _servers.isNotEmpty ? _baseUrl : 'add_custom',
                 items: [
                   ..._servers.map((server) => DropdownMenuItem<String>(
                     value: server.url,
@@ -1245,9 +1245,9 @@ Future<void> _downloadPickerItem(String url, String type) async {
                     ),
                   )),
                   DropdownMenuItem(
-                    value: 'add_new',
+                    value: 'add_custom',
                     child: Text(
-                      'Add New Server',
+                      'Add Custom Server',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: _servers.isEmpty ? FontWeight.bold : FontWeight.normal,
@@ -1256,10 +1256,10 @@ Future<void> _downloadPickerItem(String url, String type) async {
                   ),
                 ],
                 onChanged: _isDownloadInProgress ? null : (value) async {
-                  if (value == 'add_new') {
+                  if (value == 'add_custom') {
                     _addNewServer();
                     setState(() {
-                      _baseUrl = 'add_new';
+                      _baseUrl = 'add_custom';
                       _responseData = null;
                     });
                   } else if (value != null && value != _baseUrl) {
@@ -1355,7 +1355,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                 style: const TextStyle(fontSize: 14),
                 keyboardType: TextInputType.url,
               )
-              else if (_baseUrl == 'add_new')
+              else if (_baseUrl == 'add_custom')
               TextField(
                 enabled: false,
                 decoration: InputDecoration(
@@ -1672,7 +1672,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                     ],
                   ),
                 )
-              else if(_serverInfo != null && _baseUrl != 'add_new')
+              else if(_serverInfo != null && _baseUrl != 'add_custom')
                 Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFF191919),
@@ -1712,7 +1712,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                     ],
                   ),
                 )
-              else if (_baseUrl == 'add_new')
+              else if (_baseUrl == 'add_custom')
                 Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFF191919),
