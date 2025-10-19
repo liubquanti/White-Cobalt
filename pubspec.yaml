@@ -1,6 +1,6 @@
 name: white_cobalt
 description: Media downloader using Cobalt API
-version: 0.7.0+17
+version: 0.7.1+18
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

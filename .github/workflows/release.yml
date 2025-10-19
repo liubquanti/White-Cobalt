@@ -5,10 +5,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   check-version:
     runs-on: ubuntu-latest
-
     outputs:
       version_changed: ${{ steps.check.outputs.version_changed }}
       new_version: ${{ steps.check.outputs.new_version }}
@@ -24,6 +26,7 @@ jobs:
 
       - name: Check if version changed
         id: check
+        shell: bash
         run: |
           old_version=$(grep '^version:' pubspec_old.yaml | sed 's/version: //')
           new_version=$(grep '^version:' pubspec.yaml | sed 's/version: //')
@@ -32,6 +35,7 @@ jobs:
           echo "New version: $new_version"
 
           if [ "$old_version" != "$new_version" ] && [ -n "$new_version" ]; then
+            # Записуємо у $GITHUB_OUTPUT у лапках для безпечного оброблення +
             echo "version_changed=true" >> $GITHUB_OUTPUT
             echo "new_version=$new_version" >> $GITHUB_OUTPUT
           else
@@ -50,19 +54,42 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.3'  # або твоя поточна версія
+          flutter-version: '3.35.6'
 
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Generate temporary keystore (CI test key)
+        run: |
+          mkdir -p android
+          keytool -genkeypair \
+            -v \
+            -keystore android/test.keystore \
+            -storepass 123456 \
+            -alias testkey \
+            -keypass 123456 \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Test, OU=Test, O=Test, L=Test, S=Test, C=US"
+
       - name: Build release APK
-        run: flutter build apk --release
+        run: flutter build apk --release --target-platform android-arm,android-arm64,android-x64 --android-skip-build-dependency-validation
+
+      - name: Extract tag version
+        id: extract_tag
+        run: |
+          full_version="${{ needs.check-version.outputs.new_version }}"
+          tag_version="${full_version%%+*}"
+          echo "tag_version=$tag_version" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.check-version.outputs.new_version }}
-          name: "Release v${{ needs.check-version.outputs.new_version }}"
+          tag_name: v${{ steps.extract_tag.outputs.tag_version }}
+          name: "v${{ steps.extract_tag.outputs.tag_version }}"
+          body: "Release of version v${{ needs.check-version.outputs.new_version }} for ${{ github.repository }}."
           files: build/app/outputs/flutter-apk/app-release.apk
+          overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
