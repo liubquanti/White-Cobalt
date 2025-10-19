@@ -9,8 +9,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/gestures.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:media_scanner/media_scanner.dart';
 import 'package:card_loading/card_loading.dart';
@@ -19,8 +17,26 @@ import '../config/server.dart';
 import '../config/settings.dart';
 import '../screens/settings.dart';
 import '../screens/instances.dart';
+import 'changelog.dart';
 import '../services/share.dart';
 
+class ChangelogEntry {
+  final String version;
+  final String title;
+  final String date;
+  final String content;
+  final String? bannerFile;
+  final String? bannerAlt;
+
+  ChangelogEntry({
+    required this.version,
+    required this.title,
+    required this.date,
+    required this.content,
+    this.bannerFile,
+    this.bannerAlt,
+  });
+}
 
 class CobaltHomePage extends StatefulWidget {
   const CobaltHomePage({super.key});
@@ -50,6 +66,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   String _downloadMode = 'auto';
   AppSettings _appSettings = AppSettings();
   bool _showCopiedOnButton = false;
+  List<ChangelogEntry> _changelogs = [];
   
   @override
   void initState() {
@@ -59,6 +76,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     _requestPermissions();
     _checkForSharedUrl();
     _urlController.addListener(_updateUrlFieldState);
+    _loadChangelogs();
   }
   
   Future<void> _loadSettings() async {
@@ -149,15 +167,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     }
   }
 
-  Future<void> _launchURL(String url) async {
-    try {
-      await launchUrl(
-        Uri.parse(url),
-        mode: LaunchMode.externalApplication,
-      );
-    } catch (_) {}
-  }
-
   Future<void> _loadSavedServers() async {
     final prefs = await SharedPreferences.getInstance();
     final serversJson = prefs.getStringList('servers_config');
@@ -187,6 +196,125 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         .map((server) => jsonEncode(server.toJson()))
         .toList();
     await prefs.setStringList('servers_config', serversJson);
+  }
+
+  Future<void> _loadChangelogs() async {
+    try {
+      // Завантажуємо список файлів з GitHub API
+      final response = await http.get(
+        Uri.parse('https://api.github.com/repos/imputnet/cobalt/contents/web/changelogs'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> files = jsonDecode(response.body);
+        final List<ChangelogEntry> changelogs = [];
+
+        // Фільтруємо тільки .md файли та сортуємо за версією
+        final mdFiles = files
+            .where((file) => file['name'].toString().endsWith('.md'))
+            .toList();
+
+        // Беремо останні 3 файли
+        mdFiles.sort((a, b) {
+          final versionA = a['name'].toString().replaceAll('.md', '');
+          final versionB = b['name'].toString().replaceAll('.md', '');
+          return _compareVersions(versionB, versionA); // Зворотний порядок для новіших версій спочатку
+        });
+
+        final latestFiles = mdFiles.take(3).toList();
+
+        for (var file in latestFiles) {
+          final fileResponse = await http.get(
+            Uri.parse(file['download_url']),
+          );
+
+          if (fileResponse.statusCode == 200) {
+            final content = fileResponse.body;
+            final changelog = _parseChangelog(file['name'], content);
+            if (changelog != null) {
+              changelogs.add(changelog);
+            }
+          }
+        }
+
+        setState(() {
+          _changelogs = changelogs;
+        });
+      }
+    } catch (e) {
+      print('Error loading changelogs: $e');
+    }
+  }
+
+  int _compareVersions(String a, String b) {
+    final aParts = a.split('.').map(int.parse).toList();
+    final bParts = b.split('.').map(int.parse).toList();
+    
+    for (int i = 0; i < aParts.length && i < bParts.length; i++) {
+      if (aParts[i] != bParts[i]) {
+        return aParts[i].compareTo(bParts[i]);
+      }
+    }
+    return aParts.length.compareTo(bParts.length);
+  }
+
+  ChangelogEntry? _parseChangelog(String filename, String content) {
+    try {
+      final version = filename.replaceAll('.md', '');
+      
+      // Парсимо YAML front matter
+      final lines = content.split('\n');
+      if (lines.isEmpty || lines[0] != '---') return null;
+      
+      String title = '';
+      String date = '';
+      String changelogContent = '';
+      String? bannerFile;
+      String? bannerAlt;
+      bool inFrontMatter = true;
+      bool foundEndOfFrontMatter = false;
+      bool inBannerSection = false;
+      
+      for (int i = 1; i < lines.length; i++) {
+        if (lines[i] == '---' && inFrontMatter) {
+          inFrontMatter = false;
+          foundEndOfFrontMatter = true;
+          continue;
+        }
+        
+        if (inFrontMatter) {
+          if (lines[i].startsWith('title:')) {
+            title = lines[i].substring(6).trim().replaceAll('"', '');
+          } else if (lines[i].startsWith('date:')) {
+            date = lines[i].substring(5).trim().replaceAll('"', '');
+          } else if (lines[i].startsWith('banner:')) {
+            inBannerSection = true;
+          } else if (inBannerSection && lines[i].trim().startsWith('file:')) {
+            bannerFile = lines[i].split(':')[1].trim().replaceAll('"', '');
+          } else if (inBannerSection && lines[i].trim().startsWith('alt:')) {
+            bannerAlt = lines[i].split(':')[1].trim().replaceAll('"', '');
+          } else if (inBannerSection && lines[i].trim().isEmpty) {
+            inBannerSection = false;
+          }
+        } else if (foundEndOfFrontMatter) {
+          changelogContent += '${lines[i]}\n';
+        }
+      }
+      
+      if (title.isNotEmpty && date.isNotEmpty) {
+        return ChangelogEntry(
+          version: version,
+          title: title,
+          date: date,
+          content: changelogContent.trim(),
+          bannerFile: bannerFile,
+          bannerAlt: bannerAlt,
+        );
+      }
+    } catch (e) {
+      print('Error parsing changelog $filename: $e');
+    }
+    return null;
   }
 
   Future<void> _fetchServerInfo() async {
@@ -1805,86 +1933,143 @@ Future<void> _downloadPickerItem(String url, String type) async {
                 thickness: 1.0,
                 height: 1,
               ),
-
-              Padding(
-                padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
-                child: Container(
-                  alignment: Alignment.center,
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                        fontFamily: 'NotoSansMono',
+              const SizedBox(height: 10),
+              if (_changelogs.isNotEmpty) ...[
+                ..._changelogs.map((changelog) => Padding(
+                  padding: const EdgeInsets.only(bottom: 10.0),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChangelogDetailScreen(changelog: changelog),
+                        ),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(4.0),
+                    child: Card(
+                      color: const Color(0xFF1a1a1a),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Банер (якщо є)
+                          if (changelog.bannerFile != null)
+                            ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(4.0),
+                                topRight: Radius.circular(4.0),
+                              ),
+                              child: Image.network(
+                                'https://github.com/imputnet/cobalt/raw/main/web/static/update-banners/${changelog.bannerFile}',
+                                height: 120,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  // Якщо банер не завантажився, показуємо заглушку
+                                  return Container(
+                                    height: 120,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [Colors.blue.withOpacity(0.3), Colors.purple.withOpacity(0.3)],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        'v${changelog.version}',
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return Container(
+                                    height: 120,
+                                    width: double.infinity,
+                                    color: const Color(0xFF2a2a2a),
+                                    child: const Center(
+                                      child: CircularProgressIndicator(
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
+                                        strokeWidth: 2,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          
+                          Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'v${changelog.version}',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                    Text(
+                                      changelog.date,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  changelog.title,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        changelog.content.length > 150 
+                                          ? '${changelog.content.substring(0, 150)}...'
+                                          : changelog.content,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white70,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      children: [
-                        const TextSpan(text: 'Powered by '),
-                        TextSpan(
-                          text: 'cobalt',
-                          style: const TextStyle(
-                            decoration: TextDecoration.underline,
-                            fontFamily: 'NotoSansMono',
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              _launchURL('https://cobalt.tools/');
-                            },
-                        ),
-                        const TextSpan(text: ', made by '),
-                        TextSpan(
-                          text: 'white heart',
-                          style: const TextStyle(
-                            decoration: TextDecoration.underline,
-                            fontFamily: 'NotoSansMono',
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              _launchURL('https://liubquanti.click/');
-                            },
-                        ),
-                        const TextSpan(text: '.'),
-                      ],
                     ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10.0),
-                child: Container(
-                  alignment: Alignment.center,
-                  child: RichText(
-                    textAlign: TextAlign.center,
-                    text: TextSpan(
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                        fontFamily: 'NotoSansMono',
-                      ),
-                      children: [
-                        const TextSpan(text: 'Illustrated by '),
-                        TextSpan(
-                          text: 'ffastffox',
-                          style: const TextStyle(
-                            decoration: TextDecoration.underline,
-                            fontFamily: 'NotoSansMono',
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                                                           _launchURL('https://www.instagram.com/ffastffox/');
-                            },
-                        ),
-                        const TextSpan(text: '.'),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+                )).toList(),
+                const SizedBox(height: 8),
+              ],
             ]
           ),
         ),
-      ));
-
+      )
+    );
   }
 
   @override
