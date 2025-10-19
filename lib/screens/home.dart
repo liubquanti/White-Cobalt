@@ -2005,50 +2005,73 @@ Future<void> _downloadPickerItem(String url, String type) async {
                                   topLeft: Radius.circular(11.0),
                                   topRight: Radius.circular(11.0),
                                 ),
-                              child: Image.network(
-                                'https://github.com/imputnet/cobalt/raw/main/web/static/update-banners/${changelog.bannerFile}',
-                                height: 120,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    height: 120,
-                                    width: double.infinity,
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [Colors.white],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
+                                child: Stack(
+                                  children: [
+                                    Image.network(
+                                      'https://github.com/imputnet/cobalt/raw/main/web/static/update-banners/${changelog.bannerFile}',
+                                      height: 120,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          height: 120,
+                                          width: double.infinity,
+                                          decoration: const BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [Colors.white],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              'v${changelog.version}',
+                                              style: const TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                      loadingBuilder: (context, child, loadingProgress) {
+                                        if (loadingProgress == null) return child;
+                                        return Container(
+                                          height: 120,
+                                          width: double.infinity,
+                                          color: const Color(0xFF2a2a2a),
+                                          child: const Center(
+                                            child: CircularProgressIndicator(
+                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
+                                              strokeWidth: 2,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     ),
-                                    child: Center(
-                                      child: Text(
-                                        'v${changelog.version}',
-                                        style: const TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
+                                    Positioned(
+                                      top: 10,
+                                      right: 10,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(
                                           color: Colors.white,
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                        child: const Text(
+                                          'API Update',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  );
-                                },
-                                loadingBuilder: (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Container(
-                                    height: 120,
-                                    width: double.infinity,
-                                    color: const Color(0xFF2a2a2a),
-                                    child: const Center(
-                                      child: CircularProgressIndicator(
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
-                                        strokeWidth: 2,
-                                      ),
-                                    ),
-                                  );
-                                },
+                                  ],
+                                ),
                               ),
-                            ),
                           
                           Padding(
                             padding: const EdgeInsets.all(12.0),

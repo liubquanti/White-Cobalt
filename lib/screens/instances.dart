@@ -485,7 +485,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Text(
-                    'OFFICIAL',
+                    'Official',
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,

@@ -12,7 +12,6 @@ val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 } else {
-    // Тимчасовий ключ для CI
     keystoreProperties["storeFile"] = rootProject.file("test.keystore").absolutePath
     keystoreProperties["storePassword"] = "123456"
     keystoreProperties["keyAlias"] = "testkey"
@@ -54,11 +53,9 @@ android {
         release {
             signingConfig = signingConfigs.getByName("release")
 
-            // Вимикаємо мінімізацію і стиск ресурсів для стабільності на CI
             isMinifyEnabled = false
             isShrinkResources = false
 
-            // Лог для зрозумілості
             if (keystorePropertiesFile.exists()) {
                 println("🔐 Release build: using real key.properties")
             } else {
