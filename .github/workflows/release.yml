@@ -1,0 +1,68 @@
+name: Build and Release Flutter APK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version_changed: ${{ steps.check.outputs.version_changed }}
+      new_version: ${{ steps.check.outputs.new_version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get previous pubspec.yaml
+        run: |
+          git fetch origin main --depth=2
+          git show HEAD^:pubspec.yaml > pubspec_old.yaml || echo "no previous pubspec" > pubspec_old.yaml
+
+      - name: Check if version changed
+        id: check
+        run: |
+          old_version=$(grep '^version:' pubspec_old.yaml | sed 's/version: //')
+          new_version=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+
+          echo "Old version: $old_version"
+          echo "New version: $new_version"
+
+          if [ "$old_version" != "$new_version" ] && [ -n "$new_version" ]; then
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+            echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          else
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-and-release:
+    needs: check-version
+    if: needs.check-version.outputs.version_changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.3'  # або твоя поточна версія
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.check-version.outputs.new_version }}
+          name: "Release v${{ needs.check-version.outputs.new_version }}"
+          files: build/app/outputs/flutter-apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
