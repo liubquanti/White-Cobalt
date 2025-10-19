@@ -1962,16 +1962,17 @@ Future<void> _downloadPickerItem(String url, String type) async {
                 height: 1,
               ),
               const SizedBox(height: 10),
-              if (_isInitialLoadingChangelogs)
-                ...[
-                  _buildChangelogSkeleton(),
-                  const SizedBox(height: 10),
-                  _buildChangelogSkeleton(),
-                  const SizedBox(height: 10),
-                  _buildChangelogSkeleton(),
-                ]
-              else if (_changelogs.isNotEmpty) ...[
-                ..._changelogs.map((changelog) => Padding(
+              if (_appSettings.showChangelogs) ...[
+                if (_isInitialLoadingChangelogs)
+                  ...[
+                    _buildChangelogSkeleton(),
+                    const SizedBox(height: 10),
+                    _buildChangelogSkeleton(),
+                    const SizedBox(height: 10),
+                    _buildChangelogSkeleton(),
+                  ]
+                else if (_changelogs.isNotEmpty) ...[
+                  ..._changelogs.map((changelog) => Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: Material(
                     color: const Color(0xFF1a1a1a),
@@ -2172,6 +2173,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                       ),
                     ),
                   ),
+                ],
               ],
             ]
           ),
@@ -2296,26 +2298,30 @@ Future<void> _downloadPickerItem(String url, String type) async {
     final bool isEnabled = _isRealServerSelected() && !_isDownloadInProgress;
     
     return Expanded(
-      child: InkWell(
-        onTap: isEnabled ? () {
-          setState(() {
-            _downloadMode = mode;
-          });
-          
-          _appSettings.downloadMode = mode;
-          _saveDownloadModeSetting();
-        } : null,
-        child: Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(9),
-            color: isSelected && isEnabled ? const Color(0xFF333333) : Colors.transparent,
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontWeight: isSelected && isEnabled ? FontWeight.bold : FontWeight.normal,
-              color: isEnabled ? Colors.white : Colors.white38,
+      child: Material(
+        color: isSelected && isEnabled ? const Color(0xFF333333) : Colors.transparent,
+        borderRadius: BorderRadius.circular(9),
+        child: InkWell(
+          onTap: isEnabled ? () {
+            setState(() {
+              _downloadMode = mode;
+            });
+            
+            _appSettings.downloadMode = mode;
+            _saveDownloadModeSetting();
+          } : null,
+          borderRadius: BorderRadius.circular(9),
+          child: Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(9),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: isSelected && isEnabled ? FontWeight.bold : FontWeight.normal,
+                color: isEnabled ? Colors.white : Colors.white38,
+              ),
             ),
           ),
         ),

@@ -8,6 +8,7 @@ class AppSettings {
   String audioBitrate;
   String audioFormat;
   String videoQuality;
+  bool showChangelogs;
 
   AppSettings({
     this.useLocalProcessing = true,
@@ -19,6 +20,7 @@ class AppSettings {
     this.audioBitrate = '320',
     this.audioFormat = 'best',
     this.videoQuality = 'max',
+    this.showChangelogs = true,
   });
 
   Map<String, dynamic> toJson() => {
@@ -31,6 +33,7 @@ class AppSettings {
     'audioBitrate': audioBitrate,
     'audioFormat': audioFormat,
     'videoQuality': videoQuality,
+    'showChangelogs': showChangelogs,
   };
   
   factory AppSettings.fromJson(Map<String, dynamic> json) {
@@ -44,6 +47,7 @@ class AppSettings {
       audioBitrate: json['audioBitrate'] ?? '320',
       audioFormat: json['audioFormat'] ?? 'best',
       videoQuality: json['videoQuality'] ?? 'max',
+      showChangelogs: json['showChangelogs'] ?? true,
     );
   }
 }
