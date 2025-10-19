@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
-import 'home.dart'; // Імпортуємо ChangelogEntry з home.dart
+import 'home.dart';
 
 class ChangelogDetailScreen extends StatelessWidget {
   final ChangelogEntry changelog;
@@ -134,150 +134,50 @@ class ChangelogDetailScreen extends StatelessWidget {
                     color: Color(0xFF383838),
                     thickness: 1.0,
                   ),
-                  _buildMarkdownText(changelog.content),
+                  MarkdownBody(
+                    data: changelog.content,
+                    styleSheet: MarkdownStyleSheet(
+                      p: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                        height: 1.4,
+                      ),
+                      h1: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      h2: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                      h3: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white,
+                      ),
+                      listBullet: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                        height: 1.4,
+                      ),
+                      a: const TextStyle(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                    onTapLink: (text, href, title) {
+                      if (href != null) {
+                        _launchURL(href);
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildMarkdownText(String content) {
-    final lines = content.split('\n');
-    List<Widget> widgets = [];
-
-    for (String line in lines) {
-      if (line.trim().isEmpty) {
-        widgets.add(const SizedBox(height: 8));
-        continue;
-      }
-
-      // Заголовки
-      if (line.startsWith('# ')) {
-        widgets.add(Padding(
-          padding: const EdgeInsets.only(top: 16, bottom: 8),
-          child: Text(
-            line.substring(2),
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ));
-      } else if (line.startsWith('## ')) {
-        widgets.add(Padding(
-          padding: const EdgeInsets.only(top: 12, bottom: 6),
-          child: Text(
-            line.substring(3),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-            ),
-          ),
-        ));
-      } else if (line.startsWith('### ')) {
-        widgets.add(Padding(
-          padding: const EdgeInsets.only(top: 10, bottom: 4),
-          child: Text(
-            line.substring(4),
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.white,
-            ),
-          ),
-        ));
-      }
-      // Список
-      else if (line.startsWith('- ')) {
-        widgets.add(Padding(
-          padding: const EdgeInsets.only(left: 16, bottom: 4),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('• ', style: TextStyle(color: Colors.white70, fontSize: 16)),
-              Expanded(
-                child: _buildTextWithLinks(line.substring(2)),
-              ),
-            ],
-          ),
-        ));
-      }
-      // Звичайний текст
-      else {
-        widgets.add(Padding(
-          padding: const EdgeInsets.only(bottom: 8),
-          child: _buildTextWithLinks(line),
-        ));
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: widgets,
-    );
-  }
-
-  Widget _buildTextWithLinks(String text) {
-    // Простий парсер для Markdown посилань [text](url)
-    final linkRegex = RegExp(r'\[([^\]]+)\]\(([^\)]+)\)');
-    final matches = linkRegex.allMatches(text);
-
-    if (matches.isEmpty) {
-      return Text(
-        text,
-        style: const TextStyle(
-          fontSize: 14,
-          color: Colors.white70,
-          height: 1.4,
-        ),
-      );
-    }
-
-    List<InlineSpan> spans = [];
-    int lastEnd = 0;
-
-    for (final match in matches) {
-      // Додаємо текст до посилання
-      if (match.start > lastEnd) {
-        spans.add(TextSpan(
-          text: text.substring(lastEnd, match.start),
-        ));
-      }
-
-      // Додаємо посилання
-      spans.add(TextSpan(
-        text: match.group(1)!,
-        style: const TextStyle(
-          color: Colors.blue,
-          decoration: TextDecoration.underline,
-        ),
-        recognizer: TapGestureRecognizer()
-          ..onTap = () => _launchURL(match.group(2)!),
-      ));
-
-      lastEnd = match.end;
-    }
-
-    // Додаємо решту тексту
-    if (lastEnd < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(lastEnd),
-      ));
-    }
-
-    return RichText(
-      text: TextSpan(
-        style: const TextStyle(
-          fontSize: 14,
-          color: Colors.white70,
-          height: 1.4,
-        ),
-        children: spans,
       ),
     );
   }

@@ -67,6 +67,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   AppSettings _appSettings = AppSettings();
   bool _showCopiedOnButton = false;
   List<ChangelogEntry> _changelogs = [];
+  List<dynamic> _allChangelogFiles = [];
+  int _loadedChangelogsCount = 0;
+  bool _isLoadingMoreChangelogs = false;
   
   @override
   void initState() {
@@ -207,42 +210,69 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
       if (response.statusCode == 200) {
         final List<dynamic> files = jsonDecode(response.body);
-        final List<ChangelogEntry> changelogs = [];
 
         // Фільтруємо тільки .md файли та сортуємо за версією
         final mdFiles = files
             .where((file) => file['name'].toString().endsWith('.md'))
             .toList();
 
-        // Беремо останні 3 файли
+        // Сортуємо всі файли за версією
         mdFiles.sort((a, b) {
           final versionA = a['name'].toString().replaceAll('.md', '');
           final versionB = b['name'].toString().replaceAll('.md', '');
           return _compareVersions(versionB, versionA); // Зворотний порядок для новіших версій спочатку
         });
 
-        final latestFiles = mdFiles.take(3).toList();
-
-        for (var file in latestFiles) {
-          final fileResponse = await http.get(
-            Uri.parse(file['download_url']),
-          );
-
-          if (fileResponse.statusCode == 200) {
-            final content = fileResponse.body;
-            final changelog = _parseChangelog(file['name'], content);
-            if (changelog != null) {
-              changelogs.add(changelog);
-            }
-          }
-        }
-
         setState(() {
-          _changelogs = changelogs;
+          _allChangelogFiles = mdFiles;
         });
+
+        // Завантажуємо перші 3 ченджлоги
+        await _loadNextChangelogs();
       }
     } catch (e) {
       print('Error loading changelogs: $e');
+    }
+  }
+
+  Future<void> _loadNextChangelogs() async {
+    if (_isLoadingMoreChangelogs) return;
+    
+    setState(() {
+      _isLoadingMoreChangelogs = true;
+    });
+
+    try {
+      final startIndex = _loadedChangelogsCount;
+      final endIndex = (_loadedChangelogsCount + 3).clamp(0, _allChangelogFiles.length);
+      final filesToLoad = _allChangelogFiles.sublist(startIndex, endIndex);
+
+      final List<ChangelogEntry> newChangelogs = [];
+
+      for (var file in filesToLoad) {
+        final fileResponse = await http.get(
+          Uri.parse(file['download_url']),
+        );
+
+        if (fileResponse.statusCode == 200) {
+          final content = fileResponse.body;
+          final changelog = _parseChangelog(file['name'], content);
+          if (changelog != null) {
+            newChangelogs.add(changelog);
+          }
+        }
+      }
+
+      setState(() {
+        _changelogs.addAll(newChangelogs);
+        _loadedChangelogsCount = endIndex;
+        _isLoadingMoreChangelogs = false;
+      });
+    } catch (e) {
+      print('Error loading more changelogs: $e');
+      setState(() {
+        _isLoadingMoreChangelogs = false;
+      });
     }
   }
 
@@ -1937,28 +1967,38 @@ Future<void> _downloadPickerItem(String url, String type) async {
               if (_changelogs.isNotEmpty) ...[
                 ..._changelogs.map((changelog) => Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
+                  child: Material(
+                    color: const Color(0xFF1a1a1a),
+                    borderRadius: BorderRadius.circular(11.0),
+                    child: InkWell(
+                      onTap: () async {
+                        await Future.delayed(const Duration(milliseconds: 250));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
                           builder: (context) => ChangelogDetailScreen(changelog: changelog),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(11.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(11.0),
+                          border: Border.all(
+                            color: const Color.fromRGBO(255, 255, 255, 0.05),
+                            width: 1.5,
+                          ),
                         ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(4.0),
-                    child: Card(
-                      color: const Color(0xFF1a1a1a),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Банер (якщо є)
-                          if (changelog.bannerFile != null)
-                            ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(4.0),
-                                topRight: Radius.circular(4.0),
-                              ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Банер (якщо є)
+                            if (changelog.bannerFile != null)
+                              ClipRRect(
+                                borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(11.0),
+                                  topRight: Radius.circular(11.0),
+                                ),
                               child: Image.network(
                                 'https://github.com/imputnet/cobalt/raw/main/web/static/update-banners/${changelog.bannerFile}',
                                 height: 120,
@@ -1969,9 +2009,9 @@ Future<void> _downloadPickerItem(String url, String type) async {
                                   return Container(
                                     height: 120,
                                     width: double.infinity,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       gradient: LinearGradient(
-                                        colors: [Colors.blue.withOpacity(0.3), Colors.purple.withOpacity(0.3)],
+                                        colors: [Colors.white],
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                       ),
@@ -2018,7 +2058,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.blue,
+                                        color: Colors.white,
                                       ),
                                     ),
                                     Text(
@@ -2062,8 +2102,72 @@ Future<void> _downloadPickerItem(String url, String type) async {
                       ),
                     ),
                   ),
-                )).toList(),
-                const SizedBox(height: 8),
+                )),
+              ).toList(),
+                if (_loadedChangelogsCount < _allChangelogFiles.length)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2.0, bottom: 10.0),
+                    child: Material(
+                      color: const Color(0xFF191919),
+                      borderRadius: BorderRadius.circular(11.0),
+                      child: InkWell(
+                        onTap: _isLoadingMoreChangelogs ? null : _loadNextChangelogs,
+                        borderRadius: BorderRadius.circular(11.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(11.0),
+                            border: Border.all(
+                              color: const Color.fromRGBO(255, 255, 255, 0.05),
+                              width: 1.5,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                          child: _isLoadingMoreChangelogs
+                            ? const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Loading...',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Load more',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color: Colors.white,
+                                    size: 20,
+                                  ),
+                                ],
+                              ),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ]
           ),
