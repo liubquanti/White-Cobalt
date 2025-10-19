@@ -56,7 +56,6 @@ class ChangelogDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Банер (якщо є)
             if (changelog.bannerFile != null)
               Container(
                 width: double.infinity,
@@ -109,7 +108,6 @@ class ChangelogDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Заголовок версії та дата
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

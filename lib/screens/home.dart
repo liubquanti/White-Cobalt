@@ -70,6 +70,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   List<dynamic> _allChangelogFiles = [];
   int _loadedChangelogsCount = 0;
   bool _isLoadingMoreChangelogs = false;
+  bool _isInitialLoadingChangelogs = true;
   
   @override
   void initState() {
@@ -203,7 +204,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
   Future<void> _loadChangelogs() async {
     try {
-      // Завантажуємо список файлів з GitHub API
       final response = await http.get(
         Uri.parse('https://api.github.com/repos/imputnet/cobalt/contents/web/changelogs'),
       );
@@ -211,23 +211,20 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       if (response.statusCode == 200) {
         final List<dynamic> files = jsonDecode(response.body);
 
-        // Фільтруємо тільки .md файли та сортуємо за версією
         final mdFiles = files
             .where((file) => file['name'].toString().endsWith('.md'))
             .toList();
 
-        // Сортуємо всі файли за версією
         mdFiles.sort((a, b) {
           final versionA = a['name'].toString().replaceAll('.md', '');
           final versionB = b['name'].toString().replaceAll('.md', '');
-          return _compareVersions(versionB, versionA); // Зворотний порядок для новіших версій спочатку
+          return _compareVersions(versionB, versionA);
         });
 
         setState(() {
           _allChangelogFiles = mdFiles;
         });
 
-        // Завантажуємо перші 3 ченджлоги
         await _loadNextChangelogs();
       }
     } catch (e) {
@@ -267,11 +264,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         _changelogs.addAll(newChangelogs);
         _loadedChangelogsCount = endIndex;
         _isLoadingMoreChangelogs = false;
+        _isInitialLoadingChangelogs = false;
       });
     } catch (e) {
       print('Error loading more changelogs: $e');
       setState(() {
         _isLoadingMoreChangelogs = false;
+        _isInitialLoadingChangelogs = false;
       });
     }
   }
@@ -292,7 +291,6 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     try {
       final version = filename.replaceAll('.md', '');
       
-      // Парсимо YAML front matter
       final lines = content.split('\n');
       if (lines.isEmpty || lines[0] != '---') return null;
       
@@ -1964,7 +1962,15 @@ Future<void> _downloadPickerItem(String url, String type) async {
                 height: 1,
               ),
               const SizedBox(height: 10),
-              if (_changelogs.isNotEmpty) ...[
+              if (_isInitialLoadingChangelogs)
+                ...[
+                  _buildChangelogSkeleton(),
+                  const SizedBox(height: 10),
+                  _buildChangelogSkeleton(),
+                  const SizedBox(height: 10),
+                  _buildChangelogSkeleton(),
+                ]
+              else if (_changelogs.isNotEmpty) ...[
                 ..._changelogs.map((changelog) => Padding(
                   padding: const EdgeInsets.only(bottom: 10.0),
                   child: Material(
@@ -1992,7 +1998,6 @@ Future<void> _downloadPickerItem(String url, String type) async {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Банер (якщо є)
                             if (changelog.bannerFile != null)
                               ClipRRect(
                                 borderRadius: const BorderRadius.only(
@@ -2005,7 +2010,6 @@ Future<void> _downloadPickerItem(String url, String type) async {
                                 width: double.infinity,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
-                                  // Якщо банер не завантажився, показуємо заглушку
                                   return Container(
                                     height: 120,
                                     width: double.infinity,
@@ -2106,7 +2110,7 @@ Future<void> _downloadPickerItem(String url, String type) async {
               ).toList(),
                 if (_loadedChangelogsCount < _allChangelogFiles.length)
                   Padding(
-                    padding: const EdgeInsets.only(top: 2.0, bottom: 10.0),
+                    padding: const EdgeInsets.only(bottom: 10.0),
                     child: Material(
                       color: const Color(0xFF191919),
                       borderRadius: BorderRadius.circular(11.0),
@@ -2173,6 +2177,109 @@ Future<void> _downloadPickerItem(String url, String type) async {
           ),
         ),
       )
+    );
+  }
+
+  Widget _buildChangelogSkeleton() {
+    return Material(
+      color: const Color(0xFF1a1a1a),
+      borderRadius: BorderRadius.circular(11.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(11.0),
+          border: Border.all(
+            color: const Color.fromRGBO(255, 255, 255, 0.05),
+            width: 1.5,
+          ),
+        ),
+        child: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CardLoading(
+              height: 120,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(11.0),
+                topRight: Radius.circular(11.0),
+              ),
+              cardLoadingTheme: CardLoadingTheme(
+                colorOne: Color(0xFF2a2a2a),
+                colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      CardLoading(
+                        height: 14,
+                        width: 60,
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                        cardLoadingTheme: CardLoadingTheme(
+                          colorOne: Color(0xFF383838),
+                          colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                        ),
+                      ),
+                      CardLoading(
+                        height: 12,
+                        width: 80,
+                        borderRadius: BorderRadius.all(Radius.circular(15)),
+                        cardLoadingTheme: CardLoadingTheme(
+                          colorOne: Color(0xFF383838),
+                          colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  CardLoading(
+                    height: 13,
+                    width: 200,
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    cardLoadingTheme: CardLoadingTheme(
+                      colorOne: Color(0xFF383838),
+                      colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  CardLoading(
+                    height: 12,
+                    width: double.infinity,
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    cardLoadingTheme: CardLoadingTheme(
+                      colorOne: Color(0xFF383838),
+                      colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                    ),
+                  ),
+                  SizedBox(height: 6),
+                  CardLoading(
+                    height: 12,
+                    width: double.infinity,
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    cardLoadingTheme: CardLoadingTheme(
+                      colorOne: Color(0xFF383838),
+                      colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                    ),
+                  ),
+                  SizedBox(height: 6),
+                  CardLoading(
+                    height: 12,
+                    width: 250,
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                    cardLoadingTheme: CardLoadingTheme(
+                      colorOne: Color(0xFF383838),
+                      colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

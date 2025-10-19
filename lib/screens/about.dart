@@ -17,7 +17,6 @@ Future<String?> fetchRemoteVersion() async {
     final lines = const LineSplitter().convert(response.body);
     final versionLine = lines.firstWhere((line) => line.startsWith('version:'), orElse: () => '');
     if (versionLine.isNotEmpty) {
-      // Витягуємо тільки номер версії (до знаку '+')
       final version = versionLine.replaceFirst('version:', '').trim();
       final mainVersion = version.split('+').first.trim();
       return mainVersion;
