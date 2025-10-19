@@ -79,9 +79,9 @@ class _InstancesScreenState extends State<InstancesScreen> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.black,
-          title: Text(
-            'Add ${server.api}',
-            style: const TextStyle(fontSize: 16),
+          title: const Text(
+            'Add server',
+            style: TextStyle(fontSize: 16),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(11),
@@ -97,20 +97,14 @@ class _InstancesScreenState extends State<InstancesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Server: ${server.apiUrl}',
-                style: const TextStyle(
-                  fontSize: 14,
-                ),
-              ),
-              Text(
-                'Reason: ${server.reason}',
+                '${server.api}',
                 style: const TextStyle(
                   fontSize: 14,
                 ),
               ),
               const SizedBox(height: 16),
               const Text(
-                'API Key (optional):',
+                'API key (optional):',
                 style: TextStyle(
                   fontSize: 14,
                 ),
@@ -119,10 +113,10 @@ class _InstancesScreenState extends State<InstancesScreen> {
               TextField(
                 controller: _apiKeyController,
                 decoration: InputDecoration(
-                  hintText: 'Enter API Key if required',
+                  hintText: 'API key',
                   border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(11)),
-                    borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
+                    borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
                   ),
                   focusedBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(11)),
@@ -145,6 +139,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                 style: const TextStyle(fontSize: 14),
                 cursorColor: const Color(0xFFE1E1E1),
               ),
+              const SizedBox(height: 5),
             ],
           ),
           actions: [
@@ -215,9 +210,9 @@ class _InstancesScreenState extends State<InstancesScreen> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.black,
-          title: Text(
-            'Add ${instance.api}',
-            style: const TextStyle(fontSize: 16),
+          title: const Text(
+            'Add server',
+            style: TextStyle(fontSize: 16),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(11),
@@ -233,7 +228,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Server: ${instance.apiUrl}',
+                '${instance.api}',
                 style: const TextStyle(
                   fontSize: 14,
                 ),
@@ -247,7 +242,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
               ),
               const SizedBox(height: 16),
               const Text(
-                'API Key (optional):',
+                'API key (optional):',
                 style: TextStyle(
                   fontSize: 14,
                 ),
@@ -256,7 +251,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
               TextField(
                 controller: _apiKeyController,
                 decoration: InputDecoration(
-                  hintText: 'Enter API Key if required',
+                  hintText: 'API key',
                   border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(11)),
                     borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
@@ -282,6 +277,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                 style: const TextStyle(fontSize: 14),
                 cursorColor: const Color(0xFFE1E1E1),
               ),
+              const SizedBox(height: 5),
             ],
           ),
           actions: [
