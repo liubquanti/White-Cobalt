@@ -2037,15 +2037,15 @@ Future<void> _downloadPickerItem(String url, String type) async {
                                       },
                                       loadingBuilder: (context, child, loadingProgress) {
                                         if (loadingProgress == null) return child;
-                                        return Container(
+                                        return const CardLoading(
                                           height: 120,
-                                          width: double.infinity,
-                                          color: const Color(0xFF2a2a2a),
-                                          child: const Center(
-                                            child: CircularProgressIndicator(
-                                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
-                                              strokeWidth: 2,
-                                            ),
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(11.0),
+                                            topRight: Radius.circular(11.0),
+                                          ),
+                                          cardLoadingTheme: CardLoadingTheme(
+                                            colorOne: Color(0xFF2a2a2a),
+                                            colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
                                           ),
                                         );
                                       },
