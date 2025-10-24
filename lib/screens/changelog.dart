@@ -104,7 +104,7 @@ class ChangelogDetailScreen extends StatelessWidget {
               ),
 
             Padding(
-              padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0),
+              padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0, bottom: MediaQuery.of(context).padding.bottom),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

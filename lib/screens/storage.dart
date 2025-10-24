@@ -186,7 +186,7 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
           : _totalSize == 0
               ? Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: MediaQuery.of(context).padding.bottom),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [

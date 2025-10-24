@@ -391,6 +391,18 @@ class _InstancesScreenState extends State<InstancesScreen> {
             ElevatedButton(
               onPressed: _loadData,
               child: const Text('Retry'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                backgroundColor: const Color(0xFF191919),
+                foregroundColor: const Color(0xFFe1e1e1),
+                shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(11),
+                side: const BorderSide(
+                  color: Color.fromRGBO(255, 255, 255, 0.08),
+                  width: 1.5,
+                ),
+                ),
+              ),
             ),
           ],
         ),
@@ -398,7 +410,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
     }
 
     return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: MediaQuery.of(context).padding.bottom),
       children: [
         if (_officialServers.isNotEmpty) ...[
           const Padding(
