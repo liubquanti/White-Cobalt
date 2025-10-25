@@ -8,6 +8,7 @@ import '../models/oinstance.dart';
 import '../services/instances.dart';
 import '../services/oinstances.dart';
 import '../config/server.dart';
+import 'status.dart';
 
 class InstancesScreen extends StatefulWidget {
   final Function(ServerConfig) onServerAdded;
@@ -349,7 +350,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Cobalt Servers'),
+        title: const Text('Servers Browser'),
         centerTitle: true,
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -382,28 +383,60 @@ class _InstancesScreenState extends State<InstancesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Error: $_error',
-              style: const TextStyle(color: Colors.red),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadData,
-              child: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                backgroundColor: const Color(0xFF191919),
-                foregroundColor: const Color(0xFFe1e1e1),
-                shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(11),
-                side: const BorderSide(
-                  color: Color.fromRGBO(255, 255, 255, 0.08),
-                  width: 1.5,
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                  'An error occurred while loading the list of instances. Please try again or check the service status.',
+                  textAlign: TextAlign.center,
+                  ),
                 ),
+                const SizedBox(height: 5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                  ElevatedButton(
+                    onPressed: _loadData,
+                    child: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    backgroundColor: const Color(0xFF191919),
+                    foregroundColor: const Color(0xFFe1e1e1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(11),
+                      side: const BorderSide(
+                      color: Color.fromRGBO(255, 255, 255, 0.08),
+                      width: 1.5,
+                      ),
+                    ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () async {
+                    await Future.delayed(const Duration(milliseconds: 250));
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                      builder: (context) => const ServiceStatusScreen(),
+                      ),
+                    );
+                    },
+                    child: const Text('Service Status'),
+                    style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    backgroundColor: const Color(0xFF191919),
+                    foregroundColor: const Color(0xFFe1e1e1),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(11),
+                      side: const BorderSide(
+                      color: Color.fromRGBO(255, 255, 255, 0.08),
+                      width: 1.5,
+                      ),
+                    ),
+                    ),
+                  ),
+                  ],
                 ),
-              ),
-            ),
           ],
         ),
       );
