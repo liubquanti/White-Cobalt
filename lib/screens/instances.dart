@@ -373,7 +373,9 @@ class _InstancesScreenState extends State<InstancesScreen> {
     if (_isLoading) {
       return const Center(
         child: CircularProgressIndicator(
+          year2023: false,
           color: Colors.white,
+          backgroundColor: Colors.grey,
         ),
       );
     }

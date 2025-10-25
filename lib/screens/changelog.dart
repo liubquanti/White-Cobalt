@@ -94,8 +94,9 @@ class ChangelogDetailScreen extends StatelessWidget {
                       color: const Color(0xFF2a2a2a),
                       child: const Center(
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
-                          strokeWidth: 2,
+                          year2023: false,
+                          color: Colors.white,
+                          backgroundColor: Colors.grey,
                         ),
                       ),
                     );

@@ -119,7 +119,9 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                year2023: false,
+                color: Colors.white,
+                backgroundColor: Colors.grey,
               ),
             )
           : _errorMessage != null

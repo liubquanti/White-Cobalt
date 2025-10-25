@@ -2158,8 +2158,9 @@ Future<void> _downloadPickerItem(String url, String type) async {
                                     width: 16,
                                     height: 16,
                                     child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      year2023: false,
+                                      color: Colors.white,
+                                      backgroundColor: Colors.grey,
                                     ),
                                   ),
                                   SizedBox(width: 8),

@@ -180,7 +180,9 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(
-                color: Colors.white70,
+                year2023: false,
+                color: Colors.white,
+                backgroundColor: Colors.grey,
               ),
             )
           : _totalSize == 0
@@ -285,8 +287,9 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
                                           height: 30,
                                           width: 30,
                                           child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white70,
+                                            year2023: false,
+                                            color: Colors.white,
+                                            backgroundColor: Colors.grey,
                                           ),
                                         )
                                       : SizedBox(
