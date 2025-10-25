@@ -191,7 +191,7 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
                       if (_statusData != null && _statusData!['data'] != null)
                         ..._statusData!['data'].map<Widget>((monitor) {
                           return Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
+                            padding: EdgeInsets.only(bottom: monitor == _statusData!['data'].last ? 0 : 10),
                             child: Container(
                               decoration: BoxDecoration(
                                 color: const Color(0xFF191919),
@@ -294,6 +294,7 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
                             ),
                           );
                         }).toList(),
+                        const SizedBox(height: 16),
                     ],
                   ),
                 ),

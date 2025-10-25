@@ -220,135 +220,132 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
                 )
               : SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0, bottom: MediaQuery.of(context).padding.bottom),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              Text(
-                                'Total: ${filesize(_totalSize)} / ${filesize(_deviceStorage['total'])}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                        Column(
+                          children: [
+                            Text(
+                              'Total: ${filesize(_totalSize)} / ${filesize(_deviceStorage['total'])}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
                               ),
-                              SizedBox(
-                                height: 250,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    PieChart(
-                                      PieChartData(
-                                        pieTouchData: PieTouchData(
-                                          touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                                            setState(() {
-                                              if (!event.isInterestedForInteractions ||
-                                                  pieTouchResponse == null ||
-                                                  pieTouchResponse.touchedSection == null) {
-                                                _touchedIndex = -1;
-                                                return;
-                                              }
-                                              _touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
-                                            });
-                                          },
-                                        ),
-                                        borderData: FlBorderData(show: false),
-                                        sectionsSpace: 2,
-                                        centerSpaceRadius: 60,
-                                        sections: _storageData.asMap().entries.map((entry) {
-                                          final int index = entry.key;
-                                          final ServiceStorage data = entry.value;
-                                          final bool isTouched = index == _touchedIndex;
-                                          final double fontSize = isTouched ? 14.0 : 12.0;
-                                          final double radius = isTouched ? 60.0 : 50.0;
-                                          final Color color = chartColors[index % chartColors.length];
-
-                                          final double percentage = data.size / _totalSize * 100;
-                                          
-                                          return PieChartSectionData(
-                                            color: color,
-                                            value: data.size.toDouble(),
-                                            title: '${percentage.toStringAsFixed(1)}%',
-                                            radius: radius,
-                                            titleStyle: TextStyle(
-                                              fontSize: fontSize,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.white,
-                                            ),
-                                          );
-                                        }).toList(),
+                            ),
+                            SizedBox(
+                              height: 250,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  PieChart(
+                                    PieChartData(
+                                      pieTouchData: PieTouchData(
+                                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                                          setState(() {
+                                            if (!event.isInterestedForInteractions ||
+                                                pieTouchResponse == null ||
+                                                pieTouchResponse.touchedSection == null) {
+                                              _touchedIndex = -1;
+                                              return;
+                                            }
+                                            _touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                                          });
+                                        },
                                       ),
-                                    ),
-                                    _isDeviceStorageLoading
-                                      ? const SizedBox(
-                                          height: 30,
-                                          width: 30,
-                                          child: CircularProgressIndicator(
-                                            year2023: false,
-                                            color: Colors.white,
-                                            backgroundColor: Colors.grey,
-                                          ),
-                                        )
-                                      : SizedBox(
-                                          height: 60,
-                                          width: 60,
-                                            child: PieChart(
-                                            PieChartData(
-                                              pieTouchData: PieTouchData(enabled: false),
-                                              borderData: FlBorderData(show: false),
-                                              centerSpaceRadius: 40,
-                                              sections: [
-                                              PieChartSectionData(
-                                                color: const Color(0xFFFFFFFF),
-                                                value: _totalSize.toDouble(),
-                                                title: '',
-                                                radius: 10,
-                                                showTitle: false,
-                                              ),
-                                              PieChartSectionData(
-                                                color: const Color(0xFF949494),
-                                                value: _deviceStorage['used'] - _totalSize.toDouble(),
-                                                title: '',
-                                                radius: 10,
-                                                showTitle: false,
-                                              ),
-                                              PieChartSectionData(
-                                                color: const Color(0xFF333333),
-                                                value: _deviceStorage['free'].toDouble(),
-                                                title: '',
-                                                radius: 10,
-                                                showTitle: false,
-                                              ),
-                                              ],
-                                            ),
-                                            ),
-                                        ),
-                                        Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                          SvgPicture.string(
-                                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-database"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0" /><path d="M4 6v6a8 3 0 0 0 16 0v-6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></svg>',
-                                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                                          ),
-                                          Text(
-                                            '${_deviceStorage["cobaltPercentage"].toStringAsFixed(1)}%',
-                                            style: const TextStyle(
-                                            fontSize: 10,
+                                      borderData: FlBorderData(show: false),
+                                      sectionsSpace: 2,
+                                      centerSpaceRadius: 60,
+                                      sections: _storageData.asMap().entries.map((entry) {
+                                        final int index = entry.key;
+                                        final ServiceStorage data = entry.value;
+                                        final bool isTouched = index == _touchedIndex;
+                                        final double fontSize = isTouched ? 14.0 : 12.0;
+                                        final double radius = isTouched ? 60.0 : 50.0;
+                                        final Color color = chartColors[index % chartColors.length];
+                        
+                                        final double percentage = data.size / _totalSize * 100;
+                                        
+                                        return PieChartSectionData(
+                                          color: color,
+                                          value: data.size.toDouble(),
+                                          title: '${percentage.toStringAsFixed(1)}%',
+                                          radius: radius,
+                                          titleStyle: TextStyle(
+                                            fontSize: fontSize,
                                             fontWeight: FontWeight.bold,
                                             color: Colors.white,
-                                            ),
                                           ),
-                                          ],
-                                        )
-                                  ],
-                                ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                  _isDeviceStorageLoading
+                                    ? const SizedBox(
+                                        height: 30,
+                                        width: 30,
+                                        child: CircularProgressIndicator(
+                                          year2023: false,
+                                          color: Colors.white,
+                                          backgroundColor: Colors.grey,
+                                        ),
+                                      )
+                                    : SizedBox(
+                                        height: 60,
+                                        width: 60,
+                                          child: PieChart(
+                                          PieChartData(
+                                            pieTouchData: PieTouchData(enabled: false),
+                                            borderData: FlBorderData(show: false),
+                                            centerSpaceRadius: 40,
+                                            sections: [
+                                            PieChartSectionData(
+                                              color: const Color(0xFFFFFFFF),
+                                              value: _totalSize.toDouble(),
+                                              title: '',
+                                              radius: 10,
+                                              showTitle: false,
+                                            ),
+                                            PieChartSectionData(
+                                              color: const Color(0xFF949494),
+                                              value: _deviceStorage['used'] - _totalSize.toDouble(),
+                                              title: '',
+                                              radius: 10,
+                                              showTitle: false,
+                                            ),
+                                            PieChartSectionData(
+                                              color: const Color(0xFF333333),
+                                              value: _deviceStorage['free'].toDouble(),
+                                              title: '',
+                                              radius: 10,
+                                              showTitle: false,
+                                            ),
+                                            ],
+                                          ),
+                                          ),
+                                      ),
+                                      Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                        SvgPicture.string(
+                                          '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-database"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0" /><path d="M4 6v6a8 3 0 0 0 16 0v-6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></svg>',
+                                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                                        ),
+                                        Text(
+                                          '${_deviceStorage["cobaltPercentage"].toStringAsFixed(1)}%',
+                                          style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          ),
+                                        ),
+                                        ],
+                                      )
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                         Container(
                           margin: const EdgeInsets.only(bottom: 10),
@@ -438,7 +435,7 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
                             final Color color = chartColors[index % chartColors.length];
 
                             return Container(
-                              margin: const EdgeInsets.only(bottom: 10),
+                              margin: EdgeInsets.only(bottom: index == _storageData.length - 1 ? 0 : 10),
                               decoration: BoxDecoration(
                                 color: const Color(0xFF191919),
                                 borderRadius: BorderRadius.circular(11),
@@ -514,6 +511,7 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
                             );
                           }).toList(),
                         ),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),

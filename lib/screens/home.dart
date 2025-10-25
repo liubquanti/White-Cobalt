@@ -2133,72 +2133,70 @@ Future<void> _downloadPickerItem(String url, String type) async {
                 )),
               ).toList(),
                 if (_loadedChangelogsCount < _allChangelogFiles.length)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: Material(
-                      color: const Color(0xFF191919),
+                  Material(
+                    color: const Color(0xFF191919),
+                    borderRadius: BorderRadius.circular(11.0),
+                    child: InkWell(
+                      onTap: _isLoadingMoreChangelogs ? null : _loadNextChangelogs,
                       borderRadius: BorderRadius.circular(11.0),
-                      child: InkWell(
-                        onTap: _isLoadingMoreChangelogs ? null : _loadNextChangelogs,
-                        borderRadius: BorderRadius.circular(11.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(11.0),
-                            border: Border.all(
-                              color: const Color.fromRGBO(255, 255, 255, 0.05),
-                              width: 1.5,
-                            ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(11.0),
+                          border: Border.all(
+                            color: const Color.fromRGBO(255, 255, 255, 0.05),
+                            width: 1.5,
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 12.0),
-                          child: _isLoadingMoreChangelogs
-                            ? const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      year2023: false,
-                                      color: Colors.white,
-                                      backgroundColor: Colors.grey,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Loading...',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    'Load more',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  SizedBox(width: 8),
-                                  Icon(
-                                    Icons.keyboard_arrow_down,
-                                    color: Colors.white,
-                                    size: 20,
-                                  ),
-                                ],
-                              ),
                         ),
+                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                        child: _isLoadingMoreChangelogs
+                          ? const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    year2023: false,
+                                    color: Colors.white,
+                                    backgroundColor: Colors.grey,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Loading...',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Load more',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
                       ),
                     ),
                   ),
                 ],
               ],
+              const SizedBox(height: 16),
             ]
           ),
         ),

@@ -69,11 +69,12 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
           },
         ),
       ),
-      body: Padding(
-        padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: MediaQuery.of(context).padding.bottom),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: MediaQuery.of(context).padding.bottom),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             const Text(
               'Downloads',
               style: TextStyle(
@@ -539,7 +540,9 @@ class _AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
           ],
+        ),
         ),
       ),
     );

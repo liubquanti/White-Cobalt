@@ -175,6 +175,7 @@ class ChangelogDetailScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
