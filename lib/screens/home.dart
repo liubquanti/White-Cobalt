@@ -1956,13 +1956,13 @@ Future<void> _downloadPickerItem(String url, String type) async {
                 ),
               ),
               const SizedBox(height: 10),
-              const Divider(
-                color: Color(0xFF383838),
-                thickness: 1.0,
-                height: 1,
-              ),
-              const SizedBox(height: 10),
               if (_appSettings.showChangelogs) ...[
+                const Divider(
+                  color: Color(0xFF383838),
+                  thickness: 1.0,
+                  height: 1,
+                ),
+                const SizedBox(height: 10),
                 if (_isInitialLoadingChangelogs)
                   ...[
                     _buildChangelogSkeleton(),

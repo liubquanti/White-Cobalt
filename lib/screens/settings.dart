@@ -35,6 +35,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late String _audioBitrate;
   late String _audioFormat;
   late String _videoQuality;
+  late bool _showChangelogs;
 
   @override
   void initState() {
@@ -48,6 +49,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _audioBitrate = widget.settings.audioBitrate;
     _audioFormat = widget.settings.audioFormat;
     _videoQuality = widget.settings.videoQuality;
+    _showChangelogs = widget.settings.showChangelogs;
   }
   void _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
@@ -61,6 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       audioBitrate: _audioBitrate,
       audioFormat: _audioFormat,
       videoQuality: _videoQuality,
+      showChangelogs: _showChangelogs,
     );
     await prefs.setString('app_settings', jsonEncode(settings.toJson()));
     widget.onSettingsChanged(settings);
@@ -335,6 +338,77 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF191919),
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.08),
+                    width: 1.5,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: SvgPicture.string(
+                              '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-git-cherry-pick"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M7 3v6" /><path d="M7 15v6" /><path d="M13 7h2.5l1.5 5l-1.5 5h-2.5" /><path d="M17 12h3" /></svg>',
+                              colorFilter: ColorFilter.mode(
+                                _showChangelogs ? Colors.white : Colors.white38,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Show Changelogs',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: _showChangelogs ? Colors.white : Colors.white54,
+                                  ),
+                                ),
+                                Text(
+                                  'Display API changelogs on home screen',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: _showChangelogs ? Colors.white70 : Colors.white38,
+                                  ),
+                                  softWrap: true,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _showChangelogs,
+                      onChanged: (value) {
+                        setState(() {
+                          _showChangelogs = value;
+                        });
+                        _saveSettings();
+                      },
+                      activeColor: const Color(0xFFFFFFFF),
+                      activeTrackColor: const Color(0xFF8a8a8a),
+                      inactiveThumbColor: const Color(0xFFFFFFFF),
+                      inactiveTrackColor: const Color(0xFF383838),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 15),

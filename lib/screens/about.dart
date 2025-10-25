@@ -85,6 +85,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       children: [
                         CircleAvatar(
                           radius: 20,
+                          backgroundColor: Colors.black,
                           backgroundImage: AssetImage(
                           'assets/photos/liubquanti.png',
                           ),
@@ -241,6 +242,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       children: [
                         CircleAvatar(
                           radius: 20,
+                          backgroundColor: Colors.black,
                           backgroundImage: AssetImage(
                           'assets/photos/ffastffox.jpg',
                           ),
@@ -354,6 +356,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       children: [
                         CircleAvatar(
                           radius: 20,
+                          backgroundColor: Colors.black,
                           backgroundImage: AssetImage(
                             'assets/photos/cobalt.png',
                           ),
@@ -492,6 +495,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       children: [
                         CircleAvatar(
                           radius: 20,
+                          backgroundColor: Colors.black,
                           backgroundImage: AssetImage(
                             'assets/photos/instances.png',
                           ),
