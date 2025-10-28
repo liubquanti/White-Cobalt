@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&display=swap');
+
+:root {
+    --background: #000000;
+    --text: #ffffff;
+    --second-text: #888888;
+    --border: #383838;
+    --block: #181818;
+    --hover: #282828;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text);
+    font-family: 'Noto Sans Mono', monospace;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+    margin-top: 20px;
+}
+
+#phone-image {
+    width: 300px;
+    height: 70px;
+    object-fit: cover;
+    object-position: top;
+
+    transition: height 0.5s ease;
+}
+
+#phone-image:hover {
+    height: 283px;
+}
+
+.block-head {
+    padding: 15px;
+    border: 2px solid var(--border);
+    background-color: var(--block);
+    border-top-left-radius: 11px;
+    border-top-right-radius: 11px;
+    width: 500px;
+}
+
+.block {
+    padding: 15px;
+    border-left: 2px solid var(--border);
+    border-right: 2px solid var(--border);
+    border-bottom: 2px solid var(--border);
+    background-color: var(--block);
+    width: 500px;
+}
+
+.block-sub {
+    padding: 15px;
+    border-bottom: 2px solid var(--border);
+    border-left: 2px solid var(--border);
+    border-right: 2px solid var(--border);
+    background-color: var(--block);
+    border-bottom-left-radius: 11px;
+    border-bottom-right-radius: 11px;
+    margin-bottom: 10px;
+    width: 500px;
+}
+
+.block-title {
+    font-size: 18px;
+    font-weight: initial;
+    display: flex;
+    justify-content: center;
+}
+
+.social-buttons-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.social-button {
+    border: 2px solid var(--border);
+    padding: 10px;
+    border-radius: 11px;
+    text-decoration: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+    box-sizing: border-box;
+    flex: 1 0 180px;
+    user-select: none;
+    
+    -webkit-tap-highlight-color: transparent;
+    
+    transition: background-color 0.5s ease;
+}
+
+.social-button:hover {
+    background-color: var(--hover);
+}
