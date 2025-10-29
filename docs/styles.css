@@ -101,3 +101,19 @@ body {
 .social-button:hover {
     background-color: var(--hover);
 }
+
+@media (max-width: 600px) {
+    #phone-image,
+    .header-block-banner,
+    .header-block-text,
+    .block-head,
+    .block,
+    .tabs,
+    .block-sub {
+        width: 80%;
+    }
+
+    #phone-image:hover {
+        height: 240px;
+    }
+}
