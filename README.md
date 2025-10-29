@@ -1,8 +1,12 @@
 # 😺 • White Cobalt
 
+![GitHub Release](https://img.shields.io/github/v/release/liubquanti/White-Cobalt?label=Release&color=white)
+
+![](https://playbadges.pavi2410.com/badge/downloads?id=liubquanti.white.cobalt) ![](https://playbadges.pavi2410.com/badge/ratings?id=liubquanti.white.cobalt) ![](https://playbadges.pavi2410.com/badge/version?id=liubquanti.white.cobalt)
+
 A native Android client for downloading media from the Internet using [cobalt server APIs](https://github.com/imputnet/cobalt/blob/main/docs/api.md).
 
-![1749405394661](image/README/1749405394661.png)White Cobalt follows the principles of [cobalt.tools](https://cobalt.tools/):
+White Cobalt follows the principles of [cobalt.tools](https://cobalt.tools/):
 
 - `No ads, trackers, paywalls, or other nonsense.`
 - `Was created for public benefit.`
@@ -24,19 +28,7 @@ White Cobalt was developed independently of the [creators of cobalt.tools](https
 ## 🧬 • Features
 
 - [X] Connect to a cobalt server.
-- [X] Save servers for future use.
-- [X] Add an API key to a server.
-- [X] Check the functionality of a cobalt server.
-- [X] Download media via pasted link.
-- [X] Automaticly paste link from clipboard.
-- [X] Download media via link shared through the share menu.
-- [X] Choose between automatic, sound only and silent download method.
-- [X] Switch between server and local-side processing.
-- [X] Disable metadata for downloads.
-- [X] Monitor how much storage space is taken up by downloaded media.
-- [X] Organising downloaded media by file type.
-- [X] Organising downloaded media by service.
-- [X] Storage cleaning by service.
+- [X] And much more.
 
 ## 🧩 • Usage
 
