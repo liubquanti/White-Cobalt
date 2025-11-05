@@ -1,9 +1,13 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:white_cobalt/extensions/string_externsion.dart';
+import 'package:white_cobalt/generated/codegen_loader_keys.g.dart';
 
 import '../config/settings.dart';
 import 'storage.dart';
@@ -15,11 +19,8 @@ class SettingsScreen extends StatefulWidget {
   final AppSettings settings;
   final Function(AppSettings) onSettingsChanged;
 
-  const SettingsScreen({
-    Key? key, 
-    required this.settings, 
-    required this.onSettingsChanged
-  }) : super(key: key);
+  const SettingsScreen({Key? key, required this.settings, required this.onSettingsChanged})
+      : super(key: key);
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -51,6 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _videoQuality = widget.settings.videoQuality;
     _showChangelogs = widget.settings.showChangelogs;
   }
+
   void _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
     final settings = AppSettings(
@@ -74,7 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(LocaleKeys.Settings.tr()),
         centerTitle: true,
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -83,7 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             width: 22,
             height: 22,
             colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-            ),
+          ),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -95,9 +97,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Downloads',
-                style: TextStyle(
+              Text(
+                LocaleKeys.Downloads.tr(),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -116,54 +118,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
+                  children: [
                     Expanded(
                       child: Row(
-                      children: [
-                        SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: SvgPicture.string(
-                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-cpu "><!----><path d="M5 5m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z"></path><!----><path d="M9 9h6v6h-6z"></path><!----><path d="M3 10h2"></path><!----><path d="M3 14h2"></path><!----><path d="M10 3v2"></path><!----><path d="M14 3v2"></path><!----><path d="M21 10h-2"></path><!----><path d="M21 14h-2"></path><!----><path d="M14 21v-2"></path><!----><path d="M10 21v-2"></path><!----><!----><!----></svg>',
-                        colorFilter: ColorFilter.mode(
-                          _useLocalProcessing ? Colors.white : Colors.white38,
-                          BlendMode.srcIn,
-                        ),
-                        ),),
-                        const SizedBox(width: 12),
-                        Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                          Text(
-                            'Local Processing',
-                            style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: _useLocalProcessing ? Colors.white : Colors.white54,
+                        children: [
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: SvgPicture.string(
+                              '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-cpu "><!----><path d="M5 5m0 1a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1z"></path><!----><path d="M9 9h6v6h-6z"></path><!----><path d="M3 10h2"></path><!----><path d="M3 14h2"></path><!----><path d="M10 3v2"></path><!----><path d="M14 3v2"></path><!----><path d="M21 10h-2"></path><!----><path d="M21 14h-2"></path><!----><path d="M14 21v-2"></path><!----><path d="M10 21v-2"></path><!----><!----><!----></svg>',
+                              colorFilter: ColorFilter.mode(
+                                _useLocalProcessing ? Colors.white : Colors.white38,
+                                BlendMode.srcIn,
+                              ),
                             ),
                           ),
-                          Text(
-                            'Process media on the client-side',
-                            style: TextStyle(
-                            fontSize: 12,
-                            color: _useLocalProcessing ? Colors.white70 : Colors.white38,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  LocaleKeys.LocalProcessing.tr(),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: _useLocalProcessing ? Colors.white : Colors.white54,
+                                  ),
+                                ),
+                                Text(
+                                  LocaleKeys.ProcessMediaOnTheClientSide.tr(),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: _useLocalProcessing ? Colors.white70 : Colors.white38,
+                                  ),
+                                  softWrap: true,
+                                ),
+                              ],
                             ),
-                            softWrap: true,
                           ),
-                          ],
-                        ),
-                        ),
-                      ],
+                        ],
                       ),
                     ),
                     Switch(
                       value: _useLocalProcessing,
                       onChanged: (value) {
-                      setState(() {
-                        _useLocalProcessing = value;
-                      });
-                      _saveSettings();
+                        setState(() {
+                          _useLocalProcessing = value;
+                        });
+                        _saveSettings();
                       },
                       activeColor: const Color(0xFFFFFFFF),
                       activeTrackColor: const Color(0xFF8a8a8a),
@@ -207,7 +210,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Share Links',
+                                  LocaleKeys.ShareLinks.tr(),
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
@@ -215,7 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                 ),
                                 Text(
-                                  'Share links instead of downloading files',
+                                  LocaleKeys.ShareLinksInsteadOfDownloadingFiles.tr(),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: _shareLinks ? Colors.white70 : Colors.white38,
@@ -308,13 +311,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             height: 22,
                             child: SvgPicture.string(
                               '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-settings-cog"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12.003 21c-.732 .001 -1.465 -.438 -1.678 -1.317a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c.886 .215 1.325 .957 1.318 1.694" /><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M19.001 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M19.001 15.5v1.5" /><path d="M19.001 21v1.5" /><path d="M22.032 17.25l-1.299 .75" /><path d="M17.27 20l-1.3 .75" /><path d="M15.97 17.25l1.3 .75" /><path d="M20.733 20l1.3 .75" /></svg>',
-                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                          ),
+                              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            ),
                           ),
                           const SizedBox(width: 12),
-                          const Text(
-                            'Advanced Settings',
-                            style: TextStyle(
+                          Text(
+                            LocaleKeys.AdvancedSettings.tr(),
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                               color: Colors.white,
@@ -332,9 +335,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 15),
-              const Text(
-                'Interface',
-                style: TextStyle(
+              Text(
+                LocaleKeys.Interface.tr(),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -374,7 +377,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Show Changelogs',
+                                  LocaleKeys.ShowChangelogs.tr(),
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w500,
@@ -382,7 +385,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                 ),
                                 Text(
-                                  'Display API changelogs on home screen',
+                                  LocaleKeys.DisplayAPIChangelogsOnHomeScreen.tr(),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: _showChangelogs ? Colors.white70 : Colors.white38,
@@ -412,9 +415,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               const SizedBox(height: 15),
-              const Text(
-                'Storage',
-                style: TextStyle(
+              Text(
+                LocaleKeys.Storage.tr(),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -426,63 +429,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 borderRadius: BorderRadius.circular(11),
                 child: Container(
                   decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(11),
-                  border: Border.all(
-                    color: const Color.fromRGBO(255, 255, 255, 0.08),
-                    width: 1.5,
-                  ),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(
+                      color: const Color.fromRGBO(255, 255, 255, 0.08),
+                      width: 1.5,
+                    ),
                   ),
                   child: InkWell(
-                  borderRadius: BorderRadius.circular(9.5),
-                  splashColor: Colors.white.withOpacity(0.1),
-                  highlightColor: Colors.white.withOpacity(0.05),
-                  onTap: () async {
-                    await Future.delayed(const Duration(milliseconds: 250));
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StorageUsageScreen(
-                      baseDir: _downloadDir,
+                    borderRadius: BorderRadius.circular(9.5),
+                    splashColor: Colors.white.withOpacity(0.1),
+                    highlightColor: Colors.white.withOpacity(0.05),
+                    onTap: () async {
+                      await Future.delayed(const Duration(milliseconds: 250));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StorageUsageScreen(
+                            baseDir: _downloadDir,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: SvgPicture.string(
+                              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-database"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0" /><path d="M4 6v6a8 3 0 0 0 16 0v-6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></svg>',
+                              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            LocaleKeys.StorageUsage.tr(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Spacer(),
+                          const Icon(
+                            Icons.chevron_right,
+                            color: Colors.white54,
+                          ),
+                        ],
                       ),
                     ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                    children: [
-                      SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: SvgPicture.string(
-                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-database"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6m-8 0a8 3 0 1 0 16 0a8 3 0 1 0 -16 0" /><path d="M4 6v6a8 3 0 0 0 16 0v-6" /><path d="M4 12v6a8 3 0 0 0 16 0v-6" /></svg>',
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                      'Storage Usage',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                      ),
-                      const Spacer(),
-                      const Icon(
-                      Icons.chevron_right,
-                      color: Colors.white54,
-                      ),
-                    ],
-                    ),
-                  ),
                   ),
                 ),
               ),
               const SizedBox(height: 15),
-              const Text(
-                'System',
-                style: TextStyle(
+              Text(
+                LocaleKeys.System.tr(),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -494,61 +497,61 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 borderRadius: BorderRadius.circular(11),
                 child: Container(
                   decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(11),
-                  border: Border.all(
-                    color: const Color.fromRGBO(255, 255, 255, 0.08),
-                    width: 1.5,
-                  ),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(
+                      color: const Color.fromRGBO(255, 255, 255, 0.08),
+                      width: 1.5,
+                    ),
                   ),
                   child: InkWell(
-                  borderRadius: BorderRadius.circular(9.5),
-                  splashColor: Colors.white.withOpacity(0.1),
-                  highlightColor: Colors.white.withOpacity(0.05),
-                  onTap: () async {
-                    await Future.delayed(const Duration(milliseconds: 250));
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ServiceStatusScreen(),
+                    borderRadius: BorderRadius.circular(9.5),
+                    splashColor: Colors.white.withOpacity(0.1),
+                    highlightColor: Colors.white.withOpacity(0.05),
+                    onTap: () async {
+                      await Future.delayed(const Duration(milliseconds: 250));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ServiceStatusScreen(),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: SvgPicture.string(
+                              '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-chart-bar-popular"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M9 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M15 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M4 20h14" /></svg>',
+                              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            LocaleKeys.ServiceStatus.tr(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Spacer(),
+                          const Icon(
+                            Icons.chevron_right,
+                            color: Colors.white54,
+                          ),
+                        ],
+                      ),
                     ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                    children: [
-                      SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: SvgPicture.string(
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-chart-bar-popular"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M9 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M15 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" /><path d="M4 20h14" /></svg>',
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                      'Service Status',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                      ),
-                      const Spacer(),
-                      const Icon(
-                      Icons.chevron_right,
-                      color: Colors.white54,
-                      ),
-                    ],
-                    ),
-                  ),
                   ),
                 ),
               ),
               const SizedBox(height: 15),
-              const Text(
-                'About',
-                style: TextStyle(
+              Text(
+                LocaleKeys.Language.tr(),
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -560,60 +563,151 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 borderRadius: BorderRadius.circular(11),
                 child: Container(
                   decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(11),
-                  border: Border.all(
-                    color: const Color.fromRGBO(255, 255, 255, 0.08),
-                    width: 1.5,
-                  ),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(
+                      color: const Color.fromRGBO(255, 255, 255, 0.08),
+                      width: 1.5,
+                    ),
                   ),
                   child: InkWell(
-                  borderRadius: BorderRadius.circular(9.5),
-                  splashColor: Colors.white.withOpacity(0.1),
-                  highlightColor: Colors.white.withOpacity(0.05),
-                  onTap: () async {
-                    await Future.delayed(const Duration(milliseconds: 250));
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AboutScreen(
+                    borderRadius: BorderRadius.circular(9.5),
+                    splashColor: Colors.white.withOpacity(0.1),
+                    highlightColor: Colors.white.withOpacity(0.05),
+                    onTap: _changeAppLanguage,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: Icon(Icons.language, color: Colors.white),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            LocaleKeys.ChangeLanguage.tr(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Spacer(),
+                          const Icon(
+                            Icons.chevron_right,
+                            color: Colors.white54,
+                          ),
+                        ],
                       ),
-                    ),
-                    );
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                    children: [
-                      SizedBox(
-                      width: 22,
-                      height: 22,
-                      child: SvgPicture.string(
-                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 9h.01" /><path d="M11 12h1v4h1" /></svg>',
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
-                      ),
-                      const SizedBox(width: 12),
-                      const Text(
-                      'App Information',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                      ),
-                      ),
-                      const Spacer(),
-                      const Icon(
-                      Icons.chevron_right,
-                      color: Colors.white54,
-                      ),
-                    ],
                     ),
                   ),
+                ),
+              ),
+              const SizedBox(height: 15),
+              Text(
+                LocaleKeys.About.tr(),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Material(
+                color: const Color(0xFF191919),
+                borderRadius: BorderRadius.circular(11),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(
+                      color: const Color.fromRGBO(255, 255, 255, 0.08),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(9.5),
+                    splashColor: Colors.white.withOpacity(0.1),
+                    highlightColor: Colors.white.withOpacity(0.05),
+                    onTap: () async {
+                      await Future.delayed(const Duration(milliseconds: 250));
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AboutScreen(),
+                        ),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: SvgPicture.string(
+                              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-info-circle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 9h.01" /><path d="M11 12h1v4h1" /></svg>',
+                              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            LocaleKeys.AppInformation.tr(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const Spacer(),
+                          const Icon(
+                            Icons.chevron_right,
+                            color: Colors.white54,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
               const SizedBox(height: 16),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future _changeAppLanguage() async {
+    final locales = context.supportedLocales;
+
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        child: Padding(
+          padding: const EdgeInsetsGeometry.all(16),
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: locales.length,
+            itemBuilder: (context, index) => InkWell(
+              onTap: () {
+                context.setLocale(locales[index]);
+                Navigator.pop(context);
+              },
+              child: Padding(
+                padding: const EdgeInsetsGeometry.symmetric(vertical: 6),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      (LocaleNames.of(context)!.nameOf(locales[index].toLanguageTag()) ??
+                              locales[index].toLanguageTag())
+                          .capitalize(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            separatorBuilder: (context, index) => const Divider(),
           ),
         ),
       ),

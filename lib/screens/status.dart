@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:white_cobalt/generated/codegen_loader_keys.g.dart';
 
 class ServiceStatusScreen extends StatefulWidget {
   const ServiceStatusScreen({Key? key}) : super(key: key);
@@ -41,13 +43,13 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
         });
       } else {
         setState(() {
-          _errorMessage = 'Failed to load status data';
+          _errorMessage = LocaleKeys.FailedToLoadStatusData.tr();
           _isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'Error: $e';
+        _errorMessage = LocaleKeys.ErrorWithArg.tr(args: [e.toString()]);
         _isLoading = false;
       });
     }
@@ -69,13 +71,13 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
   String _getStatusText(String statusClass) {
     switch (statusClass) {
       case 'success':
-        return 'Online';
+        return LocaleKeys.Online.tr();
       case 'danger':
-        return 'Offline';
+        return LocaleKeys.Offline.tr();
       case 'warning':
-        return 'Warning';
+        return LocaleKeys.Warning.tr();
       default:
-        return 'Unknown';
+        return LocaleKeys.Unknown.tr();
     }
   }
 
@@ -101,7 +103,7 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Service Status'),
+        title: Text(LocaleKeys.ServiceStatus.tr()),
         centerTitle: true,
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -129,69 +131,73 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
-                      child: Text(
-                      'An error occurred while loading service statuses. Please try again or check the information in your browser.',
-                      textAlign: TextAlign.center,
-                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Text(
+                          LocaleKeys
+                                  .AnErrorOccurredWhileLoadingServiceStatusesPleaseTryAgainOrCheckTheInformationInYourBrowser
+                              .tr(),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                        onPressed: _loadStatusData,
-                        style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                        backgroundColor: const Color(0xFF191919),
-                        foregroundColor: const Color(0xFFe1e1e1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(11),
-                          side: const BorderSide(
-                          color: Color.fromRGBO(255, 255, 255, 0.08),
-                          width: 1.5,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: _loadStatusData,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                              backgroundColor: const Color(0xFF191919),
+                              foregroundColor: const Color(0xFFe1e1e1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(11),
+                                side: const BorderSide(
+                                  color: Color.fromRGBO(255, 255, 255, 0.08),
+                                  width: 1.5,
+                                ),
+                              ),
+                            ),
+                            child: Text(LocaleKeys.Retry.tr()),
                           ),
-                        ),
-                        ),
-                        child: const Text('Retry'),
-                        ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                        onPressed: () async {
-                          final Uri url = Uri.parse('https://stats.uptimerobot.com/NowpAIVNnk');
-                          if (await canLaunchUrl(url)) {
-                          await launchUrl(url, mode: LaunchMode.externalApplication);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                        backgroundColor: const Color(0xFF191919),
-                        foregroundColor: const Color(0xFFe1e1e1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(11),
-                          side: const BorderSide(
-                          color: Color.fromRGBO(255, 255, 255, 0.08),
-                          width: 1.5,
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: () async {
+                              final Uri url = Uri.parse('https://stats.uptimerobot.com/NowpAIVNnk');
+                              if (await canLaunchUrl(url)) {
+                                await launchUrl(url, mode: LaunchMode.externalApplication);
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                              backgroundColor: const Color(0xFF191919),
+                              foregroundColor: const Color(0xFFe1e1e1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(11),
+                                side: const BorderSide(
+                                  color: Color.fromRGBO(255, 255, 255, 0.08),
+                                  width: 1.5,
+                                ),
+                              ),
+                            ),
+                            child: Text(LocaleKeys.InBrowser.tr()),
                           ),
-                        ),
-                        ),
-                        child: const Text('In Browser'),
-                        ),
-                      ],
+                        ],
                       ),
                     ],
                   ),
                 )
               : SingleChildScrollView(
-                  padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: MediaQuery.of(context).padding.bottom),
+                  padding: EdgeInsets.only(
+                      left: 16.0, right: 16.0, bottom: MediaQuery.of(context).padding.bottom),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (_statusData != null && _statusData!['data'] != null)
                         ..._statusData!['data'].map<Widget>((monitor) {
                           return Padding(
-                            padding: EdgeInsets.only(bottom: monitor == _statusData!['data'].last ? 0 : 10),
+                            padding: EdgeInsets.only(
+                                bottom: monitor == _statusData!['data'].last ? 0 : 10),
                             child: Container(
                               decoration: BoxDecoration(
                                 color: const Color(0xFF191919),
@@ -209,7 +215,7 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          monitor['name'] ?? 'Unknown',
+                                          monitor['name'] ?? LocaleKeys.Unknown.tr(),
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                           style: const TextStyle(
@@ -220,7 +226,8 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
                                         ),
                                       ),
                                       Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        padding:
+                                            const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                         decoration: BoxDecoration(
                                           color: _getStatusColor(monitor['statusClass']),
                                           borderRadius: BorderRadius.circular(12),
@@ -237,27 +244,26 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
                                     ],
                                   ),
                                   const SizedBox(height: 10),
-                                  
                                   if (monitor['dailyRatios'] != null)
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text(
-                                          'Last 90 days',
-                                          style: TextStyle(
+                                        Text(
+                                          LocaleKeys.Last90Days.tr(),
+                                          style: const TextStyle(
                                             fontSize: 14,
                                             color: Colors.white,
                                           ),
                                         ),
                                         const SizedBox(height: 6),
-                                        Container(
+                                        SizedBox(
                                           height: 10,
                                           child: Row(
-                                            children: monitor['dailyRatios']
-                                                .map<Widget>((day) {
+                                            children: monitor['dailyRatios'].map<Widget>((day) {
                                               return Expanded(
                                                 child: Container(
-                                                  margin: const EdgeInsets.symmetric(horizontal: 0.5),
+                                                  margin:
+                                                      const EdgeInsets.symmetric(horizontal: 0.5),
                                                   decoration: BoxDecoration(
                                                     color: _getDayColor(day['color']),
                                                     borderRadius: BorderRadius.circular(2),
@@ -269,22 +275,21 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
                                         ),
                                       ],
                                     ),
-
                                   const SizedBox(height: 10),
                                   Row(
                                     children: [
                                       _buildUptimeChip(
-                                        'Last 24h',
+                                        LocaleKeys.Last24h.tr(),
                                         monitor['ratio']?['ratio'] ?? '0',
                                       ),
                                       const SizedBox(width: 8),
                                       _buildUptimeChip(
-                                        'Last 7d',
+                                        LocaleKeys.Last7d.tr(),
                                         monitor['30dRatio']?['ratio'] ?? '0',
                                       ),
                                       const SizedBox(width: 8),
                                       _buildUptimeChip(
-                                        'Last 30d',
+                                        LocaleKeys.Last30d.tr(),
                                         monitor['90dRatio']?['ratio'] ?? '0',
                                       ),
                                     ],
@@ -294,7 +299,7 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
                             ),
                           );
                         }).toList(),
-                        const SizedBox(height: 16),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
@@ -316,7 +321,7 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
         decoration: BoxDecoration(
-        color: const Color(0xFF191919),
+          color: const Color(0xFF191919),
           borderRadius: BorderRadius.circular(11),
           border: Border.all(
             color: const Color.fromRGBO(255, 255, 255, 0.08),

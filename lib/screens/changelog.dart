@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:white_cobalt/generated/codegen_loader_keys.g.dart';
 
 import 'home.dart';
 
@@ -36,19 +38,19 @@ class ChangelogDetailScreen extends StatelessWidget {
             width: 22,
             height: 22,
             colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-            ),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
             icon: SvgPicture.string(
               '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-external-link"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6" /><path d="M11 13l9 -9" /><path d="M15 4h5v5" /></svg>',
-            width: 22,
-            height: 22,
-            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+              width: 22,
+              height: 22,
+              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
             ),
             onPressed: () => _launchURL('https://cobalt.tools/updates#${changelog.version}'),
-            tooltip: 'Open on GitHub',
+            tooltip: LocaleKeys.OpenOnGitHub.tr(),
           ),
         ],
       ),
@@ -103,9 +105,12 @@ class ChangelogDetailScreen extends StatelessWidget {
                   },
                 ),
               ),
-
             Padding(
-              padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0, bottom: MediaQuery.of(context).padding.bottom),
+              padding: EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  top: 10.0,
+                  bottom: MediaQuery.of(context).padding.bottom),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
