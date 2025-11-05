@@ -1361,7 +1361,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   ),
                   contentPadding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
                 ),
-                initialValue: _servers.isNotEmpty ? baseUrl : 'add_custom',
+                value: _servers.isNotEmpty ? baseUrl : 'add_custom',
                 items: [
                   ..._servers.map((server) => DropdownMenuItem<String>(
                         value: server.url,
