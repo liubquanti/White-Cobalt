@@ -42,6 +42,10 @@ There are two ways to download media:
 
 The list of supported services depends on which services are supported by the cobalt server the client is connected to. You can view the full list of supported services by the latest version of the cobalt API on the [official website](https://cobalt.tools/).
 
+## 👋 • Visitors Stats
+
+![moe-counter](https://count.getloli.com/get/@White-Cobalt)
+
 ## 📊 • Development Stats
 
 ![Alt](https://repobeats.axiom.co/api/embed/e8f2493da0ae6154170cdd95468ad622db3a99a9.svg "Repobeats analytics image")
