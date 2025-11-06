@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'screens/home.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CobaltApp extends StatelessWidget {
   const CobaltApp({super.key});
@@ -8,6 +10,12 @@ class CobaltApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        ...context.localizationDelegates,
+        const LocaleNamesLocalizationsDelegate(),
+      ],
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
       title: 'White Cobalt',
       theme: ThemeData(
         brightness: Brightness.dark,

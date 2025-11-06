@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:white_cobalt/generated/codegen_loader_keys.g.dart';
 
 import '../models/instance.dart';
 import '../models/oinstance.dart';
@@ -28,7 +30,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
   List<OfficialServer> _officialServers = [];
   String _error = '';
   final TextEditingController _apiKeyController = TextEditingController();
-  
+
   @override
   void initState() {
     super.initState();
@@ -46,17 +48,17 @@ class _InstancesScreenState extends State<InstancesScreen> {
         OfficialServersService.fetchOfficialServers(),
         InstancesService.fetchInstances(),
       ]);
-      
+
       final officialServers = futures[0] as List<OfficialServer>;
       final instances = futures[1] as List<CobaltInstance>;
-      
+
       instances.sort((a, b) {
         if (a.isOnline != b.isOnline) {
           return a.isOnline ? -1 : 1;
         }
         return b.score.compareTo(a.score);
       });
-      
+
       setState(() {
         _officialServers = officialServers;
         _instances = instances;
@@ -64,7 +66,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
       });
     } catch (e) {
       setState(() {
-        _error = 'Failed to load data: $e';
+        _error = LocaleKeys.FailedToLoadData.tr(args: [e.toString()]);
         _isLoading = false;
       });
     }
@@ -72,17 +74,17 @@ class _InstancesScreenState extends State<InstancesScreen> {
 
   Future<void> _addOfficialServerWithConfirmation(OfficialServer server) async {
     _apiKeyController.clear();
-    
+
     if (!mounted) return;
-    
+
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.black,
-          title: const Text(
-            'Add server',
-            style: TextStyle(fontSize: 16),
+          title: Text(
+            LocaleKeys.AddServer.tr(),
+            style: const TextStyle(fontSize: 16),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(11),
@@ -104,9 +106,9 @@ class _InstancesScreenState extends State<InstancesScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'API key (optional):',
-                style: TextStyle(
+              Text(
+                LocaleKeys.APIKeyOptional.tr(),
+                style: const TextStyle(
                   fontSize: 14,
                 ),
               ),
@@ -114,7 +116,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
               TextField(
                 controller: _apiKeyController,
                 decoration: InputDecoration(
-                  hintText: 'API key',
+                  hintText: LocaleKeys.APIKey.tr(),
                   border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(11)),
                     borderSide: BorderSide(width: 1.5, color: Color(0xFF383838)),
@@ -163,7 +165,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                   ),
                 ),
               ),
-              child: const Text('Cancel'),
+              child: Text(LocaleKeys.Cancel.tr()),
             ),
             TextButton(
               onPressed: () async {
@@ -173,9 +175,9 @@ class _InstancesScreenState extends State<InstancesScreen> {
                   server.apiUrl,
                   apiKey.isNotEmpty ? apiKey : null,
                 );
-                
+
                 widget.onServerAdded(serverConfig);
-                
+
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -193,7 +195,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                   ),
                 ),
               ),
-              child: const Text('Add'),
+              child: Text(LocaleKeys.Add.tr()),
             ),
           ],
         );
@@ -203,17 +205,17 @@ class _InstancesScreenState extends State<InstancesScreen> {
 
   Future<void> _addInstanceWithConfirmation(CobaltInstance instance) async {
     _apiKeyController.clear();
-    
+
     if (!mounted) return;
-    
+
     return showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           backgroundColor: Colors.black,
-          title: const Text(
-            'Add server',
-            style: TextStyle(fontSize: 16),
+          title: Text(
+            LocaleKeys.AddServer.tr(),
+            style: const TextStyle(fontSize: 16),
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(11),
@@ -235,16 +237,16 @@ class _InstancesScreenState extends State<InstancesScreen> {
                 ),
               ),
               Text(
-                'Score: ${instance.score}/100',
+                LocaleKeys.Score.tr(args: [instance.score.toString()]),
                 style: TextStyle(
                   fontSize: 14,
                   color: _getScoreColor(instance.score),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text(
-                'API key (optional):',
-                style: TextStyle(
+              Text(
+                LocaleKeys.APIKeyOptional.tr(),
+                style: const TextStyle(
                   fontSize: 14,
                 ),
               ),
@@ -252,7 +254,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
               TextField(
                 controller: _apiKeyController,
                 decoration: InputDecoration(
-                  hintText: 'API key',
+                  hintText: LocaleKeys.APIKey.tr(),
                   border: const OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(11)),
                     borderSide: BorderSide(width: 1.0, color: Color(0xFF383838)),
@@ -301,7 +303,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                   ),
                 ),
               ),
-              child: const Text('Cancel'),
+              child: Text(LocaleKeys.Cancel.tr()),
             ),
             TextButton(
               onPressed: () async {
@@ -311,9 +313,9 @@ class _InstancesScreenState extends State<InstancesScreen> {
                   instance.apiUrl,
                   apiKey.isNotEmpty ? apiKey : null,
                 );
-                
+
                 widget.onServerAdded(serverConfig);
-                
+
                 if (context.mounted) {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -331,14 +333,14 @@ class _InstancesScreenState extends State<InstancesScreen> {
                   ),
                 ),
               ),
-              child: const Text('Add'),
+              child: Text(LocaleKeys.Add.tr()),
             ),
           ],
         );
       },
     );
   }
-  
+
   @override
   void dispose() {
     _apiKeyController.dispose();
@@ -350,7 +352,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Servers Browser'),
+        title: Text(LocaleKeys.ServersBrowser.tr()),
         centerTitle: true,
         backgroundColor: Colors.black,
         leading: IconButton(
@@ -385,74 +387,77 @@ class _InstancesScreenState extends State<InstancesScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                  'An error occurred while loading the list of instances. Please try again or check the service status.',
-                  textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                  ElevatedButton(
-                    onPressed: _loadData,
-                    child: const Text('Retry'),
-                    style: ElevatedButton.styleFrom(
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                LocaleKeys
+                        .AnErrorOccurredWhileLoadingTheListOfInstancesPleaseTryAgainOrCheckTheServiceStatus
+                    .tr(),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 5),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: _loadData,
+                  style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     backgroundColor: const Color(0xFF191919),
                     foregroundColor: const Color(0xFFe1e1e1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(11),
                       side: const BorderSide(
-                      color: Color.fromRGBO(255, 255, 255, 0.08),
-                      width: 1.5,
+                        color: Color.fromRGBO(255, 255, 255, 0.08),
+                        width: 1.5,
                       ),
                     ),
-                    ),
                   ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () async {
+                  child: Text(LocaleKeys.Retry.tr()),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () async {
                     await Future.delayed(const Duration(milliseconds: 250));
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                      builder: (context) => const ServiceStatusScreen(),
+                        builder: (context) => const ServiceStatusScreen(),
                       ),
                     );
-                    },
-                    child: const Text('Service Status'),
-                    style: ElevatedButton.styleFrom(
+                  },
+                  child: Text(LocaleKeys.ServiceStatus.tr()),
+                  style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     backgroundColor: const Color(0xFF191919),
                     foregroundColor: const Color(0xFFe1e1e1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(11),
                       side: const BorderSide(
-                      color: Color.fromRGBO(255, 255, 255, 0.08),
-                      width: 1.5,
+                        color: Color.fromRGBO(255, 255, 255, 0.08),
+                        width: 1.5,
                       ),
                     ),
-                    ),
                   ),
-                  ],
                 ),
+              ],
+            ),
           ],
         ),
       );
     }
 
     return ListView(
-      padding: EdgeInsets.only(left: 16.0, right: 16.0, bottom: MediaQuery.of(context).padding.bottom),
+      padding:
+          EdgeInsets.only(left: 16.0, right: 16.0, bottom: MediaQuery.of(context).padding.bottom),
       children: [
         if (_officialServers.isNotEmpty) ...[
-          const Padding(
-            padding: EdgeInsets.only(bottom: 10),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
             child: Text(
-              'Official Instances',
-              style: TextStyle(
+              LocaleKeys.OfficialInstances.tr(),
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -463,21 +468,21 @@ class _InstancesScreenState extends State<InstancesScreen> {
           const SizedBox(height: 5),
         ],
         if (_instances.isNotEmpty) ...[
-          const Text(
-              'Public Instances',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+          Text(
+            LocaleKeys.PublicInstances.tr(),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
+          ),
           const SizedBox(height: 10),
           ..._instances.map((instance) => _buildInstanceCard(instance)),
           const SizedBox(height: 6),
         ],
         if (_officialServers.isEmpty && _instances.isEmpty)
-          const Center(
-            child: Text('No servers found'),
+          Center(
+            child: Text(LocaleKeys.NoServersFound.tr()),
           ),
       ],
     );
@@ -531,8 +536,8 @@ class _InstancesScreenState extends State<InstancesScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Text(
-                    'Official',
+                  child: Text(
+                    LocaleKeys.Official.tr(),
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
@@ -583,68 +588,67 @@ class _InstancesScreenState extends State<InstancesScreen> {
                       ),
                       child: Row(
                         children: [
-                        SvgPicture.string(
-                          '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-server-spark"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 22.5a4.75 4.75 0 0 1 3.5 -3.5a4.75 4.75 0 0 1 -3.5 -3.5a4.75 4.75 0 0 1 -3.5 3.5a4.75 4.75 0 0 1 3.5 3.5" /><path d="M3 7a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M12 20h-6a3 3 0 0 1 -3 -3v-2a3 3 0 0 1 3 -3h10.5" /><path d="M7 8v.01" /><path d="M7 16v.01" /></svg>',
-                          width: 24,
-                          height: 24,
-                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                        ),
-                        const SizedBox(width: 6),
-                        const Text(
-                          "Add Server",
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                          SvgPicture.string(
+                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-server-spark"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 22.5a4.75 4.75 0 0 1 3.5 -3.5a4.75 4.75 0 0 1 -3.5 -3.5a4.75 4.75 0 0 1 -3.5 3.5a4.75 4.75 0 0 1 3.5 3.5" /><path d="M3 7a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M12 20h-6a3 3 0 0 1 -3 -3v-2a3 3 0 0 1 3 -3h10.5" /><path d="M7 8v.01" /><path d="M7 16v.01" /></svg>',
+                            width: 24,
+                            height: 24,
+                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 6),
+                          Text(
+                            LocaleKeys.AddServer.tr(),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                   ),
                 ),
                 const SizedBox(width: 10),
                 if (server.frontend != "None")
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () {
+                        launchUrl(Uri.parse('${server.protocol}://${server.frontend}'));
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: const Color.fromRGBO(255, 255, 255, 0.08),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: SvgPicture.string(
+                          '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>',
+                          width: 24,
+                          height: 24,
+                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (server.frontend != "None") const SizedBox(width: 10),
                 Material(
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(8),
                     onTap: () {
-                      launchUrl(Uri.parse('${server.protocol}://${server.frontend}'));
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: const Color.fromRGBO(255, 255, 255, 0.08),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: SvgPicture.string(
-                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>',
-                        width: 24,
-                        height: 24,
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
-                    ),
-                  ),
-                ),
-                if (server.frontend != "None")
-                const SizedBox(width: 10),
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(8),
-                      onTap: () {
                       Clipboard.setData(
                         ClipboardData(text: '${server.apiUrl}'),
                       ).then((_) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('API URL copied to clipboard'),
-                          duration: Duration(seconds: 2),
-                        ),
+                          SnackBar(
+                            content: Text(LocaleKeys.APIURLCopiedToClipboard.tr()),
+                            duration: const Duration(seconds: 2),
+                          ),
                         );
                       });
                     },
@@ -665,13 +669,12 @@ class _InstancesScreenState extends State<InstancesScreen> {
                       ),
                     ),
                   ),
-                ),  
+                ),
               ],
             ),
           ],
         ),
       ),
-      
     );
   }
 
@@ -723,12 +726,12 @@ class _InstancesScreenState extends State<InstancesScreen> {
                   ),
                   child: Center(
                     child: Text(
-                    '${instance.score}',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                      '${instance.score}',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -741,21 +744,21 @@ class _InstancesScreenState extends State<InstancesScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Protocol: ${instance.protocol}',
+                        '${LocaleKeys.Protocol.tr()}: ${instance.protocol}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white70,
                         ),
                       ),
                       Text(
-                        'Services: ${instance.servicesCount}',
+                        '${LocaleKeys.Services.tr()}: ${instance.servicesCount}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white70,
                         ),
                       ),
                       Text(
-                        'Version: ${instance.version}',
+                        '${LocaleKeys.Version.tr()}: ${instance.version}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white70,
@@ -788,68 +791,68 @@ class _InstancesScreenState extends State<InstancesScreen> {
                       ),
                       child: Row(
                         children: [
-                        SvgPicture.string(
-                          '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-server-spark"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 22.5a4.75 4.75 0 0 1 3.5 -3.5a4.75 4.75 0 0 1 -3.5 -3.5a4.75 4.75 0 0 1 -3.5 3.5a4.75 4.75 0 0 1 3.5 3.5" /><path d="M3 7a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M12 20h-6a3 3 0 0 1 -3 -3v-2a3 3 0 0 1 3 -3h10.5" /><path d="M7 8v.01" /><path d="M7 16v.01" /></svg>',
-                          width: 24,
-                          height: 24,
-                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                        ),
-                        const SizedBox(width: 6),
-                        const Text(
-                          "Add Server",
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                          SvgPicture.string(
+                            '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-server-spark"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19 22.5a4.75 4.75 0 0 1 3.5 -3.5a4.75 4.75 0 0 1 -3.5 -3.5a4.75 4.75 0 0 1 -3.5 3.5a4.75 4.75 0 0 1 3.5 3.5" /><path d="M3 7a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v2a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3z" /><path d="M12 20h-6a3 3 0 0 1 -3 -3v-2a3 3 0 0 1 3 -3h10.5" /><path d="M7 8v.01" /><path d="M7 16v.01" /></svg>',
+                            width: 24,
+                            height: 24,
+                            colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 6),
+                          Text(
+                            LocaleKeys.AddServer.tr(),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                   ),
                 ),
                 const SizedBox(width: 10),
                 if (instance.frontend != "None" && instance.frontend!.isNotEmpty)
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap: () {
+                        launchUrl(Uri.parse('${instance.protocol}://${instance.frontend}'));
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: const Color.fromRGBO(255, 255, 255, 0.08),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: SvgPicture.string(
+                          '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>',
+                          width: 24,
+                          height: 24,
+                          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                        ),
+                      ),
+                    ),
+                  ),
+                if (instance.frontend != "None" && instance.frontend!.isNotEmpty)
+                  const SizedBox(width: 10),
                 Material(
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(8),
                     onTap: () {
-                      launchUrl(Uri.parse('${instance.protocol}://${instance.frontend}'));
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: const Color.fromRGBO(255, 255, 255, 0.08),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: SvgPicture.string(
-                        '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-world"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>',
-                        width: 24,
-                        height: 24,
-                        colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                      ),
-                    ),
-                  ),
-                ),
-                if (instance.frontend != "None" && instance.frontend!.isNotEmpty)
-                const SizedBox(width: 10),
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(8),
-                      onTap: () {
                       Clipboard.setData(
                         ClipboardData(text: '${instance.apiUrl}'),
                       ).then((_) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('API URL copied to clipboard'),
-                          duration: Duration(seconds: 2),
-                        ),
+                          SnackBar(
+                            content: Text(LocaleKeys.APIURLCopiedToClipboard.tr()),
+                            duration: const Duration(seconds: 2),
+                          ),
                         );
                       });
                     },
@@ -870,7 +873,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                       ),
                     ),
                   ),
-                ),  
+                ),
               ],
             ),
           ],

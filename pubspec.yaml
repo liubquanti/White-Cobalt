@@ -22,6 +22,9 @@ dependencies:
   card_loading: ^0.3.2
   package_info_plus: ^4.2.0
   flutter_markdown: ^0.7.4+1
+  easy_localization: ^3.0.8
+  focus_detector: ^2.0.1
+  flutter_localized_locales: ^2.0.5
   
 dev_dependencies:
   flutter_test:
@@ -41,6 +44,7 @@ flutter:
     - assets/heart/heart.png
     - assets/heart/Heart Meowbalt.svg
     - assets/photos/
+    - assets/translations/
 
 flutter_launcher_icons:
   android: true
