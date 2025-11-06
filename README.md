@@ -1,8 +1,7 @@
 # 😺 • White Cobalt
 
-![GitHub Release](https://img.shields.io/github/v/release/liubquanti/White-Cobalt?label=Release&color=white)
-
-![](https://playbadges.pavi2410.com/badge/downloads?id=liubquanti.white.cobalt) ![](https://playbadges.pavi2410.com/badge/ratings?id=liubquanti.white.cobalt) ![](https://playbadges.pavi2410.com/badge/version?id=liubquanti.white.cobalt)
+![GitHub Release](https://img.shields.io/github/v/release/liubquanti/White-Cobalt?style=for-the-badge&label=Release&color=white) ![GitHub repo size](https://img.shields.io/github/repo-size/liubquanti/White-Cobalt?style=for-the-badge&color=white)
+![GitHub Repo stars](https://img.shields.io/github/stars/liubquanti/White-Cobalt?style=for-the-badge&color=yellow) ![GitHub forks](https://img.shields.io/github/forks/liubquanti/White-Cobalt?style=for-the-badge&color=red) ![GitHub License](https://img.shields.io/github/license/liubquanti/White-Cobalt?style=for-the-badge)
 
 A native Android client for downloading media from the Internet using [cobalt server APIs](https://github.com/imputnet/cobalt/blob/main/docs/api.md).
 
@@ -18,7 +17,7 @@ White Cobalt is in no way a piracy tool and cannot be used as such. It can only 
 
 White Cobalt was developed independently of the [creators of cobalt.tools](https://github.com/imputnet).
 
-[![1754072077136](image/README/Google-Play.svg)](https://play.google.com/store/apps/details?id=liubquanti.white.cobalt) [![1754072077136](image/README/APKPure.svg)](https://apkpure.com/white-cobalt/liubquanti.white.cobalt)
+![Static Badge](https://img.shields.io/badge/Google%20Play-Q?style=for-the-badge&logo=googleplay&color=3aaa5a&link=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dliubquanti.white.cobalt) ![Static Badge](https://img.shields.io/badge/APKPure-Q?style=for-the-badge&logo=android&logoColor=white&color=2cc78a&link=https%3A%2F%2Fapkpure.com%2Fwhite-cobalt%2Fliubquanti.white.cobalt)
 
 ## ⭐ • Sources
 
