@@ -17,7 +17,7 @@ White Cobalt is in no way a piracy tool and cannot be used as such. It can only 
 
 White Cobalt was developed independently of the [creators of cobalt.tools](https://github.com/imputnet).
 
-![Static Badge](https://img.shields.io/badge/Google%20Play-Q?style=for-the-badge&logo=googleplay&color=3aaa5a&link=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dliubquanti.white.cobalt) ![Static Badge](https://img.shields.io/badge/APKPure-Q?style=for-the-badge&logo=android&logoColor=white&color=2cc78a&link=https%3A%2F%2Fapkpure.com%2Fwhite-cobalt%2Fliubquanti.white.cobalt)
+[![Static Badge](https://img.shields.io/badge/Google%20Play-Q?style=for-the-badge&logo=googleplay&color=3aaa5a&link=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dliubquanti.white.cobalt)](https://play.google.com/store/apps/details?id=liubquanti.white.cobalt) [![Static Badge](https://img.shields.io/badge/APKPure-Q?style=for-the-badge&logo=android&logoColor=white&color=2cc78a&link=https%3A%2F%2Fapkpure.com%2Fwhite-cobalt%2Fliubquanti.white.cobalt)](https://apkpure.com/white-cobalt-media-downloader/liubquanti.white.cobalt)
 
 ## ⭐ • Sources
 
