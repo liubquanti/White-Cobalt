@@ -2376,6 +2376,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
               : null,
           borderRadius: BorderRadius.circular(9),
           child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
             alignment: Alignment.center,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(9),
@@ -2386,6 +2387,8 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 fontWeight: isSelected && isEnabled ? FontWeight.bold : FontWeight.normal,
                 color: isEnabled ? Colors.white : Colors.white38,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),

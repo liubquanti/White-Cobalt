@@ -89,6 +89,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.6"
+  easy_localization:
+    dependency: "direct main"
+    description:
+      name: easy_localization
+      sha256: "2ccdf9db8fe4d9c5a75c122e6275674508fd0f0d49c827354967b8afcc56bbed"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.8"
+  easy_logger:
+    dependency: transitive
+    description:
+      name: easy_logger
+      sha256: c764a6e024846f33405a2342caf91c62e357c24b02c04dbc712ef232bf30ffb7
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   equatable:
     dependency: transitive
     description:
@@ -166,6 +182,19 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  flutter_localizations:
+    dependency: transitive
+    description: flutter
+    source: sdk
+    version: "0.0.0"
+  flutter_localized_locales:
+    dependency: "direct main"
+    description:
+      name: flutter_localized_locales
+      sha256: "478d10535edf07292e34cb4c757882edeeaf96d5e3dbb04b42733038bd41dd3f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.5"
   flutter_markdown:
     dependency: "direct main"
     description:
@@ -192,6 +221,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  focus_detector:
+    dependency: "direct main"
+    description:
+      name: focus_detector
+      sha256: "05e32d9dd378cd54f1a3f9ce813c05156f28eb83f8e68f5bf1a37e9cdb21af1c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
   http:
     dependency: "direct main"
     description:
@@ -216,6 +253,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.4"
+  intl:
+    dependency: transitive
+    description:
+      name: intl
+      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.20.2"
   json_annotation:
     dependency: transitive
     description:
@@ -669,6 +714,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  visibility_detector:
+    dependency: transitive
+    description:
+      name: visibility_detector
+      sha256: ec932527913f32f65aa01d3a393504240b9e9021ecc77123f017755605e48832
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
   vm_service:
     dependency: transitive
     description:

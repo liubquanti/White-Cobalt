@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:white_cobalt/extensions/string_externsion.dart';
 import 'package:white_cobalt/generated/codegen_loader_keys.g.dart';
 
 import '../config/settings.dart';
@@ -581,7 +580,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           SizedBox(
                             width: 22,
                             height: 22,
-                            child: Icon(Icons.language, color: Colors.white),
+                            child: SvgPicture.string(
+                              '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-language-hiragana"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5h7" /><path d="M7 4c0 4.846 0 7 .5 8" /><path d="M10 8.5c0 2.286 -2 4.5 -3.5 4.5s-2.5 -1.135 -2.5 -2c0 -2 1 -3 3 -3s5 .57 5 2.857c0 1.524 -.667 2.571 -2 3.143" /><path d="M12 20l4 -9l4 9" /><path d="M19.1 18h-6.2" /></svg>',
+                              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Text(
@@ -683,31 +685,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog(
       context: context,
       builder: (context) => Dialog(
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(11),
+          side: const BorderSide(
+            color: Color.fromRGBO(255, 255, 255, 0.08),
+            width: 2.0,
+          ),
+        ),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 16),
         child: Padding(
           padding: const EdgeInsetsGeometry.all(16),
           child: ListView.separated(
             shrinkWrap: true,
             itemCount: locales.length,
             itemBuilder: (context, index) => InkWell(
+              borderRadius: BorderRadius.circular(11),
               onTap: () {
-                context.setLocale(locales[index]);
-                Navigator.pop(context);
+              context.setLocale(locales[index]);
+              Navigator.pop(context);
               },
               child: Padding(
-                padding: const EdgeInsetsGeometry.symmetric(vertical: 6),
+                padding: const EdgeInsets.symmetric(vertical: 15),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      (LocaleNames.of(context)!.nameOf(locales[index].toLanguageTag()) ??
-                              locales[index].toLanguageTag())
-                          .capitalize(),
+                      (LocaleNamesLocalizationsDelegate.nativeLocaleNames[locales[index].toLanguageTag()] ??
+                      locales[index].toLanguageTag())[0].toUpperCase() +
+                      (LocaleNamesLocalizationsDelegate.nativeLocaleNames[locales[index].toLanguageTag()] ??
+                      locales[index].toLanguageTag()).substring(1),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ],
                 ),
               ),
             ),
-            separatorBuilder: (context, index) => const Divider(),
+            separatorBuilder: (context, index) => const Divider(
+              color: Color(0xFF383838),
+              thickness: 1.0,
+              height: 1,
+            ),
           ),
         ),
       ),
