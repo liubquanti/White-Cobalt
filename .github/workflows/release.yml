@@ -59,19 +59,19 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Generate temporary keystore (CI test key)
+      - name: Decode keystore
         run: |
-          mkdir -p android
-          keytool -genkeypair \
-            -v \
-            -keystore android/test.keystore \
-            -storepass 123456 \
-            -alias testkey \
-            -keypass 123456 \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -dname "CN=Test, OU=Test, O=Test, L=Test, S=Test, C=US"
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Create key.properties
+        run: |
+          cat <<EOF > android/key.properties
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+
 
       - name: Build release APK
         run: flutter build apk --release --target-platform android-arm,android-arm64,android-x64 --android-skip-build-dependency-validation
