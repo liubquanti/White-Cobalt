@@ -243,7 +243,6 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
                                       ),
                                     ],
                                   ),
-                                  const SizedBox(height: 10),
                                   if (monitor['dailyRatios'] != null)
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -331,6 +330,9 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
         child: Column(
           children: [
             Text(
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               label,
               style: const TextStyle(
                 fontSize: 14,
