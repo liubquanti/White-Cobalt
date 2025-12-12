@@ -24,11 +24,6 @@ White Cobalt was developed independently of the [creators of cobalt.tools](https
 - [cobalt official website](https://cobalt.tools/).
 - [cobalt API documentation](https://github.com/imputnet/cobalt/blob/main/docs/api.md).
 
-## 🧬 • Features
-
-- [X] Connect to a cobalt server.
-- [X] And much more.
-
 ## 🧩 • Usage
 
 There are two ways to download media:
