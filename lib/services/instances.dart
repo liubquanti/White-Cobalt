@@ -4,7 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../models/instance.dart';
 
 class InstancesService {
-  static const String apiUrl = 'http://instances.cobalt.best/api/instances.json';
+  static const String apiUrl = 'http://instances.cobalt.best/instances.json';
   static String? _userAgent;
   
   static Future<String> _getUserAgent() async {

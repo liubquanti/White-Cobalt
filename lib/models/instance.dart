@@ -7,8 +7,10 @@ class CobaltInstance {
   final int score;
   final Map<String, dynamic> services;
   final int trust;
+  final String? status;
   final String? branch;
   final String? commit;
+  final bool? auth;
   final bool? cors;
   final String? name;
   final String? version;
@@ -22,8 +24,10 @@ class CobaltInstance {
     required this.score,
     required this.services,
     required this.trust,
+    this.status,
     this.branch,
     this.commit,
+    this.auth,
     this.cors,
     this.name,
     this.version,
@@ -36,6 +40,8 @@ class CobaltInstance {
     .length;
     
   bool get isOnline => online.api;
+
+  bool get requiresAuth => auth == true;
 
   factory CobaltInstance.fromJson(Map<String, dynamic> json) {
     OnlineStatus onlineStatus;
@@ -56,8 +62,10 @@ class CobaltInstance {
       score: json['score'] as int? ?? 0,
       services: json['services'] as Map<String, dynamic>? ?? {},
       trust: json['trust'] as int? ?? 0,
+      status: json['status'] as String?,
       branch: (json['git']?['branch'] ?? json['branch']) as String?,
       commit: (json['git']?['commit'] ?? json['commit']) as String?,
+      auth: (json['info']?['auth'] ?? json['auth']) as bool?,
       cors: (json['info']?['cors'] ?? json['cors']) as bool?,
       name: json['name'] as String?,
       version: json['version'] as String?,

@@ -764,6 +764,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                           color: Colors.white70,
                         ),
                       ),
+                      _buildAuthStatusText(instance),
                     ],
                   ),
                 ),
@@ -887,5 +888,31 @@ class _InstancesScreenState extends State<InstancesScreen> {
     if (score >= 50) return Colors.amber;
     if (score >= 20) return Colors.orange;
     return Colors.red;
+  }
+
+  Widget _buildAuthStatusText(CobaltInstance instance) {
+    final auth = instance.auth;
+    String label;
+    Color color;
+
+    if (auth == true) {
+      label = LocaleKeys.AuthRequired.tr();
+      color = Colors.red;
+    } else if (auth == false) {
+      label = LocaleKeys.OpenAccess.tr();
+      color = Colors.green;
+    } else {
+      label = LocaleKeys.AuthInfoUnavailable.tr();
+      color = Colors.white70;
+    }
+
+    return Text(
+      label,
+      style: TextStyle(
+        fontSize: 12,
+        color: color,
+        fontWeight: FontWeight.w600,
+      ),
+    );
   }
 }

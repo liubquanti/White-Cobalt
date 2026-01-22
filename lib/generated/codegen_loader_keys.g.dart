@@ -116,6 +116,9 @@ abstract class  LocaleKeys {
   static const NoServersFound = 'NoServersFound';
   static const Official = 'Official';
   static const APIURLCopiedToClipboard = 'APIURLCopiedToClipboard';
+  static const AuthRequired = 'AuthRequired';
+  static const OpenAccess = 'OpenAccess';
+  static const AuthInfoUnavailable = 'AuthInfoUnavailable';
   static const Protocol = 'Protocol';
   static const Services = 'Services';
   static const VersionWithArg = 'VersionWithArg';
