@@ -1,0 +1,83 @@
+name: Build and Release Flutter AAB to Google Play
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version_changed: ${{ steps.check.outputs.version_changed }}
+      new_version: ${{ steps.check.outputs.new_version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get previous pubspec.yaml
+        run: |
+          git fetch origin main --depth=2
+          git show HEAD^:pubspec.yaml > pubspec_old.yaml || echo "" > pubspec_old.yaml
+
+      - name: Check if version changed
+        id: check
+        shell: bash
+        run: |
+          old_version=$(grep '^version:' pubspec_old.yaml | sed 's/version: //')
+          new_version=$(grep '^version:' pubspec.yaml | sed 's/version: //')
+
+          if [ "$old_version" != "$new_version" ] && [ -n "$new_version" ]; then
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+            echo "new_version=$new_version" >> $GITHUB_OUTPUT
+          else
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-and-upload:
+    needs: check-version
+    if: needs.check-version.outputs.version_changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.6'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Decode keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+
+      - name: Create key.properties
+        run: |
+          cat <<EOF > android/key.properties
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=upload-keystore.jks
+          EOF
+
+      - name: Build App Bundle (AAB)
+        run: flutter build appbundle --release
+
+      - name: Decode Google Play service account
+        run: |
+          echo "${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}" | base64 --decode > service-account.json
+
+      - name: Upload to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: service-account.json
+          packageName: liubquanti.white.cobalt
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: production
+          status: draft
