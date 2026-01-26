@@ -1,34 +1,22 @@
 # 😺 • White Cobalt
 
-![GitHub Release](https://img.shields.io/github/v/release/liubquanti/White-Cobalt?style=for-the-badge&label=Release&color=white) ![GitHub repo size](https://img.shields.io/github/repo-size/liubquanti/White-Cobalt?style=for-the-badge&color=white) <br>
+![GitHub Release](https://img.shields.io/github/v/release/liubquanti/White-Cobalt?style=for-the-badge&label=Release&color=white) ![GitHub repo size](https://img.shields.io/github/repo-size/liubquanti/White-Cobalt?style=for-the-badge&color=white) `<br>`
 ![GitHub Repo stars](https://img.shields.io/github/stars/liubquanti/White-Cobalt?style=for-the-badge&color=yellow) ![GitHub forks](https://img.shields.io/github/forks/liubquanti/White-Cobalt?style=for-the-badge&color=red) ![GitHub License](https://img.shields.io/github/license/liubquanti/White-Cobalt?style=for-the-badge)
 
 A native Android client for downloading media from the Internet using [cobalt server APIs](https://github.com/imputnet/cobalt/blob/main/docs/api.md).
 
-White Cobalt follows the principles of [cobalt.tools](https://cobalt.tools/):
-
-- `No ads, trackers, paywalls, or other nonsense.`
-- `Was created for public benefit.`
-- `Paste the link, get the file, move on. that simple, just how it should be.`
-
-White Cobalt is a tool that makes downloading public content easier. It takes zero liability. The end user is responsible for what they download, how they use and distribute that content.
-
-White Cobalt is in no way a piracy tool and cannot be used as such. It can only download free & publicly accessible content.
-
-White Cobalt was developed independently of the [creators of cobalt.tools](https://github.com/imputnet).
-
 [![Static Badge](https://img.shields.io/badge/Google%20Play-Q?style=for-the-badge&logo=googleplay&color=3aaa5a&link=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dliubquanti.white.cobalt)](https://play.google.com/store/apps/details?id=liubquanti.white.cobalt) [![Static Badge](https://img.shields.io/badge/APKPure-Q?style=for-the-badge&logo=android&logoColor=white&color=2cc78a&link=https%3A%2F%2Fapkpure.com%2Fwhite-cobalt%2Fliubquanti.white.cobalt)](https://apkpure.com/white-cobalt-media-downloader/liubquanti.white.cobalt)
 
-## ⭐ • Sources
+## ⭐ • API Sources
 
-- [cobalt official website](https://cobalt.tools/).
-- [cobalt API documentation](https://github.com/imputnet/cobalt/blob/main/docs/api.md).
+- [cobalt API documentation](https://github.com/imputnet/cobalt/blob/main/docs/api.md);
+- [cobalt instances API documentation](https://instances.cobalt.best/api).
 
 ## 🧩 • Usage
 
 There are two ways to download media:
 
-> Open the app, paste the media link into the input field, and tap the `download` button.
+> Open the app, paste the media link into the input field, and tap the `Download` button.
 
 > While viewing content, share the link through the share menu and select White Cobalt.
 
