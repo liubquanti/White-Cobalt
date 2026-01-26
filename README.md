@@ -1,6 +1,6 @@
 # 😺 • White Cobalt
 
-![GitHub Release](https://img.shields.io/github/v/release/liubquanti/White-Cobalt?style=for-the-badge&label=Release&color=white) ![GitHub repo size](https://img.shields.io/github/repo-size/liubquanti/White-Cobalt?style=for-the-badge&color=white) `<br>`
+![GitHub Release](https://img.shields.io/github/v/release/liubquanti/White-Cobalt?style=for-the-badge&label=Release&color=white) ![GitHub repo size](https://img.shields.io/github/repo-size/liubquanti/White-Cobalt?style=for-the-badge&color=white) <br>
 ![GitHub Repo stars](https://img.shields.io/github/stars/liubquanti/White-Cobalt?style=for-the-badge&color=yellow) ![GitHub forks](https://img.shields.io/github/forks/liubquanti/White-Cobalt?style=for-the-badge&color=red) ![GitHub License](https://img.shields.io/github/license/liubquanti/White-Cobalt?style=for-the-badge)
 
 A native Android client for downloading media from the Internet using [cobalt server APIs](https://github.com/imputnet/cobalt/blob/main/docs/api.md).
