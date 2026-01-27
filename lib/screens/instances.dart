@@ -737,6 +737,13 @@ class _InstancesScreenState extends State<InstancesScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 10),
+            const Divider(
+              color: Color(0xFF383838),
+              thickness: 1.0,
+              height: 1,
+            ),
+            const SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
@@ -764,13 +771,26 @@ class _InstancesScreenState extends State<InstancesScreen> {
                           color: Colors.white70,
                         ),
                       ),
-                      _buildAuthStatusText(instance),
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 5),
+            const SizedBox(height: 10),
+            const Divider(
+              color: Color(0xFF383838),
+              thickness: 1.0,
+              height: 1,
+            ),
+            const SizedBox(height: 10),
+            _buildAuthStatusText(instance),
+            const SizedBox(height: 10),
+            const Divider(
+              color: Color(0xFF383838),
+              thickness: 1.0,
+              height: 1,
+            ),
+            const SizedBox(height: 10),
             Row(
               children: [
                 Material(
