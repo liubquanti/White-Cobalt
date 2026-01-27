@@ -396,7 +396,6 @@ class _InstancesScreenState extends State<InstancesScreen> {
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 5),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -566,7 +565,21 @@ class _InstancesScreenState extends State<InstancesScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 5),
+            const SizedBox(height: 10),
+            const Divider(
+              color: Color(0xFF383838),
+              thickness: 1.0,
+              height: 1,
+            ),
+            const SizedBox(height: 10),
+            _buildAuthStatusText(server.auth),
+            const SizedBox(height: 10),
+            const Divider(
+              color: Color(0xFF383838),
+              thickness: 1.0,
+              height: 1,
+            ),
+            const SizedBox(height: 10),
             Row(
               children: [
                 Material(
@@ -783,7 +796,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
               height: 1,
             ),
             const SizedBox(height: 10),
-            _buildAuthStatusText(instance),
+            _buildAuthStatusText(instance.auth),
             const SizedBox(height: 10),
             const Divider(
               color: Color(0xFF383838),
@@ -910,8 +923,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
     return Colors.red;
   }
 
-  Widget _buildAuthStatusText(CobaltInstance instance) {
-    final auth = instance.auth;
+  Widget _buildAuthStatusText(bool? auth) {
     String label;
     Color color;
 
