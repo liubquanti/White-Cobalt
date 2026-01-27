@@ -3,6 +3,7 @@
         "api": "api.cobalt.liubquanti.click",
         "frontend": "None",
         "protocol": "https",
+        "auth": false,
         "reason": "Official White Cobalt API instance.",
         "logo": "https://github.com/liubquanti/White-Cobalt/blob/main/assets/icon/Heart.png?raw=true"
     },
@@ -10,6 +11,7 @@
         "api": "api.cobalt.tools",
         "frontend": "cobalt.tools",
         "protocol": "https",
+        "auth": true,
         "reason": "Official clobalt API instance.",
         "logo": "https://github.com/imputnet/cobalt/raw/main/web/static/favicon.png"
     }
