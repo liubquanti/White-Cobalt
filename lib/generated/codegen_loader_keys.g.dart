@@ -13,8 +13,10 @@ abstract class  LocaleKeys {
   static const MediaDownloadingAPI = 'MediaDownloadingAPI';
   static const CobaltDescription = 'CobaltDescription';
   static const kwiatsCobaltInstances = 'kwiatsCobaltInstances';
+  static const hypersCobaltDirectory = 'hypersCobaltDirectory';
   static const InstancesProviderAPI = 'InstancesProviderAPI';
   static const ASimpleToUseAndConvenientListOfCobaltInstances = 'ASimpleToUseAndConvenientListOfCobaltInstances';
+  static const HyperCommunityTrackingDescription = 'HyperCommunityTrackingDescription';
   static const SupportApp = 'SupportApp';
   static const LeaveAReview = 'LeaveAReview';
   static const GiveAStar = 'GiveAStar';

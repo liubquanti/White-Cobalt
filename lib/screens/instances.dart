@@ -26,7 +26,8 @@ class InstancesScreen extends StatefulWidget {
 
 class _InstancesScreenState extends State<InstancesScreen> {
   bool _isLoading = true;
-  List<CobaltInstance> _instances = [];
+  List<CobaltInstance> _kwiatInstances = [];
+  List<CobaltInstance> _hyperInstances = [];
   List<OfficialServer> _officialServers = [];
   String _error = '';
   final TextEditingController _apiKeyController = TextEditingController();
@@ -44,24 +45,32 @@ class _InstancesScreenState extends State<InstancesScreen> {
     });
 
     try {
-      final futures = await Future.wait([
-        OfficialServersService.fetchOfficialServers(),
-        InstancesService.fetchInstances(),
-      ]);
+      final officialFuture = OfficialServersService.fetchOfficialServers();
+      final instancesFuture = InstancesService.fetchInstances();
 
-      final officialServers = futures[0] as List<OfficialServer>;
-      final instances = futures[1] as List<CobaltInstance>;
+      final officialServers = await officialFuture;
+      final instancesResponse = await instancesFuture;
 
-      instances.sort((a, b) {
-        if (a.isOnline != b.isOnline) {
-          return a.isOnline ? -1 : 1;
-        }
-        return b.score.compareTo(a.score);
-      });
+      final kwiatInstances = List<CobaltInstance>.from(instancesResponse.kwiat)
+        ..sort((a, b) {
+          if (a.isOnline != b.isOnline) {
+            return a.isOnline ? -1 : 1;
+          }
+          return b.score.compareTo(a.score);
+        });
+
+      final hyperInstances = List<CobaltInstance>.from(instancesResponse.hyper)
+        ..sort((a, b) {
+          if (a.isOnline != b.isOnline) {
+            return a.isOnline ? -1 : 1;
+          }
+          return b.score.compareTo(a.score);
+        });
 
       setState(() {
         _officialServers = officialServers;
-        _instances = instances;
+        _kwiatInstances = kwiatInstances;
+        _hyperInstances = hyperInstances;
         _isLoading = false;
       });
     } catch (e) {
@@ -100,7 +109,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${server.api}',
+                server.api,
                 style: const TextStyle(
                   fontSize: 14,
                 ),
@@ -231,7 +240,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${instance.api}',
+                instance.api,
                 style: const TextStyle(
                   fontSize: 14,
                 ),
@@ -426,7 +435,6 @@ class _InstancesScreenState extends State<InstancesScreen> {
                       ),
                     );
                   },
-                  child: Text(LocaleKeys.ServiceStatus.tr()),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     backgroundColor: const Color(0xFF191919),
@@ -439,6 +447,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                       ),
                     ),
                   ),
+                  child: Text(LocaleKeys.ServiceStatus.tr()),
                 ),
               ],
             ),
@@ -447,43 +456,84 @@ class _InstancesScreenState extends State<InstancesScreen> {
       );
     }
 
-    return ListView(
-      padding:
-          EdgeInsets.only(left: 16.0, right: 16.0, bottom: MediaQuery.of(context).padding.bottom),
-      children: [
-        if (_officialServers.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Text(
-              LocaleKeys.OfficialInstances.tr(),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+    return DefaultTabController(
+      length: 2,
+      child: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          final List<Widget> headerChildren = [];
+          final bool hasOfficial = _officialServers.isNotEmpty;
+          final bool hasPublic = _kwiatInstances.isNotEmpty || _hyperInstances.isNotEmpty;
+
+          if (hasOfficial) {
+            headerChildren
+              ..add(
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Text(
+                    LocaleKeys.OfficialInstances.tr(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              )
+              ..addAll(
+                _officialServers.map(_buildOfficialServerCard),
+              )
+              ..add(const SizedBox(height: 4));
+          }
+
+          if (hasPublic) {
+            headerChildren.add(
+              Text(
+                LocaleKeys.PublicInstances.tr(),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            );
+          }
+
+          final tabController = DefaultTabController.of(context);
+
+          return [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: headerChildren,
+                ),
               ),
             ),
-          ),
-          ..._officialServers.map((server) => _buildOfficialServerCard(server)),
-          const SizedBox(height: 5),
-        ],
-        if (_instances.isNotEmpty) ...[
-          Text(
-            LocaleKeys.PublicInstances.tr(),
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _InstancesTabBarDelegate(
+                tabController,
+              ),
             ),
+          ];
+        },
+        body: Container(
+          color: Colors.black,
+          child: TabBarView(
+            children: [
+              _buildInstancesTabContent(
+                context,
+                _kwiatInstances,
+              ),
+              _buildInstancesTabContent(
+                context,
+                _hyperInstances,
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          ..._instances.map((instance) => _buildInstanceCard(instance)),
-          const SizedBox(height: 6),
-        ],
-        if (_officialServers.isEmpty && _instances.isEmpty)
-          Center(
-            child: Text(LocaleKeys.NoServersFound.tr()),
-          ),
-      ],
+        ),
+      ),
     );
   }
 
@@ -537,7 +587,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                   ),
                   child: Text(
                     LocaleKeys.Official.tr(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
@@ -655,7 +705,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                     borderRadius: BorderRadius.circular(8),
                     onTap: () {
                       Clipboard.setData(
-                        ClipboardData(text: '${server.apiUrl}'),
+                        ClipboardData(text: server.apiUrl),
                       ).then((_) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -688,6 +738,44 @@ class _InstancesScreenState extends State<InstancesScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildInstancesTabContent(
+    BuildContext context,
+    List<CobaltInstance> instances,
+  ) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    if (instances.isEmpty) {
+      return ListView(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 20,
+          bottom: bottomPadding + 16,
+        ),
+        children: [
+          Center(
+            child: Text(
+              LocaleKeys.NoServersFound.tr(),
+              style: const TextStyle(color: Colors.white70),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return ListView(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        bottom: bottomPadding,
+      ),
+      children: [
+        ...instances.map(_buildInstanceCard),
+        const SizedBox(height: 6),
+      ],
     );
   }
 
@@ -846,7 +934,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                if (instance.frontend != "None" && instance.frontend!.isNotEmpty)
+                if (instance.frontend != null && instance.frontend != "None" && instance.frontend!.isNotEmpty)
                   Material(
                     color: Colors.transparent,
                     child: InkWell(
@@ -872,7 +960,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                       ),
                     ),
                   ),
-                if (instance.frontend != "None" && instance.frontend!.isNotEmpty)
+                if (instance.frontend != null && instance.frontend != "None" && instance.frontend!.isNotEmpty)
                   const SizedBox(width: 10),
                 Material(
                   color: Colors.transparent,
@@ -880,7 +968,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                     borderRadius: BorderRadius.circular(8),
                     onTap: () {
                       Clipboard.setData(
-                        ClipboardData(text: '${instance.apiUrl}'),
+                        ClipboardData(text: instance.apiUrl),
                       ).then((_) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -944,6 +1032,95 @@ class _InstancesScreenState extends State<InstancesScreen> {
         fontSize: 12,
         color: color,
         fontWeight: FontWeight.w600,
+      ),
+    );
+  }
+}
+
+class _InstancesTabBarDelegate extends SliverPersistentHeaderDelegate {
+  _InstancesTabBarDelegate(this.controller);
+
+  final TabController controller;
+
+  @override
+  double get minExtent => 56;
+
+  @override
+  double get maxExtent => 56;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return _InstancesTabSwitch(controller: controller);
+  }
+
+  @override
+  bool shouldRebuild(_InstancesTabBarDelegate oldDelegate) {
+    return oldDelegate.controller != controller;
+  }
+}
+
+class _InstancesTabSwitch extends StatelessWidget {
+  const _InstancesTabSwitch({required this.controller});
+
+  final TabController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        return Container(
+          color: Colors.black,
+          padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF191919),
+              borderRadius: BorderRadius.circular(9),
+              border: Border.all(
+                color: const Color.fromRGBO(255, 255, 255, 0.08),
+                width: 1.5,
+              ),
+            ),
+            child: Row(
+              children: [
+                _buildTabButton(context, 0, 'Kwiat'),
+                _buildTabButton(context, 1, 'Hyper'),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTabButton(BuildContext context, int index, String label) {
+    final bool isSelected = controller.index == index;
+
+    return Expanded(
+      child: Material(
+        color: isSelected ? const Color(0xFF333333) : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+        child: InkWell(
+          onTap: () {
+            if (controller.index != index) {
+              controller.animateTo(index);
+            }
+          },
+          borderRadius: BorderRadius.circular(9),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: Colors.white,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
       ),
     );
   }

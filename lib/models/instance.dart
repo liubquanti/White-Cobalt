@@ -36,8 +36,11 @@ class CobaltInstance {
   String get apiUrl => '$protocol://$api';
   
   int get servicesCount => services.entries
-    .where((entry) => entry.value == true)
-    .length;
+      .where(
+        (entry) =>
+            entry.value == true && entry.key.toString().toLowerCase() != 'frontend',
+      )
+      .length;
     
   bool get isOnline => online.api;
 
@@ -68,6 +71,63 @@ class CobaltInstance {
       auth: (json['info']?['auth'] ?? json['auth']) as bool?,
       cors: (json['info']?['cors'] ?? json['cors']) as bool?,
       name: json['name'] as String?,
+      version: json['version'] as String?,
+    );
+  }
+
+  factory CobaltInstance.fromHyperJson(Map<String, dynamic> json) {
+    final rawTests = json['tests'];
+    final Map<String, dynamic> services = {};
+    int successCount = 0;
+    int totalCount = 0;
+    bool frontendOnline = false;
+
+    if (rawTests is Map<String, dynamic>) {
+      rawTests.forEach((key, value) {
+        if (value is Map<String, dynamic>) {
+          final status = value['status'];
+          if (status is bool) {
+            final keyString = key.toString();
+            services[keyString] = status;
+            if (keyString.toLowerCase() == 'frontend') {
+              frontendOnline = status;
+            } else {
+              totalCount++;
+              if (status) {
+                successCount++;
+              }
+            }
+          }
+        }
+      });
+    }
+
+    final bool apiOnline = json['online'] == true;
+    final int computedScore;
+    if (totalCount > 0) {
+      computedScore = ((successCount / totalCount) * 100).round();
+    } else {
+      computedScore = apiOnline ? 100 : 0;
+    }
+
+    return CobaltInstance(
+      api: json['api'] as String,
+      frontend: json['frontend'] as String?,
+      nodomain: false,
+      online: OnlineStatus(
+        api: apiOnline,
+        frontend: frontendOnline,
+      ),
+      protocol: json['protocol'] as String? ?? 'https',
+      score: computedScore,
+      services: services,
+      trust: 0,
+      status: null,
+      branch: null,
+      commit: null,
+      auth: null,
+      cors: null,
+      name: null,
       version: json['version'] as String?,
     );
   }
