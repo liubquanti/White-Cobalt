@@ -12,6 +12,13 @@ A native Android client for downloading media from the Internet using [cobalt se
 - [cobalt API documentation](https://github.com/imputnet/cobalt/blob/main/docs/api.md);
 - [cobalt instances API documentation](https://instances.cobalt.best/api).
 
+## 🤝 • Special thanks
+
+> - [@zimpatrick](https://github.com/zimpatrick) - instance provider
+
+> - [@kwiatekmiki](https://github.com/KwiatekMiki) - intances list provider
+> - [@hyperdefined](https://github.com/hyperdefined) - instances list provider
+
 ## 🧩 • Usage
 
 There are two ways to download media:
