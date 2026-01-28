@@ -14,10 +14,10 @@ A native Android client for downloading media from the Internet using [cobalt se
 
 ## 🤝 • Special thanks
 
-> - [@zimpatrick](https://github.com/zimpatrick) - instance provider
+ - [@zimpatrick](https://github.com/zimpatrick) - instance provider
 
-> - [@kwiatekmiki](https://github.com/KwiatekMiki) - intances list provider
-> - [@hyperdefined](https://github.com/hyperdefined) - instances list provider
+ - [@kwiatekmiki](https://github.com/KwiatekMiki) - intances list provider
+ - [@hyperdefined](https://github.com/hyperdefined) - instances list provider
 
 ## 🧩 • Usage
 
