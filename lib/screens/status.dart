@@ -274,25 +274,6 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
                                         ),
                                       ],
                                     ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      _buildUptimeChip(
-                                        LocaleKeys.Last24h.tr(),
-                                        monitor['ratio']?['ratio'] ?? '0',
-                                      ),
-                                      const SizedBox(width: 8),
-                                      _buildUptimeChip(
-                                        LocaleKeys.Last7d.tr(),
-                                        monitor['30dRatio']?['ratio'] ?? '0',
-                                      ),
-                                      const SizedBox(width: 8),
-                                      _buildUptimeChip(
-                                        LocaleKeys.Last30d.tr(),
-                                        monitor['90dRatio']?['ratio'] ?? '0',
-                                      ),
-                                    ],
-                                  ),
                                 ],
                               ),
                             ),
@@ -302,55 +283,6 @@ class _ServiceStatusScreenState extends State<ServiceStatusScreen> {
                     ],
                   ),
                 ),
-    );
-  }
-
-  Widget _buildUptimeChip(String label, String value) {
-    final uptimeValue = double.tryParse(value) ?? 0;
-    Color color;
-    if (uptimeValue >= 99) {
-      color = Colors.green;
-    } else if (uptimeValue >= 95) {
-      color = Colors.orange;
-    } else {
-      color = Colors.red;
-    }
-
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-        decoration: BoxDecoration(
-          color: const Color(0xFF191919),
-          borderRadius: BorderRadius.circular(11),
-          border: Border.all(
-            color: const Color.fromRGBO(255, 255, 255, 0.08),
-            width: 1.5,
-          ),
-        ),
-        child: Column(
-          children: [
-            Text(
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '${uptimeValue.toStringAsFixed(1)}%',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
