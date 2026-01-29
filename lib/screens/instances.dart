@@ -757,9 +757,65 @@ class _InstancesScreenState extends State<InstancesScreen> {
         ),
         children: [
           Center(
-            child: Text(
-              LocaleKeys.NoServersFound.tr(),
-              style: const TextStyle(color: Colors.white70),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    LocaleKeys
+                            .AnErrorOccurredWhileLoadingTheListOfInstancesPleaseTryAgainOrCheckTheServiceStatus
+                        .tr(),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: _loadData,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        backgroundColor: const Color(0xFF191919),
+                        foregroundColor: const Color(0xFFe1e1e1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(11),
+                          side: const BorderSide(
+                            color: Color.fromRGBO(255, 255, 255, 0.08),
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                      child: Text(LocaleKeys.Retry.tr()),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await Future.delayed(const Duration(milliseconds: 250));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ServiceStatusScreen(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        backgroundColor: const Color(0xFF191919),
+                        foregroundColor: const Color(0xFFe1e1e1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(11),
+                          side: const BorderSide(
+                            color: Color.fromRGBO(255, 255, 255, 0.08),
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                      child: Text(LocaleKeys.ServiceStatus.tr()),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
