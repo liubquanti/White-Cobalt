@@ -9,13 +9,20 @@ plugins {
 
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-} else {
-    keystoreProperties["storeFile"] = rootProject.file("test.keystore").absolutePath
-    keystoreProperties["storePassword"] = "123456"
-    keystoreProperties["keyAlias"] = "testkey"
-    keystoreProperties["keyPassword"] = "123456"
+val fallbackTestKeystore = rootProject.file("test.keystore")
+val keystoreMode = when {
+    keystorePropertiesFile.exists() -> {
+        keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+        "keyProperties"
+    }
+    fallbackTestKeystore.exists() -> {
+        keystoreProperties["storeFile"] = fallbackTestKeystore.absolutePath
+        keystoreProperties["storePassword"] = "123456"
+        keystoreProperties["keyAlias"] = "testkey"
+        keystoreProperties["keyPassword"] = "123456"
+        "ciTestKeystore"
+    }
+    else -> "debugKeystore"
 }
 
 android {
@@ -41,11 +48,21 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = keystoreProperties["storeFile"]?.let { file(it) }
-            storePassword = keystoreProperties["storePassword"] as String
+        if (keystoreMode == "debugKeystore") {
+            val debugConfig = getByName("debug")
+            create("release") {
+                storeFile = debugConfig.storeFile
+                storePassword = debugConfig.storePassword
+                keyAlias = debugConfig.keyAlias
+                keyPassword = debugConfig.keyPassword
+            }
+        } else {
+            create("release") {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+                storePassword = keystoreProperties["storePassword"] as String
+            }
         }
     }
 
@@ -56,10 +73,10 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
 
-            if (keystorePropertiesFile.exists()) {
-                println("🔐 Release build: using real key.properties")
-            } else {
-                println("⚠️ Release build: using temporary test keystore for CI")
+            when (keystoreMode) {
+                "keyProperties" -> println("🔐 Release build: using real key.properties")
+                "ciTestKeystore" -> println("⚠️ Release build: using temporary test keystore for CI")
+                else -> println("⚠️ Release build: using Android debug keystore fallback; add key.properties for production")
             }
         }
     }
