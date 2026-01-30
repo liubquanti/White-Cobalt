@@ -36,4 +36,4 @@ The list of supported services depends on which services are supported by the co
 
 ## 📊 • Development Stats
 
-![Alt](https://repobeats.axiom.co/api/embed/e8f2493da0ae6154170cdd95468ad622db3a99a9.svg "Repobeats analytics image")
+![Alt](https://repobeats.axiom.co/api/embed/0d82ed83c0e15d7e047d32c5f6b1e672ff80caf0.svg "Repobeats analytics image")
