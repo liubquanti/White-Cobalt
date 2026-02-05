@@ -25,6 +25,7 @@ dependencies:
   easy_localization: ^3.0.8
   focus_detector: ^2.0.1
   flutter_localized_locales: ^2.0.5
+  flutter_dotenv: ^5.1.0
   
 dev_dependencies:
   flutter_test:
@@ -45,6 +46,7 @@ flutter:
     - assets/heart/Heart Meowbalt.svg
     - assets/photos/
     - assets/translations/
+    - .env
 
 flutter_launcher_icons:
   android: true
