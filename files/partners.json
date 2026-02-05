@@ -1,0 +1,10 @@
+[
+    {
+        "api": "cobalt-api.meowing.de",
+        "frontend": "None",
+        "protocol": "https",
+        "auth": true,
+        "reason": "Partner cobalt API instance by patrick.",
+        "logo": "https://github.com/zImPatrick/cobalt/raw/meowing.de/web/static/favicon.png"
+    }
+]
