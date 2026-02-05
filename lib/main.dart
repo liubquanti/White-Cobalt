@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:white_cobalt/generated/codegen_loader.g.dart';
 
 import 'app.dart';
@@ -21,6 +22,12 @@ void main() async {
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
   ));
+
+  try {
+    await dotenv.load(fileName: '.env', isOptional: true);
+  } catch (e) {
+    // Fallback: missing .env should not block app startup.
+  }
 
   await FlutterDownloader.initialize(debug: false);
 
