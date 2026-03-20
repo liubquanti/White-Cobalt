@@ -128,6 +128,8 @@
     "ShareLinks": "Liens de partage",
     "ShareLinksInsteadOfDownloadingFiles": "Partager les liens au lieu de télécharger les fichiers",
     "Interface": "Interface",
+    "ShowBanner": "Afficher la bannière",
+    "DisplayBannerOnHomeScreen": "Afficher la bannière sur l’écran d’accueil",
     "ShowChangelogs": "Afficher les journaux de modifications",
     "DisplayAPIChangelogsOnHomeScreen": "Afficher les journaux de l’API sur l’écran d’accueil",
     "Storage": "Stockage",

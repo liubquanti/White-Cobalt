@@ -14,13 +14,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:media_scanner/media_scanner.dart';
 import 'package:card_loading/card_loading.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:white_cobalt/generated/codegen_loader_keys.g.dart';
 
 import '../config/server.dart';
 import '../config/settings.dart';
+import '../models/banner.dart';
 import '../screens/settings.dart';
 import '../screens/instances.dart';
 import 'changelog.dart';
+import '../services/banner.dart';
 import '../services/share.dart';
 
 class ChangelogEntry {
@@ -73,6 +76,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   int _loadedChangelogsCount = 0;
   bool _isLoadingMoreChangelogs = false;
   bool _isInitialLoadingChangelogs = true;
+  bool _isLoadingBanner = false;
+  HomeBanner? _banner;
+  String? _bannerLocale;
 
   String? _baseUrl;
   String? get baseUrl => _baseUrl;
@@ -98,6 +104,49 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     _checkForSharedUrl();
     _urlController.addListener(_updateUrlFieldState);
     _loadChangelogs();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final localeCode = context.locale.languageCode;
+    if (_bannerLocale != localeCode) {
+      _bannerLocale = localeCode;
+      _loadBanner(localeCode);
+    }
+  }
+
+  Future<void> _loadBanner(String localeCode) async {
+    setState(() {
+      _isLoadingBanner = true;
+    });
+
+    try {
+      final banner = await HomeBannerService.fetchBannerForLanguage(localeCode);
+      if (!mounted) return;
+      setState(() {
+        _banner = banner;
+        _isLoadingBanner = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoadingBanner = false;
+      });
+    }
+  }
+
+  Future<void> _openBannerLink(String link) async {
+    final uri = Uri.tryParse(link);
+    if (uri == null) return;
+
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && mounted) {
+      setState(() {
+        _status = LocaleKeys.ErrorWithArg.tr(args: ['Unable to open banner link']);
+      });
+    }
   }
 
   Future<void> _loadSettings() async {
@@ -1993,6 +2042,25 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                     ),
                   ),
                 const SizedBox(height: 10),
+                if (_appSettings.showBanner && _isLoadingBanner) ...[
+                  const Divider(
+                    color: Color(0xFF383838),
+                    thickness: 1.0,
+                    height: 1,
+                  ),
+                  const SizedBox(height: 10),
+                  _buildHomeBannerSkeleton(),
+                  const SizedBox(height: 10),
+                ] else if (_appSettings.showBanner && _banner != null) ...[
+                  const Divider(
+                    color: Color(0xFF383838),
+                    thickness: 1.0,
+                    height: 1,
+                  ),
+                  const SizedBox(height: 10),
+                  _buildHomeBannerCard(_banner!),
+                  const SizedBox(height: 10),
+                ],
                 if (_appSettings.showChangelogs) ...[
                   const Divider(
                     color: Color(0xFF383838),
@@ -2339,6 +2407,128 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHomeBannerCard(HomeBanner banner) {
+    return Material(
+      color: const Color(0xFF1a1a1a),
+      borderRadius: BorderRadius.circular(11.0),
+      child: InkWell(
+        onTap: () => _openBannerLink(banner.link),
+        borderRadius: BorderRadius.circular(11.0),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(11.0),
+            border: Border.all(
+              color: const Color.fromRGBO(255, 255, 255, 0.05),
+              width: 1.5,
+            ),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(11.0),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Image.network(
+                    banner.image,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: const Color(0xFF1a1a1a),
+                    ),
+                  ),
+                ),
+                Positioned.fill(
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color.fromRGBO(0, 0, 0, 0.2),
+                          Color.fromRGBO(0, 0, 0, 0.82),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: double.infinity),
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        banner.localization.title,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        banner.localization.subtitle,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHomeBannerSkeleton() {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFF191919),
+        borderRadius: BorderRadius.circular(11),
+        border: Border.all(
+          color: const Color.fromRGBO(255, 255, 255, 0.05),
+          width: 1.5,
+        ),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.all(11.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CardLoading(
+              height: 16,
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+              width: 150,
+              cardLoadingTheme: CardLoadingTheme(
+                colorOne: Color(0xFF383838),
+                colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+              ),
+            ),
+            SizedBox(height: 10),
+            CardLoading(
+              height: 15,
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+              width: 220,
+              cardLoadingTheme: CardLoadingTheme(
+                colorOne: Color(0xFF383838),
+                colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+              ),
+            ),
+            SizedBox(height: 4),
+            CardLoading(
+              height: 15,
+              borderRadius: BorderRadius.all(Radius.circular(15)),
+              width: 100,
+              cardLoadingTheme: CardLoadingTheme(
+                colorOne: Color(0xFF383838),
+                colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
               ),
             ),
           ],

@@ -132,6 +132,8 @@ abstract class  LocaleKeys {
   static const ShareLinks = 'ShareLinks';
   static const ShareLinksInsteadOfDownloadingFiles = 'ShareLinksInsteadOfDownloadingFiles';
   static const Interface = 'Interface';
+  static const ShowBanner = 'ShowBanner';
+  static const DisplayBannerOnHomeScreen = 'DisplayBannerOnHomeScreen';
   static const ShowChangelogs = 'ShowChangelogs';
   static const DisplayAPIChangelogsOnHomeScreen = 'DisplayAPIChangelogsOnHomeScreen';
   static const Storage = 'Storage';

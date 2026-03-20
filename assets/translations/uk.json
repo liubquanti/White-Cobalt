@@ -128,6 +128,8 @@
     "ShareLinks": "Поширювати посилання",
     "ShareLinksInsteadOfDownloadingFiles": "Поширювати посилання замість завантаження файлів",
     "Interface": "Інтерфейс",
+    "ShowBanner": "Показувати банер",
+    "DisplayBannerOnHomeScreen": "Відображати банер на головному екрані",
     "ShowChangelogs": "Показувати список змін",
     "DisplayAPIChangelogsOnHomeScreen": "Відображати зміни API на головному екрані",
     "Storage": "Сховище",
