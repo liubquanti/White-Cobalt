@@ -815,7 +815,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.orangeAccent,
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(

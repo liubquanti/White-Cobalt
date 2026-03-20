@@ -38,7 +38,7 @@ flutter:
   fonts:
     - family: NotoSansMono
       fonts:
-        - asset: fonts/NotoSansMono.ttf
+        - asset: assets/fonts/NotoSansMono.ttf
           style: normal
           weight: 400
   assets:
