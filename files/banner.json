@@ -1,0 +1,33 @@
+[
+    {
+        "link": "https://discord.com/invite/pQPt8HBUPu",
+        "image": "https://rotek.fr/wp-content/uploads/discord-4.png",
+        "localisations": {
+            "en": {
+                "title": "Join the community!",
+                "subtitle": "Join the Cobalt's community in Discord.",
+                "button": "Join"
+            },
+            "de": {
+                "title": "Tritt der Community bei!",
+                "subtitle": "Tritt der Cobalt-Community auf Discord bei.",
+                "button": "Beitreten"
+            },
+            "fr": {
+                "title": "Rejoignez la communauté !",
+                "subtitle": "Rejoignez la communauté Cobalt sur Discord.",
+                "button": "Rejoindre"
+            },
+            "hi": {
+                "title": "समुदाय से जुड़ें!",
+                "subtitle": "Discord पर Cobalt समुदाय से जुड़ें।",
+                "button": "जुड़ें"
+            },
+            "uk": {
+                "title": "Приєднуйтесь до спільноти!",
+                "subtitle": "Приєднуйтесь до спільноти Cobalt у Discord.",
+                "button": "Приєднатися"
+            }
+        }
+    }
+]
