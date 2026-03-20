@@ -128,6 +128,8 @@
     "ShareLinks": "Freigabelinks",
     "ShareLinksInsteadOfDownloadingFiles": "Freigabelinks teilen statt Dateien herunterzuladen",
     "Interface": "Benutzeroberfläche",
+    "ShowBanner": "Banner anzeigen",
+    "DisplayBannerOnHomeScreen": "Banner auf dem Startbildschirm anzeigen",
     "ShowChangelogs": "Änderungsprotokolle anzeigen",
     "DisplayAPIChangelogsOnHomeScreen": "API-Änderungsprotokolle auf dem Startbildschirm anzeigen",
     "Storage": "Speicher",

@@ -128,6 +128,8 @@
     "ShareLinks": "शेयर लिंक",
     "ShareLinksInsteadOfDownloadingFiles": "फ़ाइल डाउनलोड करने के बजाय लिंक साझा करें",
     "Interface": "इंटरफ़ेस",
+    "ShowBanner": "बैनर दिखाएँ",
+    "DisplayBannerOnHomeScreen": "होम स्क्रीन पर बैनर दिखाएँ",
     "ShowChangelogs": "परिवर्तन सूची दिखाएँ",
     "DisplayAPIChangelogsOnHomeScreen": "होम स्क्रीन पर API परिवर्तन सूची दिखाएँ",
     "Storage": "संग्रहण",

@@ -128,6 +128,8 @@
     "ShareLinks": "Share Links",
     "ShareLinksInsteadOfDownloadingFiles": "Share links instead of downloading files",
     "Interface": "Interface",
+    "ShowBanner": "Show Banner",
+    "DisplayBannerOnHomeScreen": "Display banner on Home Screen",
     "ShowChangelogs": "Show Changelogs",
     "DisplayAPIChangelogsOnHomeScreen": "Display API Changelogs on Home Screen",
     "Storage": "Storage",
