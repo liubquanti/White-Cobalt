@@ -5,7 +5,7 @@
         "protocol": "https",
         "auth": false,
         "reason": "Official White Cobalt API instance.",
-        "logo": "https://github.com/liubquanti/White-Cobalt/blob/main/assets/icon/Heart.png?raw=true"
+        "logo": "https://raw.githubusercontent.com/liubquanti/White-Cobalt-Instance/main/web/static/favicon.png"
     },
     {
         "api": "api.cobalt.tools",
