@@ -963,7 +963,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       }
 
       setState(() {
-        _status = LocaleKeys.Downloading0.tr();
+        _status = LocaleKeys.DownloadingWithArg.tr(args: ['0%']);
       });
 
       final tempDir = await getTemporaryDirectory();
@@ -1074,7 +1074,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         setState(() {
           switch (task.status) {
             case DownloadTaskStatus.running:
-              _status = LocaleKeys.Downloading.tr(args: [task.progress.toString()]);
+              _status = LocaleKeys.DownloadingWithArg.tr(args: ['${task.progress}%']);
               _lastProgressUpdate = DateTime.now();
               break;
             case DownloadTaskStatus.complete:
@@ -1658,9 +1658,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      _status.contains(LocaleKeys.Downloading.tr())
-                                          ? _status.substring(_status.indexOf(':') + 1).trim()
-                                          : _status,
+                                      _status,
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
