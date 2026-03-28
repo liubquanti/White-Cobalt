@@ -24,6 +24,7 @@ import '../screens/settings.dart';
 import '../screens/instances.dart';
 import 'changelog.dart';
 import '../services/banner.dart';
+import '../services/oinstances.dart';
 import '../services/share.dart';
 
 class ChangelogEntry {
@@ -93,6 +94,55 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
       await prefs.setInt('selected_server_index', selectedServerIndex);
     });
+  }
+
+  String _serverDisplayLabel(ServerConfig server) {
+    if (server.isOfficial && server.name != null && server.name!.trim().isNotEmpty) {
+      return server.name!.trim();
+    }
+    return server.url;
+  }
+
+  Future<void> _hydrateOfficialServerMetadata() async {
+    try {
+      final officialServers = await OfficialServersService.fetchOfficialServers();
+      final officialByUrl = {
+        for (final server in officialServers) server.apiUrl: server,
+      };
+
+      bool changed = false;
+      final updatedServers = _servers.map((server) {
+        final official = officialByUrl[server.url];
+        if (official == null) {
+          return server;
+        }
+
+        final name = official.name?.trim();
+        final updated = ServerConfig(
+          server.url,
+          server.apiKey,
+          name: (name != null && name.isNotEmpty) ? name : server.name,
+          isOfficial: true,
+        );
+
+        if (!changed && (updated.name != server.name || !server.isOfficial)) {
+          changed = true;
+        }
+
+        return updated;
+      }).toList();
+
+      if (!changed || !mounted) {
+        return;
+      }
+
+      setState(() {
+        _servers = updatedServers;
+      });
+      await _saveServers();
+    } catch (_) {
+      // Keep saved server list as-is if official metadata cannot be loaded.
+    }
   }
 
   @override
@@ -257,6 +307,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             ? _servers[selectedServerIndex].apiKey
             : _servers.first.apiKey;
       });
+      await _hydrateOfficialServerMetadata();
       _fetchServerInfo();
     } else {
       setState(() {
@@ -1447,7 +1498,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    server.url,
+                                    _serverDisplayLabel(server),
                                     style: const TextStyle(fontSize: 14),
                                     overflow: TextOverflow.ellipsis,
                                   ),

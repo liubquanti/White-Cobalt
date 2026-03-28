@@ -183,6 +183,8 @@ class _InstancesScreenState extends State<InstancesScreen> {
                 final serverConfig = ServerConfig(
                   server.apiUrl,
                   apiKey.isNotEmpty ? apiKey : null,
+                  name: server.name,
+                  isOfficial: true,
                 );
 
                 widget.onServerAdded(serverConfig);
@@ -569,7 +571,7 @@ class _InstancesScreenState extends State<InstancesScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    server.api,
+                    _officialServerTitle(server),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -1058,6 +1060,13 @@ class _InstancesScreenState extends State<InstancesScreen> {
         ),
       ),
     );
+  }
+
+  String _officialServerTitle(OfficialServer server) {
+    if (server.name != null && server.name!.trim().isNotEmpty) {
+      return server.name!.trim();
+    }
+    return server.api;
   }
 
   Color _getScoreColor(int score) {

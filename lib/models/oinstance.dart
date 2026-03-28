@@ -4,6 +4,7 @@ class OfficialServer {
   final String protocol;
   final String reason;
   final String logo;
+  final String? name;
   final bool? auth;
 
   OfficialServer({
@@ -12,6 +13,7 @@ class OfficialServer {
     required this.protocol,
     required this.reason,
     required this.logo,
+    this.name,
     this.auth,
   });
 
@@ -24,6 +26,7 @@ class OfficialServer {
       protocol: json['protocol'] as String,
       reason: json['reason'] as String,
       logo: json['logo'] as String,
+      name: json['name'] as String?,
       auth: json['auth'] as bool?,
     );
   }
