@@ -1550,7 +1550,12 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                           value: server.url,
                           child: GestureDetector(
                             onLongPress: () {
-                              _deleteServer(server.url);
+                              Navigator.of(context).pop();
+                              Future.microtask(() {
+                                if (mounted) {
+                                  _deleteServer(server.url);
+                                }
+                              });
                             },
                             behavior: HitTestBehavior.opaque,
                             child: Row(
