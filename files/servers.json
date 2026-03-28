@@ -4,6 +4,7 @@
         "frontend": "cobalt.liubquanti.click",
         "protocol": "https",
         "auth": false,
+        "autoadd": true,
         "name": "White Cobalt",
         "reason": "Official White Cobalt API instance.",
         "logo": "https://raw.githubusercontent.com/liubquanti/White-Cobalt-Instance/main/web/static/favicon.png"
@@ -13,6 +14,7 @@
         "frontend": "cobalt.tools",
         "protocol": "https",
         "auth": true,
+        "autoadd": false,
         "name": "Cobalt Tools",
         "reason": "Official clobalt API instance.",
         "logo": "https://github.com/imputnet/cobalt/raw/main/web/static/favicon.png"
