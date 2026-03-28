@@ -51,6 +51,7 @@ class MainActivity: FlutterActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         processIntent(intent)
     }
 

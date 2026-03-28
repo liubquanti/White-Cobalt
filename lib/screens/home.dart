@@ -217,21 +217,25 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       if (sharedUrl != null && sharedUrl.isNotEmpty) {
         _urlController.text = sharedUrl;
 
+        if (!mounted) return;
         setState(() {
           _urlFieldEmpty = false;
         });
 
         if (_isRealServerSelected()) {
-          Future.delayed(const Duration(milliseconds: 500), () {
-            _processUrl();
-          });
+          // Let the text field render the new shared URL before starting processing.
+          await Future.delayed(const Duration(milliseconds: 120));
+          if (!mounted) return;
+          await _processUrl(sharedUrl: sharedUrl);
         } else {
+          if (!mounted) return;
           setState(() {
             _status = LocaleKeys.URLReceivedFromShareButPleaseSelectAServerFirst.tr();
           });
         }
       }
     } on PlatformException catch (e) {
+      if (!mounted) return;
       setState(() {
         _status = LocaleKeys.ErrorCheckingSharedURLs.tr(args: [e.message.toString()]);
       });
@@ -668,7 +672,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     await Permission.audio.request();
   }
 
-  Future<void> _processUrl() async {
+  Future<void> _processUrl({String? sharedUrl}) async {
     if (baseUrl == null) {
       setState(() {
         _status = LocaleKeys.PleaseAddAndSelectAServerFirst.tr();
@@ -676,7 +680,16 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       return;
     }
 
-    final url = _urlController.text.trim();
+    final url = (sharedUrl ?? _urlController.text).trim();
+    if (sharedUrl != null && sharedUrl.trim().isNotEmpty && _urlController.text != sharedUrl) {
+      _urlController.text = sharedUrl;
+      if (mounted) {
+        setState(() {
+          _urlFieldEmpty = false;
+        });
+      }
+    }
+
     if (url.isEmpty) {
       setState(() {
         _status = LocaleKeys.PleaseEnterAURL.tr();
@@ -1351,7 +1364,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     final errorDetails = _getErrorDetails();
 
     return FocusDetector(
-      onFocusGained: () => setState(() {}),
+      onFocusGained: _checkForSharedUrl,
       child: Scaffold(
           backgroundColor: Colors.black,
           appBar: AppBar(
