@@ -117,10 +117,6 @@ abstract class  LocaleKeys {
   static const PublicInstances = 'PublicInstances';
   static const NoServersFound = 'NoServersFound';
   static const Official = 'Official';
-  static const PartnerInstances = 'PartnerInstances';
-  static const Partner = 'Partner';
-  static const PartnerApiKeyAutoApplied = 'PartnerApiKeyAutoApplied';
-  static const PartnerApiKeyMissing = 'PartnerApiKeyMissing';
   static const APIURLCopiedToClipboard = 'APIURLCopiedToClipboard';
   static const AuthRequired = 'AuthRequired';
   static const OpenAccess = 'OpenAccess';
