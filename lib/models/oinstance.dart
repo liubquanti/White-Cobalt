@@ -6,6 +6,7 @@ class OfficialServer {
   final String logo;
   final String? name;
   final bool? auth;
+  final bool autoadd;
 
   OfficialServer({
     required this.api,
@@ -15,6 +16,7 @@ class OfficialServer {
     required this.logo,
     this.name,
     this.auth,
+    this.autoadd = false,
   });
 
   String get apiUrl => '$protocol://$api';
@@ -28,6 +30,7 @@ class OfficialServer {
       logo: json['logo'] as String,
       name: json['name'] as String?,
       auth: json['auth'] as bool?,
+      autoadd: json['autoadd'] as bool? ?? false,
     );
   }
 }

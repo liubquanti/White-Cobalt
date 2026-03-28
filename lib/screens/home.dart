@@ -296,6 +296,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     final prefs = await SharedPreferences.getInstance();
     final serversJson = prefs.getStringList('servers_config');
     final selectedServerIndex = prefs.getInt('selected_server_index');
+    final isFirstLaunch = !prefs.containsKey('app_initialized');
 
     if (serversJson != null && serversJson.isNotEmpty) {
       setState(() {
@@ -309,7 +310,66 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       });
       await _hydrateOfficialServerMetadata();
       _fetchServerInfo();
+      // Mark as initialized after loading saved servers
+      if (isFirstLaunch) {
+        await prefs.setBool('app_initialized', true);
+      }
+    } else if (isFirstLaunch) {
+      // First launch with no saved servers: auto-add official servers with autoadd=true
+      await _initializeWithOfficialServers(prefs);
+      await prefs.setBool('app_initialized', true);
     } else {
+      // Not first launch, no saved servers: show add server prompt
+      await prefs.setBool('app_initialized', true);
+      setState(() {
+        _servers = [];
+        baseUrl = 'add_custom';
+        _currentApiKey = null;
+        _status = LocaleKeys.NoServersConfiguredPleaseAddACobaltServer.tr();
+      });
+    }
+  }
+
+  Future<void> _initializeWithOfficialServers(SharedPreferences prefs) async {
+    try {
+      final officialServers = await OfficialServersService.fetchOfficialServers();
+      final autoAddServers = officialServers.where((server) => server.autoadd).toList();
+
+      if (autoAddServers.isEmpty) {
+        // No auto-add servers, show add server prompt
+        setState(() {
+          _servers = [];
+          baseUrl = 'add_custom';
+          _currentApiKey = null;
+          _status = LocaleKeys.NoServersConfiguredPleaseAddACobaltServer.tr();
+        });
+        return;
+      }
+
+      // Create ServerConfigs for auto-add servers
+      final newServers = autoAddServers
+          .map((server) => ServerConfig(
+                server.apiUrl,
+                null,
+                name: server.name,
+                isOfficial: true,
+              ))
+          .toList();
+
+      setState(() {
+        _servers = newServers;
+        baseUrl = newServers.first.url;
+        _currentApiKey = null;
+        _status = LocaleKeys.ConnectedToCobalt.tr(args: ['auto-initialized']);
+      });
+
+      // Save servers to SharedPreferences
+      await _saveServers();
+      await prefs.setInt('selected_server_index', 0);
+
+      _fetchServerInfo();
+    } catch (e) {
+      // Failed to load official servers; show add server prompt
       setState(() {
         _servers = [];
         baseUrl = 'add_custom';
