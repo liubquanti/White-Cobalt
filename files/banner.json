@@ -1,32 +1,32 @@
 [
     {
-        "link": "https://discord.com/invite/pQPt8HBUPu",
-        "image": "https://rotek.fr/wp-content/uploads/discord-4.png",
+        "link": "https://keepandroidopen.org/",
+        "image": "https://keepandroidopen.org/img/lockdowns/android_lockdown_banner0.png",
         "localisations": {
             "en": {
-                "title": "Join the community!",
-                "subtitle": "Join the Cobalt's community in Discord.",
-                "button": "Join"
+                "title": "Blocking the free installation of apps!",
+                "subtitle": "Your phone is about to stop being yours.",
+                "button": "Read"
             },
             "de": {
-                "title": "Tritt der Community bei!",
-                "subtitle": "Tritt der Cobalt-Community auf Discord bei.",
-                "button": "Beitreten"
+                "title": "Blockierung der freien Installation von Apps!",
+                "subtitle": "Dein Telefon wird bald nicht mehr wirklich dir gehören.",
+                "button": "Lesen"
             },
             "fr": {
-                "title": "Rejoignez la communauté !",
-                "subtitle": "Rejoignez la communauté Cobalt sur Discord.",
-                "button": "Rejoindre"
+                "title": "Blocage de l'installation libre des applications !",
+                "subtitle": "Votre téléphone est sur le point de ne plus vraiment vous appartenir.",
+                "button": "Lire"
             },
             "hi": {
-                "title": "समुदाय से जुड़ें!",
-                "subtitle": "Discord पर Cobalt समुदाय से जुड़ें।",
-                "button": "जुड़ें"
+                "title": "ऐप्स की स्वतंत्र स्थापना को रोका जा रहा है!",
+                "subtitle": "आपका फ़ोन अब आपका नहीं रहने वाला है।",
+                "button": "पढ़ें"
             },
             "uk": {
-                "title": "Приєднуйтесь до спільноти!",
-                "subtitle": "Приєднуйтесь до спільноти Cobalt у Discord.",
-                "button": "Приєднатися"
+                "title": "Блокування вільного встановлення додатків!",
+                "subtitle": "Ваш телефон ось-ось перестане бути вашим.",
+                "button": "Читати"
             }
         }
     }
