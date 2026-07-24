@@ -1515,7 +1515,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                   bottom: MediaQuery.of(context).padding.bottom),
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 SvgPicture.asset(
-                  'assets/heart/Heart Meowbalt.svg',
+                  'assets/heart/Heart Lisa.svg',
                   height: 120,
                   color: Colors.white,
                 ),
