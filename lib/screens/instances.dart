@@ -526,11 +526,11 @@ class _InstancesScreenState extends State<InstancesScreen> {
             children: [
               _buildInstancesTabContent(
                 context,
-                _kwiatInstances,
+                _hyperInstances,
               ),
               _buildInstancesTabContent(
                 context,
-                _hyperInstances,
+                _kwiatInstances,
               ),
             ],
           ),
@@ -1148,8 +1148,8 @@ class _InstancesTabSwitch extends StatelessWidget {
             ),
             child: Row(
               children: [
-                _buildTabButton(context, 0, 'Kwiat'),
-                _buildTabButton(context, 1, 'Hyper'),
+                _buildTabButton(context, 0, 'Hyper'),
+                _buildTabButton(context, 1, 'Kwiat'),
               ],
             ),
           ),
