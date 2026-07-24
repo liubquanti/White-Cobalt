@@ -128,6 +128,8 @@
     "DisplayBannerOnHomeScreen": "Banner auf dem Startbildschirm anzeigen",
     "ShowChangelogs": "Änderungsprotokolle anzeigen",
     "DisplayAPIChangelogsOnHomeScreen": "API-Änderungsprotokolle auf dem Startbildschirm anzeigen",
+    "ShowShareButton": "Freigabe-Schaltfläche anzeigen",
+    "DisplayTheShareDownloadToggleButtonOnHomeScreen": "Die Umschaltfläche für Teilen/Herunterladen auf dem Startbildschirm anzeigen",
     "Storage": "Speicher",
     "StorageUsage": "Speichernutzung",
     "System": "System",

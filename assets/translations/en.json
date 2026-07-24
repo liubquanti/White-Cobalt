@@ -128,6 +128,8 @@
     "DisplayBannerOnHomeScreen": "Display banner on Home Screen",
     "ShowChangelogs": "Show Changelogs",
     "DisplayAPIChangelogsOnHomeScreen": "Display API Changelogs on Home Screen",
+    "ShowShareButton": "Show Share Button",
+    "DisplayTheShareDownloadToggleButtonOnHomeScreen": "Display the share/download toggle button on the Home Screen",
     "Storage": "Storage",
     "StorageUsage": "Storage Usage",
     "System": "System",

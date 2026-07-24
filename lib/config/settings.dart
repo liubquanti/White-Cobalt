@@ -5,6 +5,7 @@ class AppSettings {
   bool disableMetadata;
   bool shareLinks;
   bool shareCopyToClipboard;
+  bool showShareButton;
   String audioBitrate;
   String audioFormat;
   String videoQuality;
@@ -18,6 +19,7 @@ class AppSettings {
     this.disableMetadata = false,
     this.shareLinks = false,
     this.shareCopyToClipboard = false,
+    this.showShareButton = true,
     this.audioBitrate = '320',
     this.audioFormat = 'best',
     this.videoQuality = 'max',
@@ -32,6 +34,7 @@ class AppSettings {
     'disableMetadata': disableMetadata,
     'shareLinks': shareLinks,
     'shareCopyToClipboard': shareCopyToClipboard,
+    'showShareButton': showShareButton,
     'audioBitrate': audioBitrate,
     'audioFormat': audioFormat,
     'videoQuality': videoQuality,
@@ -47,6 +50,7 @@ class AppSettings {
       disableMetadata: json['disableMetadata'] ?? false,
       shareLinks: json['shareLinks'] ?? false,
       shareCopyToClipboard: json['shareCopyToClipboard'] ?? false,
+      showShareButton: json['showShareButton'] ?? true,
       audioBitrate: json['audioBitrate'] ?? '320',
       audioFormat: json['audioFormat'] ?? 'best',
       videoQuality: json['videoQuality'] ?? 'max',

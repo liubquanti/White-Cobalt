@@ -132,6 +132,8 @@ abstract class  LocaleKeys {
   static const DisplayBannerOnHomeScreen = 'DisplayBannerOnHomeScreen';
   static const ShowChangelogs = 'ShowChangelogs';
   static const DisplayAPIChangelogsOnHomeScreen = 'DisplayAPIChangelogsOnHomeScreen';
+  static const ShowShareButton = 'ShowShareButton';
+  static const DisplayTheShareDownloadToggleButtonOnHomeScreen = 'DisplayTheShareDownloadToggleButtonOnHomeScreen';
   static const Storage = 'Storage';
   static const StorageUsage = 'StorageUsage';
   static const System = 'System';

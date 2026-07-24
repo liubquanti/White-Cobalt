@@ -32,6 +32,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late bool _disableMetadata;
   late bool _shareLinks;
   late bool _shareCopyToClipboard;
+  late bool _showShareButton;
   late String _audioBitrate;
   late String _audioFormat;
   late String _videoQuality;
@@ -47,6 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _disableMetadata = widget.settings.disableMetadata;
     _shareLinks = widget.settings.shareLinks;
     _shareCopyToClipboard = widget.settings.shareCopyToClipboard;
+    _showShareButton = widget.settings.showShareButton;
     _audioBitrate = widget.settings.audioBitrate;
     _audioFormat = widget.settings.audioFormat;
     _videoQuality = widget.settings.videoQuality;
@@ -63,6 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       disableMetadata: _disableMetadata,
       shareLinks: _shareLinks,
       shareCopyToClipboard: _shareCopyToClipboard,
+      showShareButton: _showShareButton,
       audioBitrate: _audioBitrate,
       audioFormat: _audioFormat,
       videoQuality: _videoQuality,
@@ -476,6 +479,77 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onChanged: (value) {
                         setState(() {
                           _showChangelogs = value;
+                        });
+                        _saveSettings();
+                      },
+                      activeColor: const Color(0xFFFFFFFF),
+                      activeTrackColor: const Color(0xFF8a8a8a),
+                      inactiveThumbColor: const Color(0xFFFFFFFF),
+                      inactiveTrackColor: const Color(0xFF383838),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF191919),
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.08),
+                    width: 1.5,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: SvgPicture.string(
+                              '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M8.7 10.7l6.6 -3.4" /><path d="M8.7 13.3l6.6 3.4" /></svg>',
+                              colorFilter: ColorFilter.mode(
+                                _showShareButton ? Colors.white : Colors.white38,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  LocaleKeys.ShowShareButton.tr(),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: _showShareButton ? Colors.white : Colors.white54,
+                                  ),
+                                ),
+                                Text(
+                                  LocaleKeys.DisplayTheShareDownloadToggleButtonOnHomeScreen.tr(),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: _showShareButton ? Colors.white70 : Colors.white38,
+                                  ),
+                                  softWrap: true,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _showShareButton,
+                      onChanged: (value) {
+                        setState(() {
+                          _showShareButton = value;
                         });
                         _saveSettings();
                       },

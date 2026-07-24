@@ -1735,79 +1735,121 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                     style: const TextStyle(fontSize: 14, color: Colors.white38),
                   ),
                 const SizedBox(height: 10),
-                Padding(
-                  padding: EdgeInsets.zero,
-                  child: SizedBox(
-                    height: 44,
-                    child: ElevatedButton(
-                      onPressed: (_isLoading ||
-                              _urlFieldEmpty ||
-                              _isDownloadInProgress ||
-                              !_isRealServerSelected())
-                          ? null
-                          : _processUrl,
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size(0, 44),
-                        backgroundColor: const Color(0xFF191919),
-                        foregroundColor:
-                            (_urlFieldEmpty || _isDownloadInProgress || !_isRealServerSelected())
-                                ? Colors.white38
-                                : const Color(0xFFe1e1e1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(11),
-                          side: BorderSide(
-                            color: (_urlFieldEmpty ||
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 44,
+                        child: ElevatedButton(
+                          onPressed: (_isLoading ||
+                                  _urlFieldEmpty ||
+                                  _isDownloadInProgress ||
+                                  !_isRealServerSelected())
+                              ? null
+                              : _processUrl,
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size(0, 44),
+                            backgroundColor: const Color(0xFF191919),
+                            foregroundColor: (_urlFieldEmpty ||
                                     _isDownloadInProgress ||
                                     !_isRealServerSelected())
-                                ? const Color.fromRGBO(255, 255, 255, 0.05)
-                                : const Color.fromRGBO(255, 255, 255, 0.08),
-                            width: 1.5,
+                                ? Colors.white38
+                                : const Color(0xFFe1e1e1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(11),
+                              side: BorderSide(
+                                color: (_urlFieldEmpty ||
+                                        _isDownloadInProgress ||
+                                        !_isRealServerSelected())
+                                    ? const Color.fromRGBO(255, 255, 255, 0.05)
+                                    : const Color.fromRGBO(255, 255, 255, 0.08),
+                                width: 1.5,
+                              ),
+                            ),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            elevation: 0,
                           ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 80,
+                                  height: 20,
+                                  child: CardLoading(
+                                    height: 16,
+                                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                                    width: 80,
+                                    cardLoadingTheme: CardLoadingTheme(
+                                      colorOne: Color(0xFF383838),
+                                      colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                                    ),
+                                  ),
+                                )
+                              : _isDownloadInProgress
+                                  ? Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          _status,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: _status.contains(LocaleKeys.Complete.tr())
+                                                ? Colors.green
+                                                : Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Text(
+                                      _showCopiedOnButton
+                                          ? LocaleKeys.Copied.tr()
+                                          : (_appSettings.shareLinks
+                                              ? LocaleKeys.Share.tr()
+                                              : LocaleKeys.Download.tr()),
+                                      style: const TextStyle(
+                                          fontSize: 14, fontWeight: FontWeight.bold)),
                         ),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        elevation: 0,
                       ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 80,
-                              height: 20,
-                              child: CardLoading(
-                                height: 16,
-                                borderRadius: BorderRadius.all(Radius.circular(15)),
-                                width: 80,
-                                cardLoadingTheme: CardLoadingTheme(
-                                  colorOne: Color(0xFF383838),
-                                  colorTwo: Color.fromRGBO(255, 255, 255, 0.05),
+                    ),
+                    if (_appSettings.showShareButton) ...[
+                      const SizedBox(width: 10),
+                      Tooltip(
+                        message: LocaleKeys.ShareLinks.tr(),
+                        child: Material(
+                          color: const Color(0xFF191919),
+                          borderRadius: BorderRadius.circular(11),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(11),
+                            onTap: _toggleShareLinks,
+                            child: Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(11),
+                                border: Border.all(
+                                  color: const Color.fromRGBO(255, 255, 255, 0.08),
+                                  width: 1.5,
                                 ),
                               ),
-                            )
-                          : _isDownloadInProgress
-                              ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      _status,
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: _status.contains(LocaleKeys.Complete.tr())
-                                            ? Colors.green
-                                            : Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Text(
-                                  _showCopiedOnButton
-                                      ? LocaleKeys.Copied.tr()
-                                      : (_appSettings.shareLinks
-                                          ? LocaleKeys.Share.tr()
-                                          : LocaleKeys.Download.tr()),
-                                  style:
-                                      const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                    ),
-                  ),
+                              child: Center(
+                                child: SvgPicture.string(
+                                  _appSettings.shareLinks
+                                      ? '<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-share"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M8.7 10.7l6.6 -3.4" /><path d="M8.7 13.3l6.6 3.4" /></svg>'
+                                      : '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>',
+                                  width: 22,
+                                  height: 22,
+                                  colorFilter: const ColorFilter.mode(
+                                    Colors.white,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 10),
                 Container(
@@ -2715,5 +2757,12 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
   void _saveDownloadModeSetting() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('app_settings', jsonEncode(_appSettings.toJson()));
+  }
+
+  void _toggleShareLinks() {
+    setState(() {
+      _appSettings.shareLinks = !_appSettings.shareLinks;
+    });
+    _saveDownloadModeSetting();
   }
 }
