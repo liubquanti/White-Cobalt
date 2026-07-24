@@ -272,16 +272,16 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           _urlFieldEmpty = false;
         });
 
-        if (_isRealServerSelected()) {
-          // Let the text field render the new shared URL before starting processing.
-          await Future.delayed(const Duration(milliseconds: 120));
-          if (!mounted) return;
-          await _processUrl(sharedUrl: sharedUrl);
-        } else {
+        if (!_isRealServerSelected()) {
           if (!mounted) return;
           setState(() {
             _status = LocaleKeys.URLReceivedFromShareButPleaseSelectAServerFirst.tr();
           });
+        } else if (_appSettings.autoDownloadFromShare) {
+          // Let the text field render the new shared URL before starting processing.
+          await Future.delayed(const Duration(milliseconds: 120));
+          if (!mounted) return;
+          await _processUrl(sharedUrl: sharedUrl);
         }
       }
     } on PlatformException catch (e) {

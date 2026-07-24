@@ -3,6 +3,7 @@ class AppSettings {
   String downloadDir;
   String downloadMode;
   bool disableMetadata;
+  bool autoDownloadFromShare;
   bool shareLinks;
   bool shareCopyToClipboard;
   bool showShareButton;
@@ -17,6 +18,7 @@ class AppSettings {
     this.downloadDir = '/storage/emulated/0/Download/Cobalt',
     this.downloadMode = 'auto',
     this.disableMetadata = false,
+    this.autoDownloadFromShare = true,
     this.shareLinks = false,
     this.shareCopyToClipboard = false,
     this.showShareButton = true,
@@ -32,6 +34,7 @@ class AppSettings {
     'downloadDir': downloadDir,
     'downloadMode': downloadMode,
     'disableMetadata': disableMetadata,
+    'autoDownloadFromShare': autoDownloadFromShare,
     'shareLinks': shareLinks,
     'shareCopyToClipboard': shareCopyToClipboard,
     'showShareButton': showShareButton,
@@ -48,6 +51,7 @@ class AppSettings {
       downloadDir: json['downloadDir'] ?? '/storage/emulated/0/Download/Cobalt',
       downloadMode: json['downloadMode'] ?? 'auto',
       disableMetadata: json['disableMetadata'] ?? false,
+      autoDownloadFromShare: json['autoDownloadFromShare'] ?? true,
       shareLinks: json['shareLinks'] ?? false,
       shareCopyToClipboard: json['shareCopyToClipboard'] ?? false,
       showShareButton: json['showShareButton'] ?? true,

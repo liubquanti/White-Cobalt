@@ -30,6 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late String _downloadDir;
   late String _downloadMode;
   late bool _disableMetadata;
+  late bool _autoDownloadFromShare;
   late bool _shareLinks;
   late bool _shareCopyToClipboard;
   late bool _showShareButton;
@@ -46,6 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _downloadDir = widget.settings.downloadDir;
     _downloadMode = widget.settings.downloadMode;
     _disableMetadata = widget.settings.disableMetadata;
+    _autoDownloadFromShare = widget.settings.autoDownloadFromShare;
     _shareLinks = widget.settings.shareLinks;
     _shareCopyToClipboard = widget.settings.shareCopyToClipboard;
     _showShareButton = widget.settings.showShareButton;
@@ -63,6 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       downloadDir: _downloadDir,
       downloadMode: _downloadMode,
       disableMetadata: _disableMetadata,
+      autoDownloadFromShare: _autoDownloadFromShare,
       shareLinks: _shareLinks,
       shareCopyToClipboard: _shareCopyToClipboard,
       showShareButton: _showShareButton,
@@ -241,6 +244,79 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onChanged: (value) {
                         setState(() {
                           _shareLinks = value;
+                        });
+                        _saveSettings();
+                      },
+                      activeColor: const Color(0xFFFFFFFF),
+                      activeTrackColor: const Color(0xFF8a8a8a),
+                      inactiveThumbColor: const Color(0xFFFFFFFF),
+                      inactiveTrackColor: const Color(0xFF383838),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF191919),
+                  borderRadius: BorderRadius.circular(11),
+                  border: Border.all(
+                    color: const Color.fromRGBO(255, 255, 255, 0.08),
+                    width: 1.5,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: SvgPicture.string(
+                              '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tabler-icon tabler-icon-link "><path d="M9 15l6 -6"></path><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464"></path><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l .524 -.463"></path></svg>',
+                              colorFilter: ColorFilter.mode(
+                                _autoDownloadFromShare ? Colors.white : Colors.white38,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  LocaleKeys.AutoDownloadFromShare.tr(),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: _autoDownloadFromShare ? Colors.white : Colors.white54,
+                                  ),
+                                ),
+                                Text(
+                                  LocaleKeys.AutomaticallyStartDownloadingWhenALinkIsSharedToTheApp
+                                      .tr(),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color:
+                                        _autoDownloadFromShare ? Colors.white70 : Colors.white38,
+                                  ),
+                                  softWrap: true,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _autoDownloadFromShare,
+                      onChanged: (value) {
+                        setState(() {
+                          _autoDownloadFromShare = value;
                         });
                         _saveSettings();
                       },
