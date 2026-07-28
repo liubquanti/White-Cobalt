@@ -14,8 +14,8 @@ class LanguageScreen extends StatefulWidget {
 class _LanguageScreenState extends State<LanguageScreen> {
   @override
   Widget build(BuildContext context) {
-    final deviceLocale = _deviceLocale(context);
-    final otherLocales = _alphabeticallySortedLocales(context, exclude: deviceLocale);
+    final deviceLocales = _deviceLocales(context);
+    final otherLocales = _alphabeticallySortedLocales(context, exclude: deviceLocales);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -42,8 +42,8 @@ class _LanguageScreenState extends State<LanguageScreen> {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              if (deviceLocale != null) ...[
-                _buildLanguageCard(context, deviceLocale),
+              if (deviceLocales.isNotEmpty) ...[
+                ...deviceLocales.map((locale) => _buildLanguageCard(context, locale)),
                 const Divider(
                   color: Color(0xFF383838),
                   thickness: 1.0,
@@ -60,19 +60,37 @@ class _LanguageScreenState extends State<LanguageScreen> {
     );
   }
 
-  Locale? _deviceLocale(BuildContext context) {
-    final deviceLanguageCode = context.deviceLocale.languageCode;
-    final locales = context.supportedLocales;
+  /// Supported locales matching the system's language preferences, in the
+  /// same priority order the OS reports them (most preferred first).
+  List<Locale> _deviceLocales(BuildContext context) {
+    final systemLocales = WidgetsBinding.instance.platformDispatcher.locales;
+    final supportedLocales = context.supportedLocales;
 
-    final index = locales.indexWhere((locale) => locale.languageCode == deviceLanguageCode);
-    return index >= 0 ? locales[index] : null;
+    final matched = <Locale>[];
+    for (final systemLocale in systemLocales) {
+      for (final locale in supportedLocales) {
+        if (matched.contains(locale)) continue;
+        if (_matchesSystemLocale(locale, systemLocale)) {
+          matched.add(locale);
+          break;
+        }
+      }
+    }
+
+    return matched;
   }
 
-  List<Locale> _alphabeticallySortedLocales(BuildContext context, {Locale? exclude}) {
-    final locales = List<Locale>.from(context.supportedLocales);
-    if (exclude != null) {
-      locales.removeWhere((locale) => locale.languageCode == exclude.languageCode);
+  bool _matchesSystemLocale(Locale supported, Locale system) {
+    if (supported.languageCode != system.languageCode) return false;
+    if (supported.scriptCode != null && system.scriptCode != null) {
+      return supported.scriptCode == system.scriptCode;
     }
+    return true;
+  }
+
+  List<Locale> _alphabeticallySortedLocales(BuildContext context, {List<Locale> exclude = const []}) {
+    final locales = List<Locale>.from(context.supportedLocales)
+      ..removeWhere((locale) => exclude.contains(locale));
 
     locales.sort(
       (a, b) => _localeName(a).toLowerCase().compareTo(_localeName(b).toLowerCase()),
