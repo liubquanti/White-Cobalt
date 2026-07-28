@@ -14,7 +14,8 @@ class LanguageScreen extends StatefulWidget {
 class _LanguageScreenState extends State<LanguageScreen> {
   @override
   Widget build(BuildContext context) {
-    final locales = _sortedLocales(context);
+    final deviceLocale = _deviceLocale(context);
+    final otherLocales = _alphabeticallySortedLocales(context, exclude: deviceLocale);
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -41,7 +42,16 @@ class _LanguageScreenState extends State<LanguageScreen> {
           child: Column(
             children: [
               const SizedBox(height: 10),
-              ...locales.map((locale) => _buildLanguageCard(context, locale)),
+              if (deviceLocale != null) ...[
+                _buildLanguageCard(context, deviceLocale),
+                const Divider(
+                  color: Color(0xFF383838),
+                  thickness: 1.0,
+                  height: 1,
+                ),
+                const SizedBox(height: 10),
+              ],
+              ...otherLocales.map((locale) => _buildLanguageCard(context, locale)),
               const SizedBox(height: 16),
             ],
           ),
@@ -50,15 +60,23 @@ class _LanguageScreenState extends State<LanguageScreen> {
     );
   }
 
-  List<Locale> _sortedLocales(BuildContext context) {
-    final locales = List<Locale>.from(context.supportedLocales);
+  Locale? _deviceLocale(BuildContext context) {
     final deviceLanguageCode = context.deviceLocale.languageCode;
+    final locales = context.supportedLocales;
 
-    final deviceIndex = locales.indexWhere((locale) => locale.languageCode == deviceLanguageCode);
-    if (deviceIndex > 0) {
-      final deviceLocale = locales.removeAt(deviceIndex);
-      locales.insert(0, deviceLocale);
+    final index = locales.indexWhere((locale) => locale.languageCode == deviceLanguageCode);
+    return index >= 0 ? locales[index] : null;
+  }
+
+  List<Locale> _alphabeticallySortedLocales(BuildContext context, {Locale? exclude}) {
+    final locales = List<Locale>.from(context.supportedLocales);
+    if (exclude != null) {
+      locales.removeWhere((locale) => locale.languageCode == exclude.languageCode);
     }
+
+    locales.sort(
+      (a, b) => _localeName(a).toLowerCase().compareTo(_localeName(b).toLowerCase()),
+    );
 
     return locales;
   }
@@ -138,6 +156,25 @@ class _LanguageScreenState extends State<LanguageScreen> {
     'de': '🇩🇪',
     'fr': '🇫🇷',
     'hi': '🇮🇳',
+    'zh': '🇨🇳',
+    'es': '🇪🇸',
+    'pt': '🇵🇹',
+    'ru': '🇷🇺',
+    'ja': '🇯🇵',
+    'it': '🇮🇹',
+    'nl': '🇳🇱',
+    'pl': '🇵🇱',
+    'cs': '🇨🇿',
+    'sl': '🇸🇮',
+    'hu': '🇭🇺',
+    'ro': '🇷🇴',
+    'bg': '🇧🇬',
+    'el': '🇬🇷',
+    'tr': '🇹🇷',
+    'ar': '🇸🇦',
+    'th': '🇹🇭',
+    'sv': '🇸🇪',
+    'ko': '🇰🇷',
   };
 
   String _localeFlag(Locale locale) {
