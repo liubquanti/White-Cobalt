@@ -144,9 +144,10 @@ class _LanguageScreenState extends State<LanguageScreen> {
   }
 
   String _localeName(Locale locale) {
-    final name =
-        LocaleNamesLocalizationsDelegate.nativeLocaleNames[locale.toLanguageTag()] ??
-            locale.toLanguageTag();
+    final tag = locale.toLanguageTag();
+    final name = _nameOverridesByLanguageTag[tag] ??
+        LocaleNamesLocalizationsDelegate.nativeLocaleNames[tag] ??
+        tag;
     return name[0].toUpperCase() + name.substring(1);
   }
 
@@ -175,9 +176,58 @@ class _LanguageScreenState extends State<LanguageScreen> {
     'th': '🇹🇭',
     'sv': '🇸🇪',
     'ko': '🇰🇷',
+    'af': '🇿🇦',
+    'az': '🇦🇿',
+    'id': '🇮🇩',
+    'ms': '🇲🇾',
+    'bs': '🇧🇦',
+    'ca': '🇦🇩',
+    'da': '🇩🇰',
+    'et': '🇪🇪',
+    'fil': '🇵🇭',
+    'hr': '🇭🇷',
+    'zu': '🇿🇦',
+    'is': '🇮🇸',
+    'sw': '🇰🇪',
+    'lv': '🇱🇻',
+    'lt': '🇱🇹',
+    'no': '🇳🇴',
+    'uz': '🇺🇿',
+    'sq': '🇦🇱',
+    'sk': '🇸🇰',
+    'fi': '🇫🇮',
+    'vi': '🇻🇳',
+    'ky': '🇰🇬',
+    'kk': '🇰🇿',
+    'mk': '🇲🇰',
+    'mn': '🇲🇳',
+    'sr': '🇷🇸',
+    'ka': '🇬🇪',
+    'hy': '🇦🇲',
+    'he': '🇮🇱',
+    'ur': '🇵🇰',
+    'fa': '🇮🇷',
+    'am': '🇪🇹',
+    'ne': '🇳🇵',
+    'bn': '🇧🇩',
+    'si': '🇱🇰',
+    'lo': '🇱🇦',
+    'my': '🇲🇲',
+    'km': '🇰🇭',
+  };
+
+  static const _flagOverridesByLanguageTag = {
+    'zh-Hant': '🇹🇼',
+  };
+
+  static const _nameOverridesByLanguageTag = {
+    'fil': 'Filipino',
+    'zh-Hant': '繁體中文',
   };
 
   String _localeFlag(Locale locale) {
-    return _flagsByLanguageCode[locale.languageCode] ?? '🏳️';
+    return _flagOverridesByLanguageTag[locale.toLanguageTag()] ??
+        _flagsByLanguageCode[locale.languageCode] ??
+        '🏳️';
   }
 }
