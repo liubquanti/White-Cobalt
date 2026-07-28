@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_localized_locales/flutter_localized_locales.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -13,6 +12,7 @@ import 'storage.dart';
 import 'advanced.dart';
 import 'about.dart';
 import 'status.dart';
+import 'language.dart';
 
 class SettingsScreen extends StatefulWidget {
   final AppSettings settings;
@@ -796,7 +796,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     borderRadius: BorderRadius.circular(9.5),
                     splashColor: Colors.white.withOpacity(0.1),
                     highlightColor: Colors.white.withOpacity(0.05),
-                    onTap: _changeAppLanguage,
+                    onTap: () async {
+                      await Future.delayed(const Duration(milliseconds: 250));
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LanguageScreen(),
+                          ),
+                        );
+                      }
+                    },
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Row(
@@ -903,56 +913,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Future _changeAppLanguage() async {
-    final locales = context.supportedLocales;
-
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.black,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(11),
-          side: const BorderSide(
-            color: Color.fromRGBO(255, 255, 255, 0.08),
-            width: 2.0,
-          ),
-        ),
-        insetPadding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Padding(
-          padding: const EdgeInsetsGeometry.all(16),
-          child: ListView.separated(
-            shrinkWrap: true,
-            itemCount: locales.length,
-            itemBuilder: (context, index) => InkWell(
-              borderRadius: BorderRadius.circular(11),
-              onTap: () {
-              context.setLocale(locales[index]);
-              Navigator.pop(context);
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      (LocaleNamesLocalizationsDelegate.nativeLocaleNames[locales[index].toLanguageTag()] ??
-                      locales[index].toLanguageTag())[0].toUpperCase() +
-                      (LocaleNamesLocalizationsDelegate.nativeLocaleNames[locales[index].toLanguageTag()] ??
-                      locales[index].toLanguageTag()).substring(1),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            separatorBuilder: (context, index) => const Divider(
-              color: Color(0xFF383838),
-              thickness: 1.0,
-              height: 1,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
