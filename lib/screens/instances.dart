@@ -44,14 +44,24 @@ class _InstancesScreenState extends State<InstancesScreen> {
       _error = '';
     });
 
-    try {
-      final officialFuture = OfficialServersService.fetchOfficialServers();
-      final instancesFuture = InstancesService.fetchInstances();
+    final officialFuture = OfficialServersService.fetchOfficialServers();
+    final instancesFuture = InstancesService.fetchInstances();
 
-      final officialServers = await officialFuture;
+    List<OfficialServer> officialServers = [];
+    Object? officialError;
+    try {
+      officialServers = await officialFuture;
+    } catch (e) {
+      officialError = e;
+    }
+
+    List<CobaltInstance> kwiatInstances = [];
+    List<CobaltInstance> hyperInstances = [];
+    Object? instancesError;
+    try {
       final instancesResponse = await instancesFuture;
 
-      final kwiatInstances = List<CobaltInstance>.from(instancesResponse.kwiat)
+      kwiatInstances = List<CobaltInstance>.from(instancesResponse.kwiat)
         ..sort((a, b) {
           if (a.isOnline != b.isOnline) {
             return a.isOnline ? -1 : 1;
@@ -59,26 +69,31 @@ class _InstancesScreenState extends State<InstancesScreen> {
           return b.score.compareTo(a.score);
         });
 
-      final hyperInstances = List<CobaltInstance>.from(instancesResponse.hyper)
+      hyperInstances = List<CobaltInstance>.from(instancesResponse.hyper)
         ..sort((a, b) {
           if (a.isOnline != b.isOnline) {
             return a.isOnline ? -1 : 1;
           }
           return b.score.compareTo(a.score);
         });
-
-      setState(() {
-        _officialServers = officialServers;
-        _kwiatInstances = kwiatInstances;
-        _hyperInstances = hyperInstances;
-        _isLoading = false;
-      });
     } catch (e) {
-      setState(() {
-        _error = LocaleKeys.FailedToLoadData.tr(args: [e.toString()]);
-        _isLoading = false;
-      });
+      instancesError = e;
     }
+
+    final hasAnyData =
+        officialServers.isNotEmpty || kwiatInstances.isNotEmpty || hyperInstances.isNotEmpty;
+
+    setState(() {
+      _officialServers = officialServers;
+      _kwiatInstances = kwiatInstances;
+      _hyperInstances = hyperInstances;
+      _isLoading = false;
+      _error = hasAnyData
+          ? ''
+          : LocaleKeys.FailedToLoadData.tr(
+              args: [(officialError ?? instancesError).toString()],
+            );
+    });
   }
 
   Future<void> _addOfficialServerWithConfirmation(OfficialServer server) async {
