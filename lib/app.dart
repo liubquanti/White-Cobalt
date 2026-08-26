@@ -23,11 +23,11 @@ class CobaltApp extends StatelessWidget {
         fontFamily: 'NotoSansMono',
         appBarTheme: const AppBarTheme(
           systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
             statusBarIconBrightness: Brightness.light,
-            systemNavigationBarColor: Colors.black,
             systemNavigationBarIconBrightness: Brightness.light,
           ),
+          scrolledUnderElevation: 0,
+          surfaceTintColor: Colors.transparent,
         ),
       ),
       home: const CobaltHomePage(),

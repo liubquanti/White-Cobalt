@@ -16,10 +16,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.black,
     systemNavigationBarIconBrightness: Brightness.light,
-    statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.light,
   ));
 
