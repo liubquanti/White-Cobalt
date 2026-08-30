@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Cleartext (HTTP) traffic is only permitted to the device's own loopback
+  interface, which some users use to run a self-hosted cobalt instance
+  reachable via port-forwarding (e.g. `adb reverse`) without TLS. Android's
+  Network Security Config cannot express private-LAN IP ranges (only exact
+  hosts/IPs), so a genuine LAN-hosted HTTP server is intentionally NOT
+  covered here - those users must run their instance behind HTTPS, or add
+  their server's exact host to this file. All other traffic - including the
+  bundled public instance list and any public custom server - requires
+  HTTPS, so a network attacker cannot tamper with instance lists or
+  download responses.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

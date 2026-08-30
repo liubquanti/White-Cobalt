@@ -1,8 +1,10 @@
 import 'package:flutter/services.dart';
 
+import '../utils/logger.dart';
+
 class DeviceStorageInfo {
   static const platform = MethodChannel('com.whitecobalt.storage/info');
-  
+
   static Future<Map<String, dynamic>> getStorageStats() async {
     try {
       final result = await platform.invokeMethod('getStorageStats');
@@ -12,7 +14,7 @@ class DeviceStorageInfo {
         'used': result['used'] as int,
       };
     } on PlatformException catch (e) {
-      print('Failed to get storage stats: ${e.message}');
+      logDebug('Failed to get storage stats: ${e.message}');
       return {
         'total': 0,
         'free': 0,

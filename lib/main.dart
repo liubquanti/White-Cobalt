@@ -6,10 +6,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:white_cobalt/generated/codegen_loader.g.dart';
 
 import 'app.dart';
+import 'utils/logger.dart';
 
 @pragma('vm:entry-point')
 void downloadCallback(String id, int status, int progress) {
-  print('Download task ($id) is in status ($status) and progress ($progress)');
+  logDebug('Download task ($id) is in status ($status) and progress ($progress)');
 }
 
 void main() async {

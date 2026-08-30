@@ -9,6 +9,7 @@ import 'package:filesize/filesize.dart';
 import 'package:white_cobalt/generated/codegen_loader_keys.g.dart';
 
 import '../services/storage.dart';
+import '../utils/logger.dart';
 
 class StorageUsageScreen extends StatefulWidget {
   final String baseDir;
@@ -85,7 +86,7 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
 
       _loadDeviceStorageInfo();
     } catch (e) {
-      print('Error loading storage data: $e');
+      logDebug('Error loading storage data: $e');
       setState(() {
         _isLoading = false;
         _storageData = [];
@@ -113,11 +114,11 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
         _isDeviceStorageLoading = false;
       });
 
-      print('Device storage: ${filesize(stats['total'])} total, ${filesize(stats['free'])} free');
-      print(
+      logDebug('Device storage: ${filesize(stats['total'])} total, ${filesize(stats['free'])} free');
+      logDebug(
           'Cobalt is using: ${filesize(_totalSize)} (${_deviceStorage['cobaltPercentage'].toStringAsFixed(2)}%)');
     } catch (e) {
-      print('Error loading device storage info: $e');
+      logDebug('Error loading device storage info: $e');
       setState(() {
         _isDeviceStorageLoading = false;
       });
@@ -134,7 +135,7 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
         }
       }
     } catch (e) {
-      print('Error calculating size for ${dir.path}: $e');
+      logDebug('Error calculating size for ${dir.path}: $e');
     }
     return size;
   }
@@ -616,7 +617,7 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
         if (await directory.exists()) {
           await directory.delete(recursive: true);
           hasDeleted = true;
-          print('Deleted $serviceName from $baseDir/Cobalt');
+          logDebug('Deleted $serviceName from $baseDir/Cobalt');
         }
       }
 
@@ -642,7 +643,7 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
         }
       }
     } catch (e) {
-      print('Error deleting directory: $e');
+      logDebug('Error deleting directory: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

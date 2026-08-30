@@ -5,11 +5,12 @@ import 'package:focus_detector/focus_detector.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
+import '../utils/logger.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:media_scanner/media_scanner.dart';
@@ -292,6 +293,27 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     }
   }
 
+  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
+  static String _apiKeyStorageKey(String serverUrl) => 'api_key::$serverUrl';
+
+  /// Reads each server's API key from secure storage, migrating in any
+  /// plaintext key still embedded from a pre-migration SharedPreferences
+  /// save (see ServerConfig.fromJson).
+  Future<List<ServerConfig>> _hydrateApiKeysFromSecureStorage(List<ServerConfig> servers) async {
+    final hydrated = <ServerConfig>[];
+    for (final server in servers) {
+      final apiKey = server.apiKey ?? await _secureStorage.read(key: _apiKeyStorageKey(server.url));
+      hydrated.add(ServerConfig(
+        server.url,
+        apiKey,
+        name: server.name,
+        isOfficial: server.isOfficial,
+      ));
+    }
+    return hydrated;
+  }
+
   Future<void> _loadSavedServers() async {
     final prefs = await SharedPreferences.getInstance();
     final serversJson = prefs.getStringList('servers_config');
@@ -299,8 +321,10 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     final isFirstLaunch = !prefs.containsKey('app_initialized');
 
     if (serversJson != null && serversJson.isNotEmpty) {
+      final loadedServers = serversJson.map((s) => ServerConfig.fromJson(jsonDecode(s))).toList();
+      final hydratedServers = await _hydrateApiKeysFromSecureStorage(loadedServers);
       setState(() {
-        _servers = serversJson.map((s) => ServerConfig.fromJson(jsonDecode(s))).toList();
+        _servers = hydratedServers;
         baseUrl = selectedServerIndex != null && selectedServerIndex != -1
             ? _servers[selectedServerIndex].url
             : _servers.first.url;
@@ -308,6 +332,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             ? _servers[selectedServerIndex].apiKey
             : _servers.first.apiKey;
       });
+      // Persist once so any plaintext key migrated above is moved into
+      // secure storage and dropped from the SharedPreferences copy.
+      await _saveServers();
       await _hydrateOfficialServerMetadata();
       _fetchServerInfo();
       // Mark as initialized after loading saved servers
@@ -383,6 +410,26 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     final prefs = await SharedPreferences.getInstance();
     final serversJson = _servers.map((server) => jsonEncode(server.toJson())).toList();
     await prefs.setStringList('servers_config', serversJson);
+
+    for (final server in _servers) {
+      final key = _apiKeyStorageKey(server.url);
+      if (server.apiKey != null && server.apiKey!.isNotEmpty) {
+        await _secureStorage.write(key: key, value: server.apiKey);
+      } else {
+        await _secureStorage.delete(key: key);
+      }
+    }
+
+    // Drop secure-storage entries for servers that are no longer saved.
+    final currentUrls = _servers.map((server) => server.url).toSet();
+    final storedKeys = await _secureStorage.readAll();
+    for (final key in storedKeys.keys) {
+      if (!key.startsWith('api_key::')) continue;
+      final url = key.substring('api_key::'.length);
+      if (!currentUrls.contains(url)) {
+        await _secureStorage.delete(key: key);
+      }
+    }
   }
 
   Future<void> _loadChangelogs() async {
@@ -409,7 +456,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         await _loadNextChangelogs();
       }
     } catch (e) {
-      print('Error loading changelogs: $e');
+      logDebug('Error loading changelogs: $e');
     }
   }
 
@@ -448,7 +495,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         _isInitialLoadingChangelogs = false;
       });
     } catch (e) {
-      print('Error loading more changelogs: $e');
+      logDebug('Error loading more changelogs: $e');
       setState(() {
         _isLoadingMoreChangelogs = false;
         _isInitialLoadingChangelogs = false;
@@ -521,7 +568,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         );
       }
     } catch (e) {
-      print('Error parsing changelog $filename: $e');
+      logDebug('Error parsing changelog $filename: $e');
     }
     return null;
   }
@@ -543,13 +590,13 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     });
 
     try {
-      print('Fetching server info from: $baseUrl');
+      logDebug('Fetching server info from: $baseUrl');
       final response = await http.get(Uri.parse(baseUrl!));
-      print('Server info response: ${response.statusCode} - ${response.body}');
+      logDebug('Server info response: ${response.statusCode} - ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('Parsed server info: $data');
+        logDebug('Parsed server info: $data');
 
         if (data.containsKey('cobalt') &&
             data['cobalt'].containsKey('version') &&
@@ -559,26 +606,26 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             _status = LocaleKeys.ConnectedToCobalt.tr(args: [data['cobalt']['version']]);
             _isLoading = false;
           });
-          print('Successfully connected to Cobalt v${data['cobalt']['version']}');
+          logDebug('Successfully connected to Cobalt v${data['cobalt']['version']}');
         } else {
-          print('Not a valid Cobalt server response: $data');
+          logDebug('Not a valid Cobalt server response: $data');
           setState(() {
             _status = LocaleKeys.ErrorNotAValidCobaltServer.tr();
             _isLoading = false;
-            if (_servers.length > 1 && baseUrl != _servers.first) {
+            if (_servers.length > 1 && baseUrl != _servers.first.url) {
               baseUrl = _servers.first.url;
             }
           });
         }
       } else {
-        print('Server error: ${response.statusCode} - ${response.body}');
+        logDebug('Server error: ${response.statusCode} - ${response.body}');
         setState(() {
           _status = LocaleKeys.ServerErrorWithArg.tr(args: [response.statusCode.toString()]);
           _isLoading = false;
         });
       }
     } catch (e) {
-      print('Exception while fetching server info: $e');
+      logDebug('Exception while fetching server info: $e');
       setState(() {
         _status = LocaleKeys.ConnectionError.tr(args: [e.toString()]);
         _isLoading = false;
@@ -818,7 +865,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     try {
       Uri.parse(url);
 
-      print('Sending request to: $baseUrl');
+      logDebug('Sending request to: $baseUrl');
       final requestPayload = {
         'url': url,
         'videoQuality': _appSettings.videoQuality,
@@ -831,7 +878,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         if (_appSettings.shareLinks) 'alwaysProxy': true,
       };
 
-      print('Request payload: ${jsonEncode(requestPayload)}');
+      logDebug('Request payload: ${jsonEncode(requestPayload)}');
 
       final headers = {
         'Accept': 'application/json',
@@ -840,7 +887,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
 
       if (_currentApiKey != null && _currentApiKey!.isNotEmpty) {
         headers['Authorization'] = 'Api-Key $_currentApiKey';
-        print('Using API key: ${_currentApiKey!.substring(0, min(_currentApiKey!.length, 4))}...');
+        logDebug('Using API key for request');
       }
 
       final response = await http.post(
@@ -849,8 +896,8 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         body: jsonEncode(requestPayload),
       );
 
-      print('Server response status code: ${response.statusCode}');
-      print('Server response body: ${response.body}');
+      logDebug('Server response status code: ${response.statusCode}');
+      logDebug('Server response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -860,7 +907,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           _status = LocaleKeys.ResponseReceivedWithArg.tr(args: [data['status']]);
         });
 
-        print('Parsed response data: $data');
+        logDebug('Parsed response data: $data');
 
         if (data['status'] == 'local-processing') {
           if (data.containsKey('tunnel') && data['tunnel'] is List && data['tunnel'].isNotEmpty) {
@@ -871,8 +918,8 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             final String tunnelUrl = data['tunnel'][0];
             final String filename = data['output']['filename'];
 
-            print('Local processing tunnel URL: $tunnelUrl');
-            print('Local processing filename: $filename');
+            logDebug('Local processing tunnel URL: $tunnelUrl');
+            logDebug('Local processing filename: $filename');
 
             if (_appSettings.shareLinks) {
               String shareText = tunnelUrl;
@@ -909,8 +956,8 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           }
         } else if (data['status'] == 'redirect' || data['status'] == 'tunnel') {
           final String downloadUrl = _fixServerUrl(data['url']);
-          print('Download URL: $downloadUrl');
-          print('Filename: ${data['filename']}');
+          logDebug('Download URL: $downloadUrl');
+          logDebug('Filename: ${data['filename']}');
 
           if (_appSettings.shareLinks) {
             String shareText = downloadUrl;
@@ -940,12 +987,12 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
             await _downloadFile(downloadUrl, data['filename']);
           }
         } else if (data['status'] == 'picker') {
-          print('Picker options: ${data['picker'].length}');
+          logDebug('Picker options: ${data['picker'].length}');
           setState(() {
             _isDownloadInProgress = false;
           });
         } else if (data['status'] == 'error') {
-          print('Error from server: ${data['error']}');
+          logDebug('Error from server: ${data['error']}');
 
           if (data['error']['code'] == 'error.api.auth.key.missing') {
             setState(() {
@@ -962,7 +1009,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       } else {
         try {
           final errorData = jsonDecode(response.body);
-          print('Error response: ${response.statusCode} - ${response.body}');
+          logDebug('Error response: ${response.statusCode} - ${response.body}');
 
           setState(() {
             _responseData = errorData;
@@ -986,7 +1033,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         }
       }
     } catch (e) {
-      print('Exception during request: $e');
+      logDebug('Exception during request: $e');
       setState(() {
         _isLoading = false;
         _isDownloadInProgress = false;
@@ -1005,17 +1052,37 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     return url;
   }
 
+  /// Server responses (filenames, service names) are untrusted input and must
+  /// never be used to build filesystem paths as-is: a malicious or
+  /// compromised cobalt instance could otherwise return values like
+  /// `../../../secret` to write outside the intended download directory.
+  /// This strips path separators, traversal sequences and control
+  /// characters, keeping only a safe, flat file/directory name component.
+  String _sanitizePathComponent(String input, {String fallback = 'file'}) {
+    var sanitized = input.replaceAll(RegExp(r'[\\/]'), '_');
+    sanitized = sanitized.replaceAll(RegExp(r'\.\.+'), '_');
+    sanitized = sanitized.replaceAll(RegExp(r'[\x00-\x1f]'), '');
+    sanitized = sanitized.trim();
+    if (sanitized.isEmpty || sanitized == '.') {
+      return fallback;
+    }
+    return sanitized;
+  }
+
   String _getServiceName(Map<String, dynamic>? responseData, String filename, String url) {
     if (responseData != null) {
       if (responseData['service'] != null) {
-        return responseData['service'].toString().toLowerCase();
+        return _sanitizePathComponent(
+          responseData['service'].toString().toLowerCase(),
+          fallback: LocaleKeys.Other.tr(),
+        );
       }
     }
 
     if (filename.contains('_')) {
       final serviceFromFilename = filename.split('_').first.toLowerCase();
       if (serviceFromFilename.isNotEmpty && serviceFromFilename != 'cobalt') {
-        return serviceFromFilename;
+        return _sanitizePathComponent(serviceFromFilename, fallback: LocaleKeys.Other.tr());
       }
     }
 
@@ -1058,31 +1125,32 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     }
   }
 
-  Future<void> _downloadFile(String url, String filename) async {
+  Future<void> _downloadFile(String url, String rawFilename) async {
     try {
+      final filename = _sanitizePathComponent(rawFilename, fallback: 'cobalt_${DateTime.now().millisecondsSinceEpoch}');
       final serviceName = _getServiceName(_responseData, filename, _urlController.text.trim());
-      print('Detected service: $serviceName');
+      logDebug('Detected service: $serviceName');
 
       String baseDir = _getBaseDirByFileType(filename);
       String cobaltDir = '$baseDir/Cobalt';
       String serviceDir = '$cobaltDir/$serviceName';
 
-      print('Will try to save to: $serviceDir (based on file type)');
+      logDebug('Will try to save to: $serviceDir (based on file type)');
 
       try {
         Directory directory = Directory(cobaltDir);
         if (!await directory.exists()) {
           await directory.create(recursive: true);
-          print('Created Cobalt directory: $cobaltDir');
+          logDebug('Created Cobalt directory: $cobaltDir');
         }
 
         directory = Directory(serviceDir);
         if (!await directory.exists()) {
           await directory.create(recursive: true);
-          print('Created service directory: $serviceDir');
+          logDebug('Created service directory: $serviceDir');
         }
       } catch (e) {
-        print('Error creating directories: $e');
+        logDebug('Error creating directories: $e');
         serviceDir = baseDir;
       }
 
@@ -1093,7 +1161,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
       final tempDir = await getTemporaryDirectory();
       final tempFilePath = '${tempDir.path}/$filename';
 
-      print('Downloading to temp file: $tempFilePath');
+      logDebug('Downloading to temp file: $tempFilePath');
 
       final taskId = await FlutterDownloader.enqueue(
         url: url,
@@ -1115,18 +1183,18 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
               }
 
               await tempFile.copy(targetFile.path);
-              print('File copied from $tempFilePath to ${targetFile.path}');
+              logDebug('File copied from $tempFilePath to ${targetFile.path}');
 
               try {
-                print('Scanning file for media library: ${targetFile.path}');
+                logDebug('Scanning file for media library: ${targetFile.path}');
                 await MediaScanner.loadMedia(path: targetFile.path);
-                print('Media scan complete');
+                logDebug('Media scan complete');
               } catch (scanErr) {
-                print('Error scanning media: $scanErr');
+                logDebug('Error scanning media: $scanErr');
               }
 
               await tempFile.delete();
-              print('Temporary file deleted');
+              logDebug('Temporary file deleted');
 
               setState(() {
                 _status = LocaleKeys.DownloadComplete.tr();
@@ -1139,14 +1207,14 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
                 });
               });
             } else {
-              print('Temp file not found after download');
+              logDebug('Temp file not found after download');
               setState(() {
                 _status = LocaleKeys.DownloadFailedFileNotFound.tr();
                 _isDownloadInProgress = false;
               });
             }
           } catch (e) {
-            print('Error processing downloaded file: $e');
+            logDebug('Error processing downloaded file: $e');
             setState(() {
               _status = LocaleKeys.ErrorProcessingFile.tr(args: [e.toString()]);
               _isDownloadInProgress = false;
@@ -1226,7 +1294,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           }
         });
       } catch (e) {
-        print('Error tracking download: $e');
+        logDebug('Error tracking download: $e');
       }
     });
   }
@@ -1245,9 +1313,9 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
               : '.mp4';
       final filename = 'cobalt_${DateTime.now().millisecondsSinceEpoch}$extension';
 
-      print('Downloading picker item: $type');
-      print('Fixed URL: $fixedUrl');
-      print('Filename: $filename');
+      logDebug('Downloading picker item: $type');
+      logDebug('Fixed URL: $fixedUrl');
+      logDebug('Filename: $filename');
 
       if (_appSettings.shareLinks) {
         String shareText = fixedUrl;
@@ -1284,7 +1352,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
           await directory.create(recursive: true);
         }
       } catch (e) {
-        print('Error creating directories: $e');
+        logDebug('Error creating directories: $e');
         serviceDir = baseDir;
       }
 
@@ -1311,11 +1379,11 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
               await tempFile.copy(targetFile.path);
 
               try {
-                print('Scanning picker media file: ${targetFile.path}');
+                logDebug('Scanning picker media file: ${targetFile.path}');
                 await MediaScanner.loadMedia(path: targetFile.path);
-                print('Media scan complete for picker item');
+                logDebug('Media scan complete for picker item');
               } catch (scanErr) {
-                print('Error scanning picker media: $scanErr');
+                logDebug('Error scanning picker media: $scanErr');
               }
 
               await tempFile.delete();
@@ -1345,7 +1413,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
         }
       });
     } catch (e) {
-      print('Error downloading picker item: $e');
+      logDebug('Error downloading picker item: $e');
       setState(() {
         _status = LocaleKeys.DownloadError.tr(args: [e.toString()]);
         _isDownloadInProgress = false;
@@ -1455,7 +1523,7 @@ class _CobaltHomePageState extends State<CobaltHomePage> {
     }
 
     if (_responseData!['error'] != null) {
-      print("Error details found: ${_responseData!['error']}");
+      logDebug("Error details found: ${_responseData!['error']}");
       return _responseData!['error'];
     }
     return null;

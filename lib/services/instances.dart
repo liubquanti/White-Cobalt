@@ -4,7 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../models/instance.dart';
 
 class InstancesService {
-  static const String kwiatApiUrl = 'http://instances.cobalt.best/instances.json';
+  static const String kwiatApiUrl = 'https://instances.cobalt.best/instances.json';
   static const String hyperApiUrl = 'https://cobalt.directory/api/tests';
   static String? _userAgent;
   
