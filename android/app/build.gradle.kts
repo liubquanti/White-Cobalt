@@ -70,8 +70,12 @@ android {
         release {
             signingConfig = signingConfigs.getByName("release")
 
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
 
             when (keystoreMode) {
                 "keyProperties" -> println("🔐 Release build: using real key.properties")
