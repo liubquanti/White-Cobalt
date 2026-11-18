@@ -3,7 +3,7 @@ description: Media downloader using Cobalt API
 version: 0.9.0+31
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.5.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -16,37 +16,37 @@ dependencies:
   flutter_secure_storage: ^9.2.4
   flutter_svg: ^2.1.0
   url_launcher: ^6.1.10
-  flutter_launcher_icons: ^0.14.3
-  filesize: ^2.0.1
   fl_chart: ^1.0.0
   media_scanner: ^2.2.0
   card_loading: ^0.3.2
   package_info_plus: ^4.2.0
   flutter_markdown: ^0.7.4+1
   easy_localization: ^3.0.8
-  focus_detector: ^2.0.1
   flutter_localized_locales: ^2.0.5
-  flutter_dotenv: ^5.1.0
-  
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
-  
+
   fonts:
     - family: NotoSansMono
       fonts:
         - asset: assets/fonts/NotoSansMono.ttf
           style: normal
           weight: 400
+  # Translations are compiled into lib/generated/codegen_loader.g.dart, so
+  # assets/translations/ is intentionally NOT bundled (it was shipped twice).
+  # Regenerate after editing JSON:
+  #   dart run easy_localization:generate -S assets/translations -f keys -o codegen_loader_keys.g.dart
+  #   dart run easy_localization:generate -S assets/translations
   assets:
-    - assets/heart/heart.png
     - assets/heart/Heart Lisa.svg
     - assets/photos/
-    - assets/translations/
 
 flutter_launcher_icons:
   android: true

@@ -1,36 +1,29 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_localized_locales/flutter_localized_locales.dart';
-import 'screens/home.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_localized_locales/flutter_localized_locales.dart';
+
+import 'controllers/settings_controller.dart';
+import 'screens/home/home_screen.dart';
+import 'theme/app_theme.dart';
 
 class CobaltApp extends StatelessWidget {
-  const CobaltApp({super.key});
+  const CobaltApp({super.key, required this.settings});
+
+  final SettingsController settings;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'White Cobalt',
+      debugShowCheckedModeBanner: false,
       localizationsDelegates: [
         ...context.localizationDelegates,
         const LocaleNamesLocalizationsDelegate(),
       ],
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      title: 'White Cobalt',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        useMaterial3: true,
-        fontFamily: 'NotoSansMono',
-        appBarTheme: const AppBarTheme(
-          systemOverlayStyle: SystemUiOverlayStyle(
-            statusBarIconBrightness: Brightness.light,
-            systemNavigationBarIconBrightness: Brightness.light,
-          ),
-          scrolledUnderElevation: 0,
-          surfaceTintColor: Colors.transparent,
-        ),
-      ),
-      home: const CobaltHomePage(),
+      theme: AppTheme.dark,
+      home: HomeScreen(settings: settings),
     );
   }
 }
